@@ -9,11 +9,15 @@ import { eq } from "drizzle-orm";
 
 const router: IRouter = Router();
 
-const IMAP_HOST = "server222.web-hosting.com";
-const IMAP_PORT = 993;
-const SMTP_HOST = "server222.web-hosting.com";
-const SMTP_PORT = 465;
-const EMAIL_PASSWORD = "ASDfgh@12345678nawa";
+const IMAP_HOST = process.env.IMAP_HOST || "server222.web-hosting.com";
+const IMAP_PORT = Number(process.env.IMAP_PORT || 993);
+const SMTP_HOST = process.env.SMTP_HOST || "server222.web-hosting.com";
+const SMTP_PORT = Number(process.env.SMTP_PORT || 465);
+const EMAIL_PASSWORD = process.env.SMTP_PASSWORD || process.env.EMAIL_PASSWORD || "";
+
+if (!EMAIL_PASSWORD) {
+  logger.warn("SMTP_PASSWORD not set — email send/receive will fail until configured");
+}
 
 const NAWA_EMAIL_ACCOUNTS = [
   "ceo@nawainv.sa",

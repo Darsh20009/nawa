@@ -4,8 +4,19 @@ import { useAiChat } from "@workspace/api-client-react";
 import {
   Bot, Send, User, Sparkles, Brain, FileText, Mail,
   TrendingUp, Zap, Copy, Check, Volume2, VolumeX,
-  ChevronDown, RotateCcw, Search
+  ChevronDown, RotateCcw, Search, Newspaper, Briefcase,
+  CheckCircle2, AlertCircle, BarChart3, Inbox, ExternalLink
 } from "lucide-react";
+
+const TOOL_META: Record<string, { icon: any; labelAr: string; labelEn: string; color: string }> = {
+  publish_news:               { icon: Newspaper,    labelAr: "نشر خبر",         labelEn: "Publish News",      color: "emerald" },
+  publish_job:                { icon: Briefcase,    labelAr: "نشر وظيفة",       labelEn: "Publish Job",       color: "blue" },
+  send_email:                 { icon: Mail,         labelAr: "إرسال بريد",       labelEn: "Send Email",        color: "purple" },
+  review_pending_tasks:       { icon: Inbox,        labelAr: "مراجعة المهام",    labelEn: "Review Tasks",      color: "amber" },
+  get_dashboard_stats:        { icon: BarChart3,    labelAr: "إحصائيات",        labelEn: "Stats",             color: "indigo" },
+  draft_project_description:  { icon: FileText,     labelAr: "صياغة وصف",       labelEn: "Draft Description", color: "slate" },
+  analyze_market:             { icon: TrendingUp,   labelAr: "تحليل سوق",       labelEn: "Market Analysis",   color: "rose" },
+};
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,29 +24,37 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { isSoundEnabled, setSoundEnabled, playSuccess } from "@/lib/sounds";
 
+interface ToolCallResult {
+  toolName: string;
+  args: any;
+  ok?: boolean;
+  result?: any;
+  error?: string;
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
-  toolCalls?: { toolName: string; args: any }[];
+  toolCalls?: ToolCallResult[];
   timestamp: Date;
 }
 
 const QUICK_PROMPTS = {
   ar: [
-    { icon: FileText, label: "صياغة وصف مشروع", prompt: "اكتب وصفاً احترافياً لمشروع سكني فاخر في الرياض بمساحة 500 متر مربع" },
-    { icon: Mail, label: "رسالة بريدية", prompt: "اكتب رسالة بريد إلكتروني رسمية لعميل مهتم بالاستثمار العقاري" },
-    { icon: TrendingUp, label: "تحليل السوق", prompt: "قدم تحليلاً لسوق العقارات في الرياض خلال 2026" },
-    { icon: Sparkles, label: "محتوى SEO", prompt: "اكتب محتوى محسناً لمحركات البحث لصفحة المشاريع العقارية" },
-    { icon: Brain, label: "استراتيجية استثمار", prompt: "ما أفضل استراتيجية للاستثمار العقاري في السعودية بميزانية 2 مليون ريال؟" },
-    { icon: Search, label: "تقرير عقاري", prompt: "أنشئ تقريراً مفصلاً عن المناطق الواعدة للاستثمار العقاري في المملكة" },
+    { icon: Inbox,      label: "ايش الجديد؟",       prompt: "راجع الرسائل الجديدة والطلبات المعلقة وأعطني ملخصاً سريعاً" },
+    { icon: Newspaper,  label: "انشر إعلان",        prompt: "انشر إعلاناً عن إطلاق مرحلة جديدة من مشاريعنا السكنية الفاخرة في الرياض" },
+    { icon: Briefcase,  label: "افتح وظيفة",         prompt: "افتح وظيفة جديدة: مدير تطوير الأعمال — قسم الاستثمار، دوام كامل" },
+    { icon: Mail,       label: "أرسل بريد لعميل",    prompt: "أرسل بريد متابعة احترافياً لعميل مهتم بالاستثمار العقاري" },
+    { icon: BarChart3,  label: "إحصائيات المنصة",   prompt: "أعطني إحصائيات حية عن المنصة (مشاريع، رسائل، وظائف)" },
+    { icon: TrendingUp, label: "تحليل سوق",         prompt: "حلل سوق العقار السكني في الرياض لعام 2026" },
   ],
   en: [
-    { icon: FileText, label: "Project Description", prompt: "Write a professional description for a luxury residential project in Riyadh" },
-    { icon: Mail, label: "Business Email", prompt: "Compose a formal email to an investor interested in Nawa Real Estate" },
-    { icon: TrendingUp, label: "Market Analysis", prompt: "Provide a Saudi real estate market analysis for 2026" },
-    { icon: Sparkles, label: "SEO Content", prompt: "Write SEO-optimized content for our real estate projects page" },
-    { icon: Brain, label: "Investment Strategy", prompt: "Best investment strategy for Saudi real estate with 2M SAR budget?" },
-    { icon: Search, label: "Investment Report", prompt: "Create a detailed report on promising real estate areas in Saudi Arabia" },
+    { icon: Inbox,      label: "What's new?",         prompt: "Review pending messages and tasks, give me a quick summary" },
+    { icon: Newspaper,  label: "Publish News",        prompt: "Publish a news announcement about launching a new phase of our luxury residential projects in Riyadh" },
+    { icon: Briefcase,  label: "Open Job",            prompt: "Open a new job: Business Development Manager — Investment dept, full-time" },
+    { icon: Mail,       label: "Email a Client",      prompt: "Send a professional follow-up email to an investor interested in our projects" },
+    { icon: BarChart3,  label: "Platform Stats",      prompt: "Give me live platform statistics (projects, messages, jobs)" },
+    { icon: TrendingUp, label: "Market Analysis",     prompt: "Analyze the Riyadh residential real estate market for 2026" },
   ],
 };
 
@@ -171,28 +190,30 @@ export function AiChat() {
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 px-5 py-3.5 border-b border-border bg-gradient-to-l from-primary to-primary/90 text-white flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="shrink-0 px-5 py-3.5 border-b border-border bg-gradient-to-l from-[#0D1B3E] via-[#102046] to-[#0D1B3E] text-white flex items-center justify-between relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, #C9A96E 0%, transparent 40%)" }} />
+        <div className="flex items-center gap-3 relative z-10">
           <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur flex items-center justify-center border border-white/20">
-              <Bot className="w-5 h-5" />
+            <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center border border-[#C9A96E]/40 shadow-lg shadow-[#C9A96E]/10">
+              <img src="/logo-transparent.png" alt="Nawa" className="w-9 h-9 object-contain brightness-0 invert" />
             </div>
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-primary" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#0D1B3E] shadow shadow-emerald-400/50 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h2 className="font-bold text-sm">{isAr ? "نوى AI — المساعد الذكي" : "Nawa AI — Smart Agent"}</h2>
-              <span className="text-[10px] bg-yellow-400/20 text-yellow-200 border border-yellow-400/30 px-1.5 py-0.5 rounded-full font-medium">
-                {isAr ? "وكيل ذكي" : "Agent"}
+              <h2 className="font-bold text-sm tracking-wide">{isAr ? "نوى AI" : "Nawa AI"}</h2>
+              <span className="text-[10px] bg-gradient-to-r from-[#C9A96E] to-[#d4b888] text-[#0D1B3E] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <Sparkles className="w-2.5 h-2.5" />
+                {isAr ? "ايجنت إبداعي" : "Creative Agent"}
               </span>
             </div>
-            <p className="text-[11px] text-white/60 flex items-center gap-1">
-              <Zap className="w-3 h-3 text-yellow-300" />
-              {isAr ? "Kimi AI · 32K Context · أدوات متقدمة" : "Kimi AI · 32K Context · Advanced Tools"}
+            <p className="text-[11px] text-white/60 flex items-center gap-1.5 mt-0.5">
+              <Zap className="w-3 h-3 text-[#C9A96E]" />
+              {isAr ? "ينشر · يرسل بريد · يراجع المهام · يحلّل" : "Publish · Email · Review · Analyze"}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 relative z-10">
           <button onClick={toggleSound} className="p-2 rounded-lg hover:bg-white/10 transition-colors" title={soundOn ? "كتم الصوت" : "تفعيل الصوت"}>
             {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 opacity-50" />}
           </button>
@@ -254,15 +275,59 @@ export function AiChat() {
                   )}
                 </div>
 
-                {/* Tool calls badge */}
+                {/* Tool execution result cards */}
                 {msg.toolCalls && msg.toolCalls.length > 0 && (
-                  <div className="flex gap-1 flex-wrap">
-                    {msg.toolCalls.map((tc, ti) => (
-                      <span key={ti} className="text-[10px] bg-yellow-100 text-yellow-700 border border-yellow-200 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <Zap className="w-2.5 h-2.5" />
-                        {tc.toolName?.replace(/_/g, " ")}
-                      </span>
-                    ))}
+                  <div className="flex flex-col gap-2 w-full max-w-md">
+                    {msg.toolCalls.map((tc, ti) => {
+                      const meta = TOOL_META[tc.toolName] || { icon: Zap, labelAr: tc.toolName, labelEn: tc.toolName, color: "slate" };
+                      const Icon = meta.icon;
+                      const ok = tc.ok !== false;
+                      return (
+                        <div key={ti} className={cn(
+                          "rounded-xl border px-3 py-2.5 text-xs shadow-sm transition-all",
+                          ok ? "bg-gradient-to-l from-[#0D1B3E]/[0.03] to-white border-[#C9A96E]/30"
+                             : "bg-red-50/50 border-red-200"
+                        )}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className={cn(
+                              "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
+                              ok ? "bg-[#C9A96E]/15 text-[#0D1B3E]" : "bg-red-100 text-red-600"
+                            )}>
+                              <Icon className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-bold text-[#0D1B3E] text-[11px]">
+                                {isAr ? meta.labelAr : meta.labelEn}
+                              </div>
+                              <div className="flex items-center gap-1 text-[10px]">
+                                {ok ? (
+                                  <><CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" /><span className="text-emerald-600">{isAr ? "نُفّذ بنجاح" : "Executed"}</span></>
+                                ) : (
+                                  <><AlertCircle className="w-2.5 h-2.5 text-red-500" /><span className="text-red-500">{tc.error || (isAr ? "فشل" : "Failed")}</span></>
+                                )}
+                              </div>
+                            </div>
+                            {ok && tc.result?.id && (tc.toolName === "publish_news" || tc.toolName === "publish_job") && (
+                              <a
+                                href={tc.toolName === "publish_news" ? `/admin/news` : `/admin/jobs`}
+                                className="text-[10px] flex items-center gap-1 text-[#0D1B3E] hover:text-[#C9A96E] font-medium"
+                              >
+                                {isAr ? "عرض" : "View"} <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            )}
+                          </div>
+                          {ok && tc.result && (
+                            <div className="text-[10px] text-muted-foreground bg-white/50 rounded px-2 py-1 mt-1 font-mono break-all">
+                              {tc.toolName === "send_email" && `→ ${tc.result.to} (من ${tc.result.from})`}
+                              {tc.toolName === "publish_news" && `#${tc.result.id} — ${tc.result.title || ""}`}
+                              {tc.toolName === "publish_job" && `#${tc.result.id} — ${tc.result.title || ""}`}
+                              {tc.toolName === "get_dashboard_stats" && `📊 ${tc.result.projects} مشروع · ${tc.result.unreadMessages} رسالة جديدة · ${tc.result.jobs} وظيفة`}
+                              {tc.toolName === "review_pending_tasks" && `📥 ${tc.result.unreadMessages} رسالة غير مقروءة`}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
