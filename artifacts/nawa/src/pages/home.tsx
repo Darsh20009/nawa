@@ -62,7 +62,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30 md:to-primary/10" />
         </div>
 
-        <div className="container mx-auto px-5 md:px-6 relative z-10 text-white mt-14 md:mt-16">
+        <div className="container mx-auto px-5 md:px-6 relative z-10 text-white mt-20 md:mt-24">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}

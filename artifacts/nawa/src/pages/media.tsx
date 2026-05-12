@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import { Calendar, ArrowRight, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
+import { PageHeader } from "@/components/shared/page-header";
 
 export default function Media() {
   const { language, isRtl } = useLanguage();
@@ -23,19 +24,15 @@ export default function Media() {
   });
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-muted/20">
-      <div className="container mx-auto px-4 md:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-12"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold font-serif mb-6 text-primary">
-            {t.media}
-          </h1>
-        </motion.div>
-
+    <div className="min-h-screen bg-muted/10">
+      <PageHeader
+        eyebrow={language === "ar" ? "أخبار ومستجدات" : "News & Updates"}
+        title={language === "ar" ? "المركز الإعلامي" : "Media Center"}
+        subtitle={language === "ar"
+          ? "آخر أخبار نوى العقارية والمستجدات من عالم الاستثمار العقاري"
+          : "Latest news from Nawa Real Estate and the world of real estate investment"}
+      />
+      <div className="container mx-auto px-4 md:px-6 py-16 md:py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => (

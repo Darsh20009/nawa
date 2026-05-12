@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useListBrokers } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Star, Award, MapPin, Mail, Phone } from "lucide-react";
+import { PageHeader } from "@/components/shared/page-header";
 
 export default function Brokers() {
   const { language } = useLanguage();
@@ -21,24 +22,15 @@ export default function Brokers() {
   });
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-muted/20">
-      <div className="container mx-auto px-4 md:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center max-w-3xl mx-auto mb-16"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold font-serif mb-6 text-primary">
-            {t.brokers}
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            {language === "ar" 
-              ? "نخبة من المستشارين العقاريين المعتمدين لتقديم أفضل التوصيات والحلول الاستثمارية التي تناسب تطلعاتك."
-              : "A select group of certified real estate consultants to provide the best recommendations and investment solutions that suit your aspirations."}
-          </p>
-        </motion.div>
-
+    <div className="min-h-screen bg-muted/10">
+      <PageHeader
+        eyebrow={language === "ar" ? "فريقنا" : "Our Team"}
+        title={language === "ar" ? "الوسطاء العقاريون" : "Real Estate Brokers"}
+        subtitle={language === "ar"
+          ? "نخبة من المستشارين العقاريين المعتمدين لتقديم أفضل التوصيات والحلول"
+          : "A select group of certified real estate consultants for the best recommendations and solutions"}
+      />
+      <div className="container mx-auto px-4 md:px-6 py-16 md:py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => (

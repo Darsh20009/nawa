@@ -120,11 +120,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-bold text-foreground mb-1">{language === "ar" ? "الهاتف" : "Phone"}</h4>
-                    <a href="tel:+966112345678" className="text-muted-foreground text-sm hover:text-primary transition-colors block mb-1" dir="ltr">
-                      +966 11 234 5678
-                    </a>
-                    <a href="tel:+966500000000" className="text-muted-foreground text-sm hover:text-primary transition-colors block" dir="ltr">
-                      +966 50 000 0000
+                    <a href="https://wa.me/966500073509" target="_blank" rel="noreferrer" className="text-muted-foreground text-sm hover:text-primary transition-colors block" dir="ltr">
+                      +966 50 007 3509
                     </a>
                   </div>
                 </div>

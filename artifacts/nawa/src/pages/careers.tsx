@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/shared/page-header";
 
 const applySchema = z.object({
   applicantName: z.string().min(2, "Name is required"),
@@ -80,14 +81,16 @@ export default function Careers() {
   const activeJobs = jobs?.filter(j => j.active) || [];
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-muted/10">
-      <div className="container mx-auto px-4 md:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-3xl mx-auto text-center mb-16"
-        >
+    <div className="min-h-screen bg-muted/10">
+      <PageHeader
+        eyebrow={language === "ar" ? "انضم إلينا" : "Join Us"}
+        title={language === "ar" ? "الوظائف" : "Careers"}
+        subtitle={language === "ar"
+          ? "كن جزءاً من فريقنا المتميز وابنِ مسيرتك المهنية في عالم الاستثمار العقاري"
+          : "Be part of our distinguished team and build your career in real estate investment"}
+      />
+      <div className="container mx-auto px-4 md:px-6 py-16 md:py-24">
+        <div className="max-w-3xl mx-auto text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold font-serif mb-6 text-primary">
             {t.careers}
           </h1>
@@ -96,7 +99,7 @@ export default function Careers() {
               ? "انضم إلى فريق من المحترفين الشغوفين ببناء مستقبل العقار. نبحث دائماً عن المواهب الاستثنائية التي تشاركنا رؤيتنا وقيمنا."
               : "Join a team of professionals passionate about building the future of real estate. We are always looking for exceptional talent who share our vision and values."}
           </p>
-        </motion.div>
+        </div>
 
         <div className="max-w-4xl mx-auto space-y-6">
           {isLoading ? (

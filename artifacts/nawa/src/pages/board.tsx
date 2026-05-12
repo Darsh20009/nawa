@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useListBoardMembers } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Linkedin } from "lucide-react";
+import { PageHeader } from "@/components/shared/page-header";
 
 export default function Board() {
   const { language } = useLanguage();
@@ -21,24 +22,15 @@ export default function Board() {
   });
 
   return (
-    <div className="pt-24 pb-20 min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center max-w-3xl mx-auto mb-16"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold font-serif mb-6 text-primary">
-            {t.board}
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            {language === "ar" 
-              ? "قيادات تتمتع بخبرات واسعة ورؤى استراتيجية تقود مسيرة نجاحنا نحو آفاق جديدة من التميز."
-              : "Leaders with extensive expertise and strategic vision guiding our success journey towards new horizons of excellence."}
-          </p>
-        </motion.div>
-
+    <div className="min-h-screen bg-muted/10">
+      <PageHeader
+        eyebrow={language === "ar" ? "القيادة" : "Leadership"}
+        title={language === "ar" ? "مجلس الإدارة" : "Board of Directors"}
+        subtitle={language === "ar"
+          ? "قيادات تتمتع بخبرات واسعة ورؤى استراتيجية تقود مسيرة نجاحنا"
+          : "Leaders with extensive expertise and strategic vision guiding our success"}
+      />
+      <div className="container mx-auto px-4 md:px-6 py-16 md:py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {isLoading ? (
             Array(4).fill(0).map((_, i) => (
