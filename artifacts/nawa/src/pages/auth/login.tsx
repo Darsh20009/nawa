@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import logoPath from "@assets/Screenshot_2026-05-12_at_1.51.13_PM_1778583134608.png";
+const logoPath = "/logo-transparent.png";
 import { motion } from "framer-motion";
 import { LogIn, Building2, Users, Lock } from "lucide-react";
 

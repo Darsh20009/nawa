@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { cn } from "@/lib/utils";
-import logoPath from "@assets/Screenshot_2026-05-12_at_1.51.13_PM_1778583134608.png";
+const logoPath = "/logo-transparent.png";
 import {
   LayoutDashboard,
   MessageSquare,

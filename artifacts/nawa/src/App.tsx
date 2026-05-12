@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { setBaseUrl, setAuthTokenGetter } from "@workspace/api-client-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import logoPath from "@assets/Screenshot_2026-05-12_at_1.51.13_PM_1778583134608.png";
+const logoPath = "/logo-transparent.png";
 
 // Setup API Client
 setBaseUrl(import.meta.env.BASE_URL.replace(/\/$/, ""));

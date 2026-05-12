@@ -4,7 +4,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { translations } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import logoPath from "@assets/Screenshot_2026-05-12_at_1.51.13_PM_1778583134608.png";
+const logoPath = "/logo-transparent.png";
 import { Menu, X, Globe, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
