@@ -1,7 +1,7 @@
-// Nawa Real Estate Platform — Service Worker v2
-const CACHE_NAME = 'nawa-v2';
-const STATIC_CACHE = 'nawa-static-v2';
-const API_CACHE = 'nawa-api-v2';
+// Nawa Real Estate Platform — Service Worker v3
+const CACHE_NAME = 'nawa-v3';
+const STATIC_CACHE = 'nawa-static-v3';
+const API_CACHE = 'nawa-api-v3';
 
 const STATIC_ASSETS = [
   '/',
@@ -81,8 +81,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'منصة نوى العقارية';
   const options = {
     body: data.body || 'لديك إشعار جديد',
-    icon: '/logo-transparent.png',
-    badge: '/favicon.svg',
+    icon: '/icon-192.png',
+    badge: '/favicon-32.png',
     tag: data.tag || 'nawa-notification',
     requireInteraction: data.requireInteraction || false,
     data: data.url ? { url: data.url } : {},
