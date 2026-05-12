@@ -51,7 +51,11 @@ export function Navbar() {
             <img 
               src={logoPath} 
               alt="Nawa Real Estate" 
-              className={cn("h-10 transition-all duration-300", isScrolled ? "h-8" : "")} 
+              className={cn(
+                "transition-all duration-300",
+                isScrolled ? "h-8" : "h-10",
+                isScrolled ? "" : "brightness-0 invert"
+              )} 
             />
           </Link>
 
