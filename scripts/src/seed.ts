@@ -7,7 +7,17 @@ async function main() {
   console.log("Seeding database...");
 
   if ((await User.countDocuments()) === 0) {
-    const adminPassword = await bcrypt.hash("admin123", 12);
+    const envPassword = process.env.SEED_ADMIN_PASSWORD?.trim();
+    if (process.env.NODE_ENV === "production" && !envPassword) {
+      throw new Error(
+        "Refusing to seed default credentials in production. Set SEED_ADMIN_PASSWORD env var to a strong password.",
+      );
+    }
+    const plainPassword = envPassword || "admin123";
+    if (!envPassword) {
+      console.warn("⚠ Using default dev password 'admin123'. Set SEED_ADMIN_PASSWORD for any non-local use.");
+    }
+    const adminPassword = await bcrypt.hash(plainPassword, 12);
     await User.insertMany([
       { name: "Admin Nawa", nameAr: "مدير نوى", email: "admin@nawainv.sa", password: adminPassword, role: "super_admin", department: "Management", active: true },
       { name: "Ahmed Al-Rashid", nameAr: "أحمد الراشد", email: "ahmed@nawainv.sa", password: adminPassword, role: "manager", department: "Sales", active: true },

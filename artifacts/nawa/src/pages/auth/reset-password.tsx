@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 const logoPath = "/logo-transparent.png";
@@ -76,14 +76,14 @@ export default function ResetPassword() {
               <FormField control={form.control} name="password" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{language === "ar" ? "كلمة المرور الجديدة" : "New Password"}</FormLabel>
-                  <FormControl><Input type="password" dir="ltr" {...field} /></FormControl>
+                  <FormControl><PasswordInput dir="ltr" autoComplete="new-password" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="confirm" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{language === "ar" ? "تأكيد كلمة المرور" : "Confirm Password"}</FormLabel>
-                  <FormControl><Input type="password" dir="ltr" {...field} /></FormControl>
+                  <FormControl><PasswordInput dir="ltr" autoComplete="new-password" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />

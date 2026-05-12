@@ -4,6 +4,7 @@ import { useListEmployees, useCreateEmployee, useUpdateEmployee, useDeleteEmploy
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -164,7 +165,7 @@ export default function AdminEmployees() {
                 <FormField control={form.control} name="nameAr" render={({ field }) => (<FormItem><FormLabel>الاسم (AR)</FormLabel><FormControl><Input {...field} dir="rtl" /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 {!editingId && (
-                  <FormField control={form.control} name="password" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "كلمة المرور" : "Password"}</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="password" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "كلمة المرور" : "Password"}</FormLabel><FormControl><PasswordInput autoComplete="new-password" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 )}
                 <FormField control={form.control} name="role" render={({ field }) => (
                   <FormItem>
