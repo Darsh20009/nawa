@@ -5,7 +5,8 @@ import { logger } from "../lib/logger";
 const router: IRouter = Router();
 
 const KIMI_API_KEY = process.env.KIMI_API_KEY || "";
-const KIMI_BASE_URL = "https://api.moonshot.cn/v1";
+const KIMI_BASE_URL = "https://api.moonshot.ai/v1";
+const KIMI_MODEL = "kimi-k2.6";
 
 // Kimi AI Agent Tools — actions the AI can suggest/perform
 const AGENT_TOOLS = [
@@ -174,7 +175,7 @@ router.post("/ai/chat", requireAuth, async (req, res): Promise<void> => {
 
   try {
     const body: any = {
-      model: "moonshot-v1-32k",
+      model: KIMI_MODEL,
       messages,
       max_tokens: 4096,
       temperature: 0.7,
@@ -203,7 +204,7 @@ router.post("/ai/chat", requireAuth, async (req, res): Promise<void> => {
 
     const data = await response.json() as any;
     const choice = data.choices?.[0];
-    const aiMessage = choice?.message?.content || "";
+    const aiMessage = choice?.message?.content || choice?.message?.reasoning_content || "";
     const toolCalls = choice?.message?.tool_calls || [];
 
     // If tool calls, execute them and return results
@@ -229,7 +230,7 @@ router.post("/ai/chat", requireAuth, async (req, res): Promise<void> => {
       ];
 
       const followUpBody = {
-        model: "moonshot-v1-32k",
+        model: KIMI_MODEL,
         messages: followUpMessages,
         max_tokens: 4096,
         temperature: 0.7,
@@ -246,7 +247,8 @@ router.post("/ai/chat", requireAuth, async (req, res): Promise<void> => {
 
       if (followUpRes.ok) {
         const followUpData = await followUpRes.json() as any;
-        const finalMessage = followUpData.choices?.[0]?.message?.content || aiMessage;
+        const fc = followUpData.choices?.[0]?.message;
+        const finalMessage = fc?.content || fc?.reasoning_content || aiMessage;
         res.json({
           response: finalMessage,
           toolCalls: toolResults,
@@ -303,7 +305,7 @@ router.post("/ai/stream", requireAuth, async (req, res): Promise<void> => {
         Authorization: `Bearer ${KIMI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "moonshot-v1-8k",
+        model: KIMI_MODEL,
         messages,
         max_tokens: 2048,
         temperature: 0.7,
