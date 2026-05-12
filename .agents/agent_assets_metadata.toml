@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "JV8Ld15zv5wZlDpgwtHYM"
+uri = "file://artifacts/nawa/public/images/hero-1.png"
+type = "image"
+title = "Cinematic luxury real estate hero"
+
+[[generated]]
+id = "yAb4dlJzUXOMSq5pbaOS5"
+uri = "file://artifacts/nawa/public/images/hero-2.png"
+type = "image"
+title = "Premium interior lobby real estate"
+
+[[generated]]
+id = "PxLSvswaVj45XAU4C8_NC"
+uri = "file://artifacts/nawa/public/images/project-1.png"
+type = "image"
+title = "Luxury villa project exterior"

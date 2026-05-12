@@ -1,0 +1,21 @@
+{
+  "name": "منصة نوى العقارية",
+  "short_name": "نوى",
+  "description": "Nawa Real Estate Platform - Luxury Saudi real estate investment platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D1B3E",
+  "theme_color": "#0D1B3E",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

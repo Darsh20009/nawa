@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "منصة نوى العقارية"
+version = "1.0.0"
+id = "artifacts/nawa"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24308
+
+[services.development]
+run = "pnpm --filter @workspace/nawa run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nawa", "run", "build" ]
+publicDir = "artifacts/nawa/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24308"
+BASE_PATH = "/"
