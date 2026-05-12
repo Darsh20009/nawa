@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: nawa-platform
+    runtime: node
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: |
+      corepack enable
+      corepack prepare pnpm@10.26.1 --activate
+      pnpm install --frozen-lockfile=false
+      BASE_PATH=/ pnpm --filter @workspace/nawa run build
+      pnpm --filter @workspace/api-server run build
+    startCommand: node --enable-source-maps artifacts/api-server/dist/index.mjs
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 24.13.0
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: KIMI_API_KEY
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false

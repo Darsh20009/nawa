@@ -2,6 +2,9 @@ import express, { type Express } from "express";
 import cors from "cors";
 import compression from "compression";
 import pinoHttp from "pino-http";
+import path from "node:path";
+import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -41,5 +44,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+if (process.env["NODE_ENV"] === "production") {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const candidates = [
+    path.resolve(__dirname, "../../nawa/dist/public"),
+    path.resolve(__dirname, "../../../artifacts/nawa/dist/public"),
+    path.resolve(process.cwd(), "artifacts/nawa/dist/public"),
+  ];
+  const staticDir = candidates.find((p) => fs.existsSync(p));
+
+  if (staticDir) {
+    logger.info({ staticDir }, "Serving frontend static files");
+    app.use(express.static(staticDir, { maxAge: "1h", index: false }));
+    app.get(/^(?!\/api).*/, (_req, res) => {
+      res.sendFile(path.join(staticDir, "index.html"));
+    });
+  } else {
+    logger.warn({ candidates }, "Frontend dist not found; static serving disabled");
+  }
+}
 
 export default app;
