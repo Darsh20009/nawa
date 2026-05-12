@@ -972,6 +972,103 @@ export const DeletePageParams = zod.object({
 });
 
 /**
+ * @summary Get site settings
+ */
+export const GetSiteSettingsResponse = zod.object({
+  id: zod.number().optional(),
+  siteName: zod.string().optional(),
+  siteNameEn: zod.string().optional(),
+  tagline: zod.string().optional(),
+  taglineEn: zod.string().optional(),
+  description: zod.string().optional(),
+  descriptionEn: zod.string().optional(),
+  phone: zod.string().optional(),
+  whatsapp: zod.string().optional(),
+  email: zod.string().optional(),
+  address: zod.string().optional(),
+  addressEn: zod.string().optional(),
+  googleMapsUrl: zod.string().optional(),
+  facebook: zod.string().optional(),
+  twitter: zod.string().optional(),
+  instagram: zod.string().optional(),
+  linkedin: zod.string().optional(),
+  youtube: zod.string().optional(),
+  tiktok: zod.string().optional(),
+  snapchat: zod.string().optional(),
+  crNumber: zod.string().optional(),
+  vatNumber: zod.string().optional(),
+  metaTitle: zod.string().optional(),
+  metaDescription: zod.string().optional(),
+  metaDescriptionEn: zod.string().optional(),
+  footerText: zod.string().optional(),
+  footerTextEn: zod.string().optional(),
+  updatedAt: zod.string().optional(),
+});
+
+/**
+ * @summary Update site settings (admin only)
+ */
+export const UpdateSiteSettingsBody = zod.object({
+  siteName: zod.string().optional(),
+  siteNameEn: zod.string().optional(),
+  tagline: zod.string().optional(),
+  taglineEn: zod.string().optional(),
+  description: zod.string().optional(),
+  descriptionEn: zod.string().optional(),
+  phone: zod.string().optional(),
+  whatsapp: zod.string().optional(),
+  email: zod.string().optional(),
+  address: zod.string().optional(),
+  addressEn: zod.string().optional(),
+  googleMapsUrl: zod.string().optional(),
+  facebook: zod.string().optional(),
+  twitter: zod.string().optional(),
+  instagram: zod.string().optional(),
+  linkedin: zod.string().optional(),
+  youtube: zod.string().optional(),
+  tiktok: zod.string().optional(),
+  snapchat: zod.string().optional(),
+  crNumber: zod.string().optional(),
+  vatNumber: zod.string().optional(),
+  metaTitle: zod.string().optional(),
+  metaDescription: zod.string().optional(),
+  metaDescriptionEn: zod.string().optional(),
+  footerText: zod.string().optional(),
+  footerTextEn: zod.string().optional(),
+});
+
+export const UpdateSiteSettingsResponse = zod.object({
+  id: zod.number().optional(),
+  siteName: zod.string().optional(),
+  siteNameEn: zod.string().optional(),
+  tagline: zod.string().optional(),
+  taglineEn: zod.string().optional(),
+  description: zod.string().optional(),
+  descriptionEn: zod.string().optional(),
+  phone: zod.string().optional(),
+  whatsapp: zod.string().optional(),
+  email: zod.string().optional(),
+  address: zod.string().optional(),
+  addressEn: zod.string().optional(),
+  googleMapsUrl: zod.string().optional(),
+  facebook: zod.string().optional(),
+  twitter: zod.string().optional(),
+  instagram: zod.string().optional(),
+  linkedin: zod.string().optional(),
+  youtube: zod.string().optional(),
+  tiktok: zod.string().optional(),
+  snapchat: zod.string().optional(),
+  crNumber: zod.string().optional(),
+  vatNumber: zod.string().optional(),
+  metaTitle: zod.string().optional(),
+  metaDescription: zod.string().optional(),
+  metaDescriptionEn: zod.string().optional(),
+  footerText: zod.string().optional(),
+  footerTextEn: zod.string().optional(),
+  updatedAt: zod.string().optional(),
+});
+
+/**
  * @summary Get admin dashboard statistics
  */
 export const GetDashboardStatsResponse = zod.object({

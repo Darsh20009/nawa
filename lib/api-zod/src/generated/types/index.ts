@@ -53,4 +53,6 @@ export * from "./projectUpdate";
 export * from "./service";
 export * from "./serviceInput";
 export * from "./serviceUpdate";
+export * from "./siteSettings";
+export * from "./siteSettingsUpdate";
 export * from "./user";

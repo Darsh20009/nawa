@@ -60,6 +60,7 @@ import AdminAiPage from "@/pages/admin/ai";
 import AdminChatPage from "@/pages/admin/chat";
 import AdminEmailPage from "@/pages/admin/email";
 import AdminEmailAccounts from "@/pages/admin/email-accounts";
+import AdminSettings from "@/pages/admin/settings";
 
 // Employee Pages
 import EmployeeDashboard from "@/pages/employee/dashboard";
@@ -128,6 +129,7 @@ function AnimatedRouter() {
           <Route path="/admin/chat" component={AdminChatPage} />
           <Route path="/admin/email" component={AdminEmailPage} />
           <Route path="/admin/email-accounts" component={AdminEmailAccounts} />
+          <Route path="/admin/settings" component={AdminSettings} />
           <Route component={() => <div className="p-6">Page under construction</div>} />
         </Switch>
       </AdminLayout>

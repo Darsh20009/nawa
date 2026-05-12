@@ -34,6 +34,8 @@ tags:
     description: Kimi AI assistant
   - name: pages
     description: Dynamic CMS pages
+  - name: settings
+    description: Site settings and configuration
   - name: stats
     description: Dashboard statistics
 paths:
@@ -987,6 +989,39 @@ paths:
         "204":
           description: Deleted
 
+  # SETTINGS
+  /settings:
+    get:
+      operationId: getSiteSettings
+      tags: [settings]
+      summary: Get site settings
+      responses:
+        "200":
+          description: Site settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+    patch:
+      operationId: updateSiteSettings
+      tags: [settings]
+      summary: Update site settings (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SiteSettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+
   # STATS
   /stats/dashboard:
     get:
@@ -1885,6 +1920,123 @@ components:
           type: string
         published:
           type: boolean
+
+    # SETTINGS
+    SiteSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        siteName:
+          type: string
+        siteNameEn:
+          type: string
+        tagline:
+          type: string
+        taglineEn:
+          type: string
+        description:
+          type: string
+        descriptionEn:
+          type: string
+        phone:
+          type: string
+        whatsapp:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        addressEn:
+          type: string
+        googleMapsUrl:
+          type: string
+        facebook:
+          type: string
+        twitter:
+          type: string
+        instagram:
+          type: string
+        linkedin:
+          type: string
+        youtube:
+          type: string
+        tiktok:
+          type: string
+        snapchat:
+          type: string
+        crNumber:
+          type: string
+        vatNumber:
+          type: string
+        metaTitle:
+          type: string
+        metaDescription:
+          type: string
+        metaDescriptionEn:
+          type: string
+        footerText:
+          type: string
+        footerTextEn:
+          type: string
+        updatedAt:
+          type: string
+
+    SiteSettingsUpdate:
+      type: object
+      properties:
+        siteName:
+          type: string
+        siteNameEn:
+          type: string
+        tagline:
+          type: string
+        taglineEn:
+          type: string
+        description:
+          type: string
+        descriptionEn:
+          type: string
+        phone:
+          type: string
+        whatsapp:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        addressEn:
+          type: string
+        googleMapsUrl:
+          type: string
+        facebook:
+          type: string
+        twitter:
+          type: string
+        instagram:
+          type: string
+        linkedin:
+          type: string
+        youtube:
+          type: string
+        tiktok:
+          type: string
+        snapchat:
+          type: string
+        crNumber:
+          type: string
+        vatNumber:
+          type: string
+        metaTitle:
+          type: string
+        metaDescription:
+          type: string
+        metaDescriptionEn:
+          type: string
+        footerText:
+          type: string
+        footerTextEn:
+          type: string
 
     # STATS
     DashboardStats:

@@ -16,6 +16,7 @@ import statsRouter from "./stats";
 import emailRouter from "./email";
 import forgotPasswordRouter from "./forgot-password";
 import emailAccountsRouter from "./email-accounts";
+import settingsRouter from "./settings";
 
 const router: IRouter = Router();
 
@@ -36,5 +37,6 @@ router.use(statsRouter);
 router.use(emailRouter);
 router.use(forgotPasswordRouter);
 router.use(emailAccountsRouter);
+router.use(settingsRouter);
 
 export default router;

@@ -21,6 +21,8 @@ import {
   Inbox,
   ChevronRight,
   X,
+  FileText,
+  Sliders,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -136,7 +138,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         { href: "/admin/services", label: language === "ar" ? "الخدمات" : "Services", icon: Briefcase },
         { href: "/admin/news", label: language === "ar" ? "المركز الإعلامي" : "Media Center", icon: Newspaper },
         { href: "/admin/jobs", label: language === "ar" ? "الوظائف" : "Jobs", icon: Briefcase },
-        { href: "/admin/pages", label: language === "ar" ? "الصفحات" : "Pages", icon: Settings },
+        { href: "/admin/pages", label: language === "ar" ? "الصفحات" : "Pages", icon: FileText },
       ],
     },
     {
@@ -155,6 +157,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         { href: "/admin/email-accounts", label: language === "ar" ? "حسابات البريد" : "Email Accounts", icon: ChevronRight },
         { href: "/admin/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare },
         { href: "/admin/ai", label: language === "ar" ? "مساعد نوى الذكي" : "AI Assistant", icon: Bot },
+      ],
+    },
+    {
+      title: language === "ar" ? "النظام" : "System",
+      links: [
+        { href: "/admin/settings", label: language === "ar" ? "إعدادات النظام" : "System Settings", icon: Sliders },
       ],
     },
   ];

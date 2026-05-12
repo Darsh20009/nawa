@@ -520,6 +520,66 @@ export interface PageUpdate {
   published?: boolean;
 }
 
+export interface SiteSettings {
+  id?: number;
+  siteName?: string;
+  siteNameEn?: string;
+  tagline?: string;
+  taglineEn?: string;
+  description?: string;
+  descriptionEn?: string;
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  address?: string;
+  addressEn?: string;
+  googleMapsUrl?: string;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  linkedin?: string;
+  youtube?: string;
+  tiktok?: string;
+  snapchat?: string;
+  crNumber?: string;
+  vatNumber?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaDescriptionEn?: string;
+  footerText?: string;
+  footerTextEn?: string;
+  updatedAt?: string;
+}
+
+export interface SiteSettingsUpdate {
+  siteName?: string;
+  siteNameEn?: string;
+  tagline?: string;
+  taglineEn?: string;
+  description?: string;
+  descriptionEn?: string;
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  address?: string;
+  addressEn?: string;
+  googleMapsUrl?: string;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  linkedin?: string;
+  youtube?: string;
+  tiktok?: string;
+  snapchat?: string;
+  crNumber?: string;
+  vatNumber?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaDescriptionEn?: string;
+  footerText?: string;
+  footerTextEn?: string;
+}
+
 export interface DashboardStats {
   totalProjects: number;
   totalBrokers: number;
