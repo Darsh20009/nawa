@@ -57,6 +57,31 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    target: "es2020",
+    cssCodeSplit: true,
+    sourcemap: false,
+    minify: "esbuild",
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "wouter"],
+          "query-vendor": ["@tanstack/react-query"],
+        },
+      },
+    },
+  },
+  optimizeDeps: {
+    include: [
+      "react",
+      "react-dom",
+      "wouter",
+      "@tanstack/react-query",
+      "framer-motion",
+      "lucide-react",
+      "date-fns",
+      "zustand",
+    ],
   },
   server: {
     port,

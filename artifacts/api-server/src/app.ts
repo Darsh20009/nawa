@@ -1,10 +1,21 @@
 import express, { type Express } from "express";
 import cors from "cors";
+import compression from "compression";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
 const app: Express = express();
+
+app.disable("x-powered-by");
+app.set("etag", "strong");
+app.use(compression({
+  filter: (req, res) => {
+    const type = res.getHeader("Content-Type");
+    if (typeof type === "string" && type.includes("text/event-stream")) return false;
+    return compression.filter(req, res);
+  },
+}));
 
 app.use(
   pinoHttp({

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean, integer, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -11,7 +11,9 @@ export const conversationsTable = pgTable("conversations", {
   unreadCount: integer("unread_count").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+}, (t) => [
+  index("conversations_updated_at_idx").on(t.updatedAt),
+]);
 
 export const chatMessagesTable = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
@@ -24,7 +26,9 @@ export const chatMessagesTable = pgTable("chat_messages", {
   fileUrl: text("file_url"),
   readBy: text("read_by"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  index("chat_messages_conv_created_idx").on(t.conversationId, t.createdAt),
+]);
 
 export const insertConversationSchema = createInsertSchema(conversationsTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertChatMessageSchema = createInsertSchema(chatMessagesTable).omit({ id: true, createdAt: true });
