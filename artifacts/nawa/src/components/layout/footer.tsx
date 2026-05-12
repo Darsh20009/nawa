@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useLanguage } from "@/hooks/use-language";
 import { translations } from "@/lib/constants";
 const logoPath = "/logo-transparent.png";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 
 const socials = [
   {
@@ -127,16 +127,6 @@ export function Footer() {
               {t.contactInfo}
             </h3>
             <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-secondary/15 flex items-center justify-center shrink-0 mt-0.5">
-                  <MapPin className="w-4 h-4 text-secondary" />
-                </div>
-                <p className="text-white/60 text-sm leading-relaxed">
-                  {language === "ar"
-                    ? "طريق الملك فهد، العليا، الرياض 12214، المملكة العربية السعودية"
-                    : "King Fahd Road, Olaya, Riyadh 12214, Saudi Arabia"}
-                </p>
-              </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-secondary/15 flex items-center justify-center shrink-0">
                   <Phone className="w-4 h-4 text-secondary" />
