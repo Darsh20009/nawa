@@ -39,6 +39,7 @@ import Brokers from "@/pages/brokers";
 import Contact from "@/pages/contact";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
+import Tips from "@/pages/tips";
 import Login from "@/pages/auth/login";
 import ForgotPassword from "@/pages/auth/forgot-password";
 import ResetPassword from "@/pages/auth/reset-password";
@@ -146,6 +147,10 @@ function AnimatedRouter() {
         </Switch>
       </EmployeeLayout>
     );
+  }
+
+  if (location === "/tips") {
+    return <Tips />;
   }
 
   if (isAuthRoute) {
