@@ -49,19 +49,18 @@ export default function Home() {
     <div className="overflow-hidden">
       {/* Hero Section */}
       <section className="relative h-[100dvh] min-h-[600px] flex items-center justify-center overflow-hidden">
-        <motion.div
-          className="absolute inset-0 z-0"
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        >
-          <img
-            src="/images/hero-1.png"
-            alt="Luxury Real Estate"
+        <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
             className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-primary/90 via-primary/70 to-primary/40 md:to-transparent" />
-        </motion.div>
+          >
+            <source src="/nawa-hero.mov" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30 md:to-primary/10" />
+        </div>
 
         <div className="container mx-auto px-5 md:px-6 relative z-10 text-white mt-14 md:mt-16">
           <motion.div
@@ -255,25 +254,30 @@ export default function Home() {
         </section>
       )}
 
-      {/* Parallax Break */}
+      {/* Video Break Banner */}
       <section className="h-[40vh] md:h-[60vh] relative flex items-center justify-center overflow-hidden">
-        <motion.div
-          className="absolute inset-0"
-          initial={{ y: -50 }}
-          whileInView={{ y: 50 }}
-          viewport={{ once: false }}
-          transition={{ ease: "linear", duration: 2 }}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
         >
-          <img src="/images/hero-2.png" alt="Lobby" className="w-full h-[150%] object-cover object-center" />
-        </motion.div>
-        <div className="absolute inset-0 bg-primary/40 backdrop-blur-[2px]" />
+          <source src="/nawa-hero.mov" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-primary/50 backdrop-blur-[1px]" />
         <div className="relative z-10 text-center text-white px-5">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold mb-4 md:mb-6">Excellence in Every Detail</h2>
+            <p className="text-secondary uppercase tracking-widest text-xs md:text-sm font-bold mb-3 md:mb-4">
+              {language === "ar" ? "نوى للاستثمار العقاري" : "Nawa Real Estate Investment"}
+            </p>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold mb-4 md:mb-6">
+              {language === "ar" ? "التميز في كل تفصيل" : "Excellence in Every Detail"}
+            </h2>
             <Link href="/about">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary text-sm md:text-base">
                 {t.about}

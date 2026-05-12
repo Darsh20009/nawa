@@ -67,24 +67,29 @@ export default function Contact() {
   };
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-muted/10">
-      <div className="container mx-auto px-4 md:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-3xl mx-auto text-center mb-16"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold font-serif mb-6 text-primary">
-            {t.contact}
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            {language === "ar" 
-              ? "نسعد بتواصلكم معنا. فريقنا جاهز للإجابة على استفساراتكم وتقديم الدعم اللازم لبدء رحلتكم الاستثمارية."
-              : "We are happy to hear from you. Our team is ready to answer your inquiries and provide the necessary support to start your investment journey."}
-          </p>
-        </motion.div>
+    <div className="pb-20 min-h-screen bg-muted/10">
+      {/* Video Banner Header */}
+      <div className="relative h-[40vh] md:h-[50vh] flex items-center justify-center overflow-hidden">
+        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
+          <source src="/nawa-hero.mov" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/60 to-primary/80" />
+        <div className="relative z-10 text-center text-white px-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <p className="text-secondary uppercase tracking-widest text-xs md:text-sm font-bold mb-2 md:mb-3">
+              {language === "ar" ? "تواصل معنا" : "Get in Touch"}
+            </p>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold font-serif">{t.contact}</h1>
+            <p className="mt-4 text-white/80 max-w-xl mx-auto text-sm md:text-base">
+              {language === "ar"
+                ? "نسعد بتواصلكم معنا. فريقنا جاهز للإجابة على استفساراتكم."
+                : "We are happy to hear from you. Our team is ready to answer your inquiries."}
+            </p>
+          </motion.div>
+        </div>
+      </div>
 
+      <div className="container mx-auto px-4 md:px-6 pt-10">
         <div className="grid lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, x: language === "ar" ? 20 : -20 }}

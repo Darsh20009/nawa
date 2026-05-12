@@ -27,18 +27,28 @@ export default function Projects() {
   );
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-muted/10">
-      <div className="container mx-auto px-4 md:px-6">
+    <div className="pb-20 min-h-screen bg-muted/10">
+      {/* Video Banner Header */}
+      <div className="relative h-[40vh] md:h-[50vh] flex items-center justify-center overflow-hidden">
+        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
+          <source src="/nawa-hero.mov" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/60 to-primary/80" />
+        <div className="relative z-10 text-center text-white px-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <p className="text-secondary uppercase tracking-widest text-xs md:text-sm font-bold mb-2 md:mb-3">Portfolio</p>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold font-serif">{t.projects}</h1>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 md:px-6 pt-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="mb-12"
         >
-          <h1 className="text-4xl md:text-5xl font-bold font-serif mb-6 text-primary">
-            {t.projects}
-          </h1>
-          
           <Tabs defaultValue="all" className="w-full mb-8" onValueChange={setStatusFilter}>
             <TabsList className="bg-white border border-border">
               <TabsTrigger value="all">{language === "ar" ? "الكل" : "All"}</TabsTrigger>
