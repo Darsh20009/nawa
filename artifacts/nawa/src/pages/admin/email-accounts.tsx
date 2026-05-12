@@ -7,8 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Mail, User, Check, X, RefreshCw } from "lucide-react";
-const getApiBaseUrl = () => import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
+import { Mail, User, Check, Users, RefreshCw, X } from "lucide-react";
 
 const NAWA_EMAIL_ACCOUNTS = [
   "ceo@nawainv.sa",
@@ -32,13 +31,12 @@ interface Employee {
 
 interface AccountInfo {
   email: string;
-  assignedTo: Employee | null;
-  isAvailable: boolean;
+  assignedEmployees: Employee[];
 }
 
 async function fetchEmailAccounts() {
   const token = localStorage.getItem("nawa_token");
-  const res = await fetch(`${getApiBaseUrl()}/api/email-accounts`, {
+  const res = await fetch(`/api/email-accounts`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("Failed to fetch");
@@ -47,7 +45,7 @@ async function fetchEmailAccounts() {
 
 async function assignAccount(employeeId: number, emailAccount: string | null) {
   const token = localStorage.getItem("nawa_token");
-  const res = await fetch(`${getApiBaseUrl()}/api/email-accounts/assign`, {
+  const res = await fetch(`/api/email-accounts/assign`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({ employeeId, emailAccount }),
@@ -88,6 +86,8 @@ export default function AdminEmailAccounts() {
   }
 
   const { accounts = [], employees = [] } = data || {};
+  const totalAssigned = employees.filter(e => e.emailAccount).length;
+  const totalWithAccount = accounts.filter(a => a.assignedEmployees.length > 0).length;
 
   return (
     <div className="space-y-6">
@@ -97,7 +97,7 @@ export default function AdminEmailAccounts() {
             {isRtl ? "إدارة حسابات البريد الإلكتروني" : "Email Account Management"}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {isRtl ? "تعيين حسابات بريد نوى للموظفين" : "Assign Nawa email accounts to employees"}
+            {isRtl ? "تعيين حسابات بريد نوى للموظفين — يمكن تعيين نفس الحساب لأكثر من موظف" : "Assign Nawa email accounts to employees — multiple employees can share the same account"}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
@@ -107,7 +107,7 @@ export default function AdminEmailAccounts() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -125,19 +125,19 @@ export default function AdminEmailAccounts() {
               <Check className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{accounts.filter(a => !a.isAvailable).length}</p>
-              <p className="text-xs text-muted-foreground">{isRtl ? "معينة" : "Assigned"}</p>
+              <p className="text-2xl font-bold">{totalWithAccount}</p>
+              <p className="text-xs text-muted-foreground">{isRtl ? "حسابات مُستخدمة" : "Accounts in use"}</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-              <X className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+              <Users className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{accounts.filter(a => a.isAvailable).length}</p>
-              <p className="text-xs text-muted-foreground">{isRtl ? "متاحة" : "Available"}</p>
+              <p className="text-2xl font-bold">{totalAssigned}</p>
+              <p className="text-xs text-muted-foreground">{isRtl ? "موظفون لديهم بريد" : "Employees with email"}</p>
             </div>
           </CardContent>
         </Card>
@@ -147,8 +147,7 @@ export default function AdminEmailAccounts() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {NAWA_EMAIL_ACCOUNTS.map((email, i) => {
           const info = accounts.find(a => a.email === email);
-          const assignedEmployee = info?.assignedTo;
-          const isAssigned = !!assignedEmployee;
+          const assignedEmployees = info?.assignedEmployees || [];
 
           return (
             <motion.div
@@ -157,73 +156,74 @@ export default function AdminEmailAccounts() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <Card className={`transition-all duration-200 hover:shadow-md ${isAssigned ? "border-green-200 bg-green-50/30" : "border-border"}`}>
+              <Card className={`transition-all duration-200 hover:shadow-md ${assignedEmployees.length > 0 ? "border-green-200" : "border-border"}`}>
                 <CardHeader className="pb-3 pt-4 px-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isAssigned ? "bg-green-100" : "bg-muted"}`}>
-                        <Mail className={`w-4 h-4 ${isAssigned ? "text-green-600" : "text-muted-foreground"}`} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm truncate" dir="ltr">{email}</p>
-                        <Badge variant={isAssigned ? "default" : "secondary"} className={`text-[10px] mt-0.5 ${isAssigned ? "bg-green-600 hover:bg-green-700" : ""}`}>
-                          {isAssigned ? (isRtl ? "معين" : "Assigned") : (isRtl ? "متاح" : "Available")}
-                        </Badge>
-                      </div>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${assignedEmployees.length > 0 ? "bg-green-100" : "bg-muted"}`}>
+                      <Mail className={`w-4 h-4 ${assignedEmployees.length > 0 ? "text-green-600" : "text-muted-foreground"}`} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-sm truncate" dir="ltr">{email}</p>
+                      <Badge variant={assignedEmployees.length > 0 ? "default" : "secondary"} className={`text-[10px] mt-0.5 ${assignedEmployees.length > 0 ? "bg-green-600 hover:bg-green-700" : ""}`}>
+                        {assignedEmployees.length > 0
+                          ? `${assignedEmployees.length} ${isRtl ? "موظف" : "employee(s)"}`
+                          : (isRtl ? "غير مُعيَّن" : "Unassigned")}
+                      </Badge>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="px-4 pb-4 space-y-3">
-                  {assignedEmployee && (
-                    <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white border border-green-100">
-                      <div className="w-7 h-7 rounded-full bg-[#0D1B3E] flex items-center justify-center text-white text-xs font-bold shrink-0">
-                        {assignedEmployee.name.charAt(0)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {isRtl ? assignedEmployee.nameAr || assignedEmployee.name : assignedEmployee.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground capitalize truncate">
-                          {assignedEmployee.role?.replace("_", " ")}
-                          {assignedEmployee.department ? ` · ${assignedEmployee.department}` : ""}
-                        </p>
-                      </div>
+                  {/* Current assignees */}
+                  {assignedEmployees.length > 0 && (
+                    <div className="space-y-1.5">
+                      {assignedEmployees.map(emp => (
+                        <div key={emp.id} className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-100">
+                          <div className="w-6 h-6 rounded-full bg-[#0D1B3E] flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                            {emp.name.charAt(0)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium truncate">
+                              {isRtl ? emp.nameAr || emp.name : emp.name}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => mutation.mutate({ employeeId: emp.id, emailAccount: null })}
+                            className="shrink-0 text-muted-foreground hover:text-destructive transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   )}
 
+                  {/* Add employee */}
                   <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground">
-                      {isRtl ? "تعيين لموظف:" : "Assign to employee:"}
+                      {isRtl ? "إضافة موظف:" : "Add employee:"}
                     </p>
-                    <div className="flex gap-2">
-                      <Select
-                        value={assignedEmployee?.id?.toString() || "none"}
-                        onValueChange={(val) => {
-                          const empId = val === "none" ? null : parseInt(val);
-                          if (empId === null && assignedEmployee) {
-                            mutation.mutate({ employeeId: assignedEmployee.id, emailAccount: null });
-                          } else if (empId !== null) {
-                            mutation.mutate({ employeeId: empId, emailAccount: email });
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="flex-1 h-8 text-sm">
-                          <SelectValue placeholder={isRtl ? "اختر موظفاً" : "Select employee"} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">
-                            <span className="text-muted-foreground">{isRtl ? "— بلا تعيين —" : "— Unassigned —"}</span>
-                          </SelectItem>
-                          {employees
-                            .filter(e => e.active && (!e.emailAccount || e.emailAccount === email))
-                            .map(e => (
-                              <SelectItem key={e.id} value={e.id.toString()}>
-                                {isRtl ? e.nameAr || e.name : e.name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <Select
+                      value=""
+                      onValueChange={(val) => {
+                        if (val) mutation.mutate({ employeeId: parseInt(val), emailAccount: email });
+                      }}
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue placeholder={isRtl ? "اختر موظفاً للإضافة..." : "Add employee..."} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {employees
+                          .filter(e => e.active && e.emailAccount !== email)
+                          .map(e => (
+                            <SelectItem key={e.id} value={e.id.toString()}>
+                              <span>{isRtl ? e.nameAr || e.name : e.name}</span>
+                              {e.emailAccount && (
+                                <span className="text-muted-foreground text-[10px] ms-1">({e.emailAccount})</span>
+                              )}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </CardContent>
               </Card>
@@ -253,14 +253,22 @@ export default function AdminEmailAccounts() {
                     <p className="text-xs text-muted-foreground capitalize">{emp.role?.replace("_", " ")}</p>
                   </div>
                 </div>
-                <div>
+                <div className="flex items-center gap-2">
                   {emp.emailAccount ? (
-                    <Badge variant="outline" className="font-mono text-xs border-green-300 text-green-700 bg-green-50" dir="ltr">
-                      {emp.emailAccount}
-                    </Badge>
+                    <>
+                      <Badge variant="outline" className="font-mono text-xs border-green-300 text-green-700 bg-green-50" dir="ltr">
+                        {emp.emailAccount}
+                      </Badge>
+                      <button
+                        onClick={() => mutation.mutate({ employeeId: emp.id, emailAccount: null })}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
                   ) : (
                     <Badge variant="secondary" className="text-xs">
-                      {isRtl ? "لا يوجد بريد مُعيَّن" : "No email assigned"}
+                      {isRtl ? "لا يوجد بريد" : "No email"}
                     </Badge>
                   )}
                 </div>

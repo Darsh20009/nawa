@@ -7,14 +7,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Inbox, Send, Star, Trash2, RefreshCw, Mail, MailOpen,
-  Paperclip, Reply, Forward, X, Search, ChevronRight, PenSquare,
-  AlertCircle, Loader2
+  Paperclip, Reply, X, Search, PenSquare,
+  AlertCircle, Loader2, ChevronDown
 } from "lucide-react";
+
+const NAWA_EMAIL_ACCOUNTS = [
+  "ceo@nawainv.sa",
+  "cob@nawainv.sa",
+  "finance@nawainv.sa",
+  "investment@nawainv.sa",
+  "marketing@nawainv.sa",
+  "support@nawainv.sa",
+  "Info@nawainv.sa",
+];
 
 interface EmailMessage {
   uid: number;
@@ -37,6 +48,12 @@ interface ComposeData {
   subject: string;
   body: string;
   cc: string;
+}
+
+interface AccountInfo {
+  assignedAccount: string | null;
+  isAdmin: boolean;
+  allAccounts: string[];
 }
 
 function parseEmailBody(source: string): string {
@@ -67,6 +84,9 @@ export default function EmployeeEmail() {
   const { toast } = useToast();
   const ar = language === "ar";
 
+  const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+
   const [messages, setMessages] = useState<EmailMessage[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -82,16 +102,46 @@ export default function EmployeeEmail() {
 
   const authToken = localStorage.getItem("nawa_token");
 
+  // Load account info on mount
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/email/accounts-list", {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        if (!res.ok) return;
+        const data: AccountInfo = await res.json();
+        setAccountInfo(data);
+        setSelectedAccount(data.assignedAccount || (data.isAdmin ? data.allAccounts[0] || null : null));
+      } catch {}
+    };
+    load();
+  }, [authToken]);
+
+  const effectiveAccount = selectedAccount;
+
+  const buildParams = useCallback((extra: Record<string, string> = {}) => {
+    const params = new URLSearchParams({ folder, page: page.toString(), limit: "25", ...extra });
+    if (effectiveAccount) params.set("asAccount", effectiveAccount);
+    return params.toString();
+  }, [folder, page, effectiveAccount]);
+
   const fetchInbox = useCallback(async () => {
+    if (!effectiveAccount) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/email/inbox?folder=${encodeURIComponent(folder)}&page=${page}&limit=25`, {
+      const res = await fetch(`/api/email/inbox?${buildParams()}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       if (!res.ok) {
         const j = await res.json();
-        throw new Error(j.error || "Failed to fetch emails");
+        if (j.error === "no_email_assigned") {
+          setError(ar ? "لم يتم تعيين حساب بريد إلكتروني لك. تواصل مع مسؤول النظام." : "No email account assigned to you. Contact your admin.");
+        } else {
+          throw new Error(j.error || "Failed to fetch emails");
+        }
+        return;
       }
       const data = await res.json();
       setMessages(data.messages || []);
@@ -101,14 +151,18 @@ export default function EmployeeEmail() {
     } finally {
       setLoading(false);
     }
-  }, [folder, page, authToken]);
+  }, [effectiveAccount, buildParams, authToken, ar]);
 
-  useEffect(() => { fetchInbox(); }, [fetchInbox]);
+  useEffect(() => {
+    if (effectiveAccount) fetchInbox();
+  }, [fetchInbox, effectiveAccount]);
 
   const openMessage = async (uid: number) => {
     setLoadingMsg(true);
     try {
-      const res = await fetch(`/api/email/message/${uid}?folder=${encodeURIComponent(folder)}`, {
+      const params = new URLSearchParams({ folder });
+      if (effectiveAccount) params.set("asAccount", effectiveAccount);
+      const res = await fetch(`/api/email/message/${uid}?${params}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       if (!res.ok) throw new Error("Failed to load message");
@@ -127,7 +181,7 @@ export default function EmployeeEmail() {
       await fetch(`/api/email/flag/${uid}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-        body: JSON.stringify({ folder, flag: "\\Flagged", add: !flagged }),
+        body: JSON.stringify({ folder, flag: "\\Flagged", add: !flagged, asAccount: effectiveAccount }),
       });
       setMessages(prev => prev.map(m => m.uid === uid ? { ...m, flagged: !flagged } : m));
     } catch {}
@@ -135,7 +189,9 @@ export default function EmployeeEmail() {
 
   const deleteMessage = async (uid: number) => {
     try {
-      await fetch(`/api/email/message/${uid}?folder=${encodeURIComponent(folder)}`, {
+      const params = new URLSearchParams({ folder });
+      if (effectiveAccount) params.set("asAccount", effectiveAccount);
+      await fetch(`/api/email/message/${uid}?${params}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${authToken}` },
       });
@@ -157,7 +213,7 @@ export default function EmployeeEmail() {
       const res = await fetch("/api/email/send", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-        body: JSON.stringify({ to: composeData.to, subject: composeData.subject, body: composeData.body, cc: composeData.cc }),
+        body: JSON.stringify({ to: composeData.to, subject: composeData.subject, body: composeData.body, cc: composeData.cc, asAccount: effectiveAccount }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Send failed");
@@ -199,20 +255,53 @@ export default function EmployeeEmail() {
     document.title = ar ? "البريد الإلكتروني | منصة نوى العقارية" : "Email | Nawa Real Estate";
   }, [ar]);
 
+  // No account available
+  if (accountInfo && !accountInfo.isAdmin && !accountInfo.assignedAccount) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-8rem)] bg-white rounded-2xl border border-border shadow-sm">
+        <Mail className="w-16 h-16 text-muted-foreground/30 mb-4" />
+        <h2 className="text-xl font-semibold mb-2">{ar ? "لا يوجد حساب بريد مُعيَّن" : "No Email Account Assigned"}</h2>
+        <p className="text-muted-foreground text-sm text-center max-w-xs">
+          {ar ? "لم يتم تعيين حساب بريد إلكتروني لك بعد. يرجى التواصل مع مسؤول النظام." : "No email account has been assigned to you yet. Please contact your system administrator."}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-[calc(100vh-8rem)] bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
       {/* Sidebar */}
-      <div className="w-56 border-e border-border bg-muted/20 flex flex-col shrink-0">
-        <div className="p-4 border-b border-border">
-          <Button className="w-full gap-2 shadow-sm" onClick={() => setCompose(true)}>
+      <div className="w-60 border-e border-border bg-muted/20 flex flex-col shrink-0">
+        <div className="p-4 border-b border-border space-y-3">
+          <Button className="w-full gap-2 shadow-sm" onClick={() => setCompose(true)} disabled={!effectiveAccount}>
             <PenSquare className="w-4 h-4" />
             {ar ? "رسالة جديدة" : "Compose"}
           </Button>
+
+          {/* Account Picker */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              {ar ? "الحساب" : "Account"}
+            </p>
+            {accountInfo?.isAdmin ? (
+              <Select value={selectedAccount || ""} onValueChange={v => { setSelectedAccount(v); setMessages([]); setSelectedMsg(null); setPage(1); }}>
+                <SelectTrigger className="h-8 text-xs font-mono">
+                  <SelectValue placeholder={ar ? "اختر حساباً" : "Select account"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {NAWA_EMAIL_ACCOUNTS.map(acc => (
+                    <SelectItem key={acc} value={acc} className="text-xs font-mono">{acc}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <p className="text-xs text-foreground font-mono truncate bg-muted px-2 py-1.5 rounded-md" dir="ltr">
+                {effectiveAccount || "—"}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="p-3 border-b border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-1">{ar ? "حساب" : "Account"}</p>
-          <p className="text-xs text-foreground truncate font-mono">{user?.email}</p>
-        </div>
+
         <ScrollArea className="flex-1 p-2">
           <div className="space-y-0.5">
             {folders.map(f => {
@@ -264,6 +353,11 @@ export default function EmployeeEmail() {
               <p className="text-sm text-destructive font-medium">{ar ? "تعذر الاتصال بالبريد" : "Could not connect to email"}</p>
               <p className="text-xs text-muted-foreground mt-1">{error}</p>
               <Button variant="outline" size="sm" className="mt-3" onClick={fetchInbox}>{ar ? "إعادة المحاولة" : "Retry"}</Button>
+            </div>
+          ) : !effectiveAccount ? (
+            <div className="p-6 text-center text-muted-foreground">
+              <Mail className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <p className="text-sm">{ar ? "اختر حساباً للبدء" : "Select an account to start"}</p>
             </div>
           ) : filtered.length === 0 ? (
             <div className="p-6 text-center text-muted-foreground">
@@ -368,8 +462,22 @@ export default function EmployeeEmail() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 mt-2">
-            <div className="text-sm text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg">
-              {ar ? "من:" : "From:"} <span className="font-mono text-foreground">{user?.email}</span>
+            <div className="text-sm text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg flex items-center gap-2">
+              <span>{ar ? "من:" : "From:"}</span>
+              {accountInfo?.isAdmin ? (
+                <Select value={selectedAccount || ""} onValueChange={setSelectedAccount}>
+                  <SelectTrigger className="h-7 text-xs font-mono flex-1 border-0 bg-transparent p-0 shadow-none">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {NAWA_EMAIL_ACCOUNTS.map(acc => (
+                      <SelectItem key={acc} value={acc} className="text-xs font-mono">{acc}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <span className="font-mono text-foreground">{effectiveAccount}</span>
+              )}
             </div>
             <Input
               placeholder={ar ? "إلى (البريد الإلكتروني)" : "To (email)"}

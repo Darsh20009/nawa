@@ -15,6 +15,16 @@ const SMTP_HOST = "server222.web-hosting.com";
 const SMTP_PORT = 465;
 const EMAIL_PASSWORD = "ASDfgh@12345678nawa";
 
+const NAWA_EMAIL_ACCOUNTS = [
+  "ceo@nawainv.sa",
+  "cob@nawainv.sa",
+  "finance@nawainv.sa",
+  "investment@nawainv.sa",
+  "marketing@nawainv.sa",
+  "support@nawainv.sa",
+  "Info@nawainv.sa",
+];
+
 function getTransporter(fromEmail: string) {
   return nodemailer.createTransport({
     host: SMTP_HOST,
@@ -47,19 +57,42 @@ function toISOSafe(d: Date | string | undefined): string {
   return d.toISOString();
 }
 
-async function getEffectiveEmail(userId: number, fallbackEmail: string): Promise<string> {
-  const [row] = await db.select({ emailAccount: usersTable.emailAccount }).from(usersTable).where(eq(usersTable.id, userId));
-  return row?.emailAccount || fallbackEmail;
+function isAdmin(user: any): boolean {
+  return user?.role === "super_admin" || user?.role === "admin";
 }
+
+async function resolveEmailAccount(user: any, asAccount?: string): Promise<string | null> {
+  if (asAccount && isAdmin(user) && NAWA_EMAIL_ACCOUNTS.includes(asAccount)) {
+    return asAccount;
+  }
+  const [row] = await db.select({ emailAccount: usersTable.emailAccount }).from(usersTable).where(eq(usersTable.id, user.id));
+  return row?.emailAccount || null;
+}
+
+router.get("/email/accounts-list", requireAuth, async (req, res): Promise<void> => {
+  const authUser = (req as any).user;
+  const [row] = await db.select({ emailAccount: usersTable.emailAccount }).from(usersTable).where(eq(usersTable.id, authUser.id));
+  res.json({
+    assignedAccount: row?.emailAccount || null,
+    isAdmin: isAdmin(authUser),
+    allAccounts: isAdmin(authUser) ? NAWA_EMAIL_ACCOUNTS : [],
+  });
+});
 
 router.get("/email/inbox", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
+  const asAccount = req.query.asAccount as string | undefined;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
   const folder = (req.query.folder as string) || "INBOX";
 
-  const client = getImapClient(userEmail);
+  const effectiveEmail = await resolveEmailAccount(authUser, asAccount);
+  if (!effectiveEmail) {
+    res.status(400).json({ error: "no_email_assigned", message: "لم يتم تعيين حساب بريد إلكتروني لك. يرجى التواصل مع مسؤول النظام." });
+    return;
+  }
+
+  const client = getImapClient(effectiveEmail);
   try {
     await client.connect();
     const lock = await client.getMailboxLock(folder);
@@ -70,7 +103,7 @@ router.get("/email/inbox", requireAuth, async (req, res): Promise<void> => {
       const end = Math.max(1, total - (page - 1) * limit);
 
       if (total === 0) {
-        res.json({ messages: [], total: 0, page, limit });
+        res.json({ messages: [], total: 0, page, limit, account: effectiveEmail });
         return;
       }
 
@@ -93,7 +126,7 @@ router.get("/email/inbox", requireAuth, async (req, res): Promise<void> => {
       }
 
       messages.reverse();
-      res.json({ messages, total, page, limit });
+      res.json({ messages, total, page, limit, account: effectiveEmail });
     } finally {
       lock.release();
       await client.logout();
@@ -107,11 +140,17 @@ router.get("/email/inbox", requireAuth, async (req, res): Promise<void> => {
 
 router.get("/email/message/:uid", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
+  const asAccount = req.query.asAccount as string | undefined;
   const uid = parseUid(req.params["uid"]);
   const folder = (req.query.folder as string) || "INBOX";
 
-  const client = getImapClient(userEmail);
+  const effectiveEmail = await resolveEmailAccount(authUser, asAccount);
+  if (!effectiveEmail) {
+    res.status(400).json({ error: "no_email_assigned" });
+    return;
+  }
+
+  const client = getImapClient(effectiveEmail);
   try {
     await client.connect();
     const lock = await client.getMailboxLock(folder);
@@ -152,9 +191,15 @@ router.get("/email/message/:uid", requireAuth, async (req, res): Promise<void> =
 
 router.get("/email/folders", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
+  const asAccount = req.query.asAccount as string | undefined;
 
-  const client = getImapClient(userEmail);
+  const effectiveEmail = await resolveEmailAccount(authUser, asAccount);
+  if (!effectiveEmail) {
+    res.status(400).json({ error: "no_email_assigned" });
+    return;
+  }
+
+  const client = getImapClient(effectiveEmail);
   try {
     await client.connect();
     const list = await client.list();
@@ -174,11 +219,16 @@ router.get("/email/folders", requireAuth, async (req, res): Promise<void> => {
 
 router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const fromEmail = await getEffectiveEmail(authUser.id, authUser.email);
-  const { to, subject, body, cc, bcc, replyTo } = req.body;
+  const { to, subject, body, cc, bcc, replyTo, asAccount } = req.body;
 
   if (!to || !subject || !body) {
     res.status(400).json({ error: "to, subject, and body are required" });
+    return;
+  }
+
+  const fromEmail = await resolveEmailAccount(authUser, asAccount);
+  if (!fromEmail) {
+    res.status(400).json({ error: "no_email_assigned", message: "لم يتم تعيين حساب بريد إلكتروني لك." });
     return;
   }
 
@@ -196,7 +246,7 @@ router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
     if (replyTo) mailOptions.replyTo = replyTo;
 
     await transporter.sendMail(mailOptions);
-    res.json({ success: true, message: "Email sent successfully" });
+    res.json({ success: true, message: "Email sent successfully", from: fromEmail });
   } catch (err: any) {
     logger.error({ err: err.message }, "SMTP send error");
     res.status(500).json({ error: "Failed to send email", detail: err.message });
@@ -205,11 +255,14 @@ router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
 
 router.delete("/email/message/:uid", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
+  const asAccount = req.query.asAccount as string | undefined;
   const uid = parseUid(req.params["uid"]);
   const folder = (req.query.folder as string) || "INBOX";
 
-  const client = getImapClient(userEmail);
+  const effectiveEmail = await resolveEmailAccount(authUser, asAccount);
+  if (!effectiveEmail) { res.status(400).json({ error: "no_email_assigned" }); return; }
+
+  const client = getImapClient(effectiveEmail);
   try {
     await client.connect();
     const lock = await client.getMailboxLock(folder);
@@ -229,11 +282,13 @@ router.delete("/email/message/:uid", requireAuth, async (req, res): Promise<void
 
 router.post("/email/flag/:uid", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
   const uid = parseUid(req.params["uid"]);
-  const { folder = "INBOX", flag = "\\Flagged", add = true } = req.body;
+  const { folder = "INBOX", flag = "\\Flagged", add = true, asAccount } = req.body;
 
-  const client = getImapClient(userEmail);
+  const effectiveEmail = await resolveEmailAccount(authUser, asAccount);
+  if (!effectiveEmail) { res.status(400).json({ error: "no_email_assigned" }); return; }
+
+  const client = getImapClient(effectiveEmail);
   try {
     await client.connect();
     const lock = await client.getMailboxLock(folder);

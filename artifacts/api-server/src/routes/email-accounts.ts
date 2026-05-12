@@ -27,14 +27,9 @@ router.get("/email-accounts", requireAdmin, async (_req, res): Promise<void> => 
     emailAccount: usersTable.emailAccount,
   }).from(usersTable);
 
-  const assignedAccounts = employees
-    .filter(e => e.emailAccount)
-    .map(e => e.emailAccount as string);
-
   const accounts = NAWA_EMAIL_ACCOUNTS.map(email => ({
     email,
-    assignedTo: employees.find(e => e.emailAccount === email) || null,
-    isAvailable: !assignedAccounts.includes(email),
+    assignedEmployees: employees.filter(e => e.emailAccount === email),
   }));
 
   res.json({ accounts, employees });
@@ -67,12 +62,8 @@ router.patch("/email-accounts/assign", requireAdmin, async (req, res): Promise<v
   res.json({ success: true, employee: { id: emp.id, name: emp.name, emailAccount: emp.emailAccount } });
 });
 
-router.get("/email-accounts/my", async (req, res): Promise<void> => {
+router.get("/email-accounts/my", requireAdmin, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  if (!authUser) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
   const [emp] = await db.select({ emailAccount: usersTable.emailAccount }).from(usersTable).where(eq(usersTable.id, authUser.id));
   res.json({ emailAccount: emp?.emailAccount || null });
 });
