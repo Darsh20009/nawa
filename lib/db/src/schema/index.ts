@@ -8,3 +8,5 @@ export * from "./board";
 export * from "./messages";
 export * from "./chat";
 export * from "./pages";
+export * from "./password_resets";
+

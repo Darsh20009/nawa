@@ -4,21 +4,22 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { cn } from "@/lib/utils";
 import logoPath from "@assets/Screenshot_2026-05-12_at_1.51.13_PM_1778583134608.png";
-import { 
-  LayoutDashboard, 
-  MessageSquare, 
-  Bot, 
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Bot,
   LogOut,
   Menu,
   Globe,
-  Inbox
+  Inbox,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function EmployeeLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, logout, isAuthenticated, isLoading } = useAuth();
-  const { language, toggleLanguage, isRtl } = useLanguage();
+  const { language, toggleLanguage } = useLanguage();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -30,8 +31,9 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
 
   const sidebarLinks = [
     { href: "/employee", label: language === "ar" ? "لوحة القيادة" : "Dashboard", icon: LayoutDashboard },
-    { href: "/employee/chat", label: language === "ar" ? "المحادثات" : "Internal Chat", icon: MessageSquare },
-    { href: "/employee/inbox", label: language === "ar" ? "صندوق الوارد" : "Inbox", icon: Inbox },
+    { href: "/employee/email", label: language === "ar" ? "البريد الإلكتروني" : "Email", icon: Mail },
+    { href: "/employee/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare },
+    { href: "/employee/inbox", label: language === "ar" ? "صندوق الرسائل" : "Messages", icon: Inbox },
     { href: "/employee/ai", label: language === "ar" ? "مساعد نوى الذكي" : "AI Assistant", icon: Bot },
   ];
 
@@ -44,18 +46,24 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
             <img src={logoPath} alt="Nawa" className="h-8 brightness-0 invert" />
           </Link>
         </div>
-        
-        <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+
+        <div className="px-4 py-3 border-b border-sidebar-border/50 bg-sidebar-accent/10">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40 mb-1">
+            {language === "ar" ? "بوابة الموظفين" : "Employee Portal"}
+          </p>
+          <p className="text-xs text-sidebar-foreground/60 truncate">{user?.email}</p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
           {sidebarLinks.map((link) => {
             const Icon = link.icon;
             const isActive = location === link.href || (link.href !== "/employee" && location.startsWith(link.href));
-            
             return (
               <Link key={link.href} href={link.href}>
                 <div className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors cursor-pointer",
-                  isActive 
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium" 
+                  isActive
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
                     : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )}>
                   <Icon className="w-5 h-5 shrink-0" />
@@ -67,18 +75,18 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="p-4 border-t border-sidebar-border bg-sidebar-accent/10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-sidebar-primary/20 flex items-center justify-center text-sidebar-primary font-bold">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-full bg-sidebar-primary/20 flex items-center justify-center text-sidebar-primary font-bold text-sm">
               {user?.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-sidebar-foreground truncate">{language === "ar" ? user?.nameAr || user?.name : user?.name}</p>
-              <p className="text-xs text-sidebar-foreground/60 truncate capitalize">{user?.role.replace("_", " ")}</p>
+              <p className="text-xs text-sidebar-foreground/60 truncate capitalize">{user?.role?.replace("_", " ")}</p>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start text-sidebar-foreground/80 hover:text-white hover:bg-white/10" 
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-sidebar-foreground/80 hover:text-white hover:bg-white/10"
             onClick={logout}
           >
             <LogOut className="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" />
@@ -89,31 +97,28 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
-        <header className="h-20 bg-white border-b border-border flex items-center justify-between px-6 sticky top-0 z-30">
+        <header className="h-16 bg-white border-b border-border flex items-center justify-between px-6 sticky top-0 z-30">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="lg:hidden">
               <Menu className="w-5 h-5" />
             </Button>
-            <h2 className="text-xl font-semibold text-foreground hidden sm:block">
+            <h2 className="text-lg font-semibold text-foreground hidden sm:block">
               {language === "ar" ? "بوابة الموظفين" : "Employee Portal"}
             </h2>
           </div>
-          
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-2">
               <Globe className="w-4 h-4" />
               <span>{language === "ar" ? "EN" : "AR"}</span>
             </Button>
             <Link href="/">
               <Button variant="outline" size="sm">
-                {language === "ar" ? "الموقع الرئيسي" : "Main Website"}
+                {language === "ar" ? "الموقع" : "Website"}
               </Button>
             </Link>
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 p-6 overflow-x-hidden">
           {children}
         </main>

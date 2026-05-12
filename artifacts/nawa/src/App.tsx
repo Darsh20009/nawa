@@ -40,6 +40,8 @@ import Contact from "@/pages/contact";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Login from "@/pages/auth/login";
+import ForgotPassword from "@/pages/auth/forgot-password";
+import ResetPassword from "@/pages/auth/reset-password";
 import NotFound from "@/pages/not-found";
 
 // Admin Pages
@@ -55,12 +57,14 @@ import AdminMessages from "@/pages/admin/messages";
 import AdminPages from "@/pages/admin/pages";
 import AdminAiPage from "@/pages/admin/ai";
 import AdminChatPage from "@/pages/admin/chat";
+import AdminEmailPage from "@/pages/admin/email";
 
 // Employee Pages
 import EmployeeDashboard from "@/pages/employee/dashboard";
 import EmployeeInbox from "@/pages/employee/inbox";
 import EmployeeAiPage from "@/pages/employee/ai";
 import EmployeeChatPage from "@/pages/employee/chat";
+import EmployeeEmailPage from "@/pages/employee/email";
 
 // Splash Screen Component
 function SplashScreen({ onComplete }: { onComplete: () => void }) {
@@ -120,6 +124,7 @@ function AnimatedRouter() {
           <Route path="/admin/pages" component={AdminPages} />
           <Route path="/admin/ai" component={AdminAiPage} />
           <Route path="/admin/chat" component={AdminChatPage} />
+          <Route path="/admin/email" component={AdminEmailPage} />
           <Route component={() => <div className="p-6">Page under construction</div>} />
         </Switch>
       </AdminLayout>
@@ -134,6 +139,7 @@ function AnimatedRouter() {
           <Route path="/employee/chat" component={EmployeeChatPage} />
           <Route path="/employee/inbox" component={EmployeeInbox} />
           <Route path="/employee/ai" component={EmployeeAiPage} />
+          <Route path="/employee/email" component={EmployeeEmailPage} />
           <Route component={NotFound} />
         </Switch>
       </EmployeeLayout>
@@ -144,6 +150,8 @@ function AnimatedRouter() {
     return (
       <Switch location={location}>
         <Route path="/auth/login" component={Login} />
+        <Route path="/auth/forgot-password" component={ForgotPassword} />
+        <Route path="/auth/reset-password" component={ResetPassword} />
         <Route component={NotFound} />
       </Switch>
     );

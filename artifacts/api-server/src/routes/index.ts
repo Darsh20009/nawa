@@ -13,6 +13,8 @@ import chatRouter from "./chat";
 import aiRouter from "./ai";
 import pagesRouter from "./pages";
 import statsRouter from "./stats";
+import emailRouter from "./email";
+import forgotPasswordRouter from "./forgot-password";
 
 const router: IRouter = Router();
 
@@ -30,5 +32,7 @@ router.use(chatRouter);
 router.use(aiRouter);
 router.use(pagesRouter);
 router.use(statsRouter);
+router.use(emailRouter);
+router.use(forgotPasswordRouter);
 
 export default router;
