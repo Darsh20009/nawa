@@ -7,7 +7,7 @@
  */
 
 export interface Broker {
-  id: number;
+  id: string;
   name: string;
   nameAr: string;
   /** @nullable */

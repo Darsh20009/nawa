@@ -1,14 +1,14 @@
 import { Router, type IRouter } from "express";
-import { db } from "@workspace/db";
-import { usersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { Types } from "@workspace/db";
+import { User } from "@workspace/db";
 import { requireAdmin } from "../middlewares/auth";
 import { hashPassword } from "../lib/auth";
 
 const router: IRouter = Router();
+const isValidId = (id: string) => Types.ObjectId.isValid(id);
 
-const toDto = (u: typeof usersTable.$inferSelect) => ({
-  id: u.id,
+const toDto = (u: any) => ({
+  id: u.id ?? u._id?.toString(),
   name: u.name,
   nameAr: u.nameAr,
   email: u.email,
@@ -19,11 +19,11 @@ const toDto = (u: typeof usersTable.$inferSelect) => ({
   active: u.active,
   permissions: u.permissions,
   emailAccount: u.emailAccount,
-  createdAt: u.createdAt.toISOString(),
+  createdAt: u.createdAt instanceof Date ? u.createdAt.toISOString() : u.createdAt,
 });
 
 router.get("/employees", requireAdmin, async (_req, res): Promise<void> => {
-  const results = await db.select().from(usersTable);
+  const results = await User.find();
   res.json(results.map(toDto));
 });
 
@@ -31,33 +31,33 @@ router.post("/employees", requireAdmin, async (req, res): Promise<void> => {
   const { password, ...rest } = req.body;
   if (!password) { res.status(400).json({ error: "Password required" }); return; }
   const hashed = await hashPassword(password);
-  const [employee] = await db.insert(usersTable).values({ ...rest, password: hashed }).returning();
+  const employee = await User.create({ ...rest, password: hashed });
   res.status(201).json(toDto(employee));
 });
 
 router.get("/employees/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
-  const [emp] = await db.select().from(usersTable).where(eq(usersTable.id, id));
+  const id = String(req.params.id);
+  if (!isValidId(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  const emp = await User.findById(id);
   if (!emp) { res.status(404).json({ error: "Not found" }); return; }
   res.json(toDto(emp));
 });
 
 router.patch("/employees/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  const id = String(req.params.id);
+  if (!isValidId(id)) { res.status(400).json({ error: "Invalid id" }); return; }
   const { password, ...rest } = req.body;
   const updateData: Record<string, unknown> = { ...rest };
   if (password) updateData.password = await hashPassword(password);
-  const [emp] = await db.update(usersTable).set(updateData).where(eq(usersTable.id, id)).returning();
+  const emp = await User.findByIdAndUpdate(id, updateData, { new: true });
   if (!emp) { res.status(404).json({ error: "Not found" }); return; }
   res.json(toDto(emp));
 });
 
 router.delete("/employees/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
-  await db.delete(usersTable).where(eq(usersTable.id, id));
+  const id = String(req.params.id);
+  if (!isValidId(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  await User.findByIdAndDelete(id);
   res.sendStatus(204);
 });
 

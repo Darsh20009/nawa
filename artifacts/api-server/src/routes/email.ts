@@ -3,9 +3,7 @@ import { requireAuth } from "../middlewares/auth";
 import { logger } from "../lib/logger";
 import nodemailer from "nodemailer";
 import { ImapFlow } from "imapflow";
-import { db } from "@workspace/db";
-import { usersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { User } from "@workspace/db";
 
 const router: IRouter = Router();
 
@@ -69,13 +67,13 @@ async function resolveEmailAccount(user: any, asAccount?: string): Promise<strin
   if (asAccount && isAdmin(user) && NAWA_EMAIL_ACCOUNTS.includes(asAccount)) {
     return asAccount;
   }
-  const [row] = await db.select({ emailAccount: usersTable.emailAccount }).from(usersTable).where(eq(usersTable.id, user.id));
+  const row = await User.findById(user.id, { emailAccount: 1 });
   return row?.emailAccount || null;
 }
 
 router.get("/email/accounts-list", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const [row] = await db.select({ emailAccount: usersTable.emailAccount }).from(usersTable).where(eq(usersTable.id, authUser.id));
+  const row = await User.findById(authUser.id, { emailAccount: 1 });
   res.json({
     assignedAccount: row?.emailAccount || null,
     isAdmin: isAdmin(authUser),
@@ -149,10 +147,7 @@ router.get("/email/message/:uid", requireAuth, async (req, res): Promise<void> =
   const folder = (req.query.folder as string) || "INBOX";
 
   const effectiveEmail = await resolveEmailAccount(authUser, asAccount);
-  if (!effectiveEmail) {
-    res.status(400).json({ error: "no_email_assigned" });
-    return;
-  }
+  if (!effectiveEmail) { res.status(400).json({ error: "no_email_assigned" }); return; }
 
   const client = getImapClient(effectiveEmail);
   try {
@@ -177,10 +172,7 @@ router.get("/email/message/:uid", requireAuth, async (req, res): Promise<void> =
         };
       }
       await client.messageFlagsAdd(uid.toString(), ["\\Seen"], { uid: true });
-      if (!found) {
-        res.status(404).json({ error: "Message not found" });
-        return;
-      }
+      if (!found) { res.status(404).json({ error: "Message not found" }); return; }
       res.json(found);
     } finally {
       lock.release();
@@ -196,22 +188,14 @@ router.get("/email/message/:uid", requireAuth, async (req, res): Promise<void> =
 router.get("/email/folders", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
   const asAccount = req.query.asAccount as string | undefined;
-
   const effectiveEmail = await resolveEmailAccount(authUser, asAccount);
-  if (!effectiveEmail) {
-    res.status(400).json({ error: "no_email_assigned" });
-    return;
-  }
+  if (!effectiveEmail) { res.status(400).json({ error: "no_email_assigned" }); return; }
 
   const client = getImapClient(effectiveEmail);
   try {
     await client.connect();
     const list = await client.list();
-    const folders = list.map((f: any) => ({
-      name: f.name,
-      path: f.path,
-      delimiter: f.delimiter,
-    }));
+    const folders = list.map((f: any) => ({ name: f.name, path: f.path, delimiter: f.delimiter }));
     await client.logout();
     res.json(folders);
   } catch (err: any) {
@@ -240,9 +224,7 @@ router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
     const transporter = getTransporter(fromEmail);
     const mailOptions: any = {
       from: `${authUser.name || "نوى العقارية"} <${fromEmail}>`,
-      to,
-      subject,
-      html: body,
+      to, subject, html: body,
       text: body.replace(/<[^>]*>/g, ""),
     };
     if (cc) mailOptions.cc = cc;

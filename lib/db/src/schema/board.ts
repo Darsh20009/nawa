@@ -1,22 +1,22 @@
-import { pgTable, text, serial, timestamp, integer } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { Schema, model, type InferSchemaType, type Model } from "mongoose";
+import { baseOptions } from "../_helpers";
 
-export const boardMembersTable = pgTable("board_members", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  nameAr: text("name_ar").notNull(),
-  position: text("position").notNull(),
-  positionAr: text("position_ar").notNull(),
-  bio: text("bio"),
-  bioAr: text("bio_ar"),
-  avatar: text("avatar"),
-  linkedIn: text("linked_in"),
-  order: integer("order").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const boardMemberSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    nameAr: { type: String, required: true },
+    position: { type: String, required: true },
+    positionAr: { type: String, required: true },
+    bio: { type: String, default: null },
+    bioAr: { type: String, default: null },
+    avatar: { type: String, default: null },
+    linkedIn: { type: String, default: null },
+    order: { type: Number, required: true, default: 0 },
+  },
+  baseOptions,
+);
 
-export const insertBoardMemberSchema = createInsertSchema(boardMembersTable).omit({ id: true, createdAt: true, updatedAt: true });
-export type InsertBoardMember = z.infer<typeof insertBoardMemberSchema>;
-export type BoardMember = typeof boardMembersTable.$inferSelect;
+export type BoardMember = InferSchemaType<typeof boardMemberSchema> & { id: string; createdAt: Date; updatedAt: Date };
+export type InsertBoardMember = Omit<BoardMember, "id" | "createdAt" | "updatedAt">;
+export const BoardMember: Model<BoardMember> = (globalThis as any).__nawa_BoardMember || model<BoardMember>("BoardMember", boardMemberSchema);
+(globalThis as any).__nawa_BoardMember = BoardMember;

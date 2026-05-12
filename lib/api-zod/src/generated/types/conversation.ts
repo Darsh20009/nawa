@@ -7,7 +7,7 @@
  */
 
 export interface Conversation {
-  id: number;
+  id: string;
   title: string;
   isGroup?: boolean;
   /** @nullable */

@@ -27,8 +27,8 @@ export default function AdminJobs() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = language === "ar" ? "إدارة الوظائف | نوى العقارية" : "Manage Jobs | Nawa Real Estate Platform";

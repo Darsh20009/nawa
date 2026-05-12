@@ -29,7 +29,7 @@ export default function AdminApplications() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [jobFilter, setJobFilter] = useState<string>("all");
   const [viewing, setViewing] = useState<any | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function AdminApplications() {
   const { data: jobs } = useListJobs();
 
   const jobMap = useMemo(() => {
-    const m = new Map<number, any>();
+    const m = new Map<string, any>();
     (jobs || []).forEach(j => m.set(j.id, j));
     return m;
   }, [jobs]);

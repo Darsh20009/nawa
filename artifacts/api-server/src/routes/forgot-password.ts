@@ -1,7 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db } from "@workspace/db";
-import { usersTable, passwordResetsTable } from "@workspace/db";
-import { eq, and, gt } from "drizzle-orm";
+import { User, PasswordReset } from "@workspace/db";
 import { hashPassword } from "../lib/auth";
 import { logger } from "../lib/logger";
 import nodemailer from "nodemailer";
@@ -9,10 +7,14 @@ import crypto from "crypto";
 
 const router: IRouter = Router();
 
-const SMTP_HOST = "server222.web-hosting.com";
-const SMTP_PORT = 465;
-const SMTP_USER = "ceo@nawainv.sa";
-const SMTP_PASS = "ASDfgh@12345678nawa";
+const SMTP_HOST = process.env.SMTP_HOST || "server222.web-hosting.com";
+const SMTP_PORT = Number(process.env.SMTP_PORT || 465);
+const SMTP_USER = process.env.SMTP_RESET_FROM || "ceo@nawainv.sa";
+const SMTP_PASS = process.env.SMTP_PASSWORD || process.env.EMAIL_PASSWORD || "";
+
+if (!SMTP_PASS) {
+  logger.warn("SMTP_PASSWORD not set — password reset emails will fail");
+}
 
 function getTransporter() {
   return nodemailer.createTransport({
@@ -31,7 +33,7 @@ router.post("/auth/forgot-password", async (req, res): Promise<void> => {
     return;
   }
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email.toLowerCase().trim()));
+  const user = await User.findOne({ email: String(email).toLowerCase().trim() });
 
   if (!user) {
     res.json({ success: true, message: "If that email exists, you will receive a reset link" });
@@ -41,7 +43,7 @@ router.post("/auth/forgot-password", async (req, res): Promise<void> => {
   const token = crypto.randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60);
 
-  await db.insert(passwordResetsTable).values({ email: user.email, token, expiresAt });
+  await PasswordReset.create({ email: user.email, token, expiresAt });
 
   const resetUrl = `${process.env.APP_URL || "https://nawainv.sa"}/auth/reset-password?token=${token}`;
 
@@ -91,16 +93,11 @@ router.post("/auth/reset-password", async (req, res): Promise<void> => {
     return;
   }
 
-  const [reset] = await db
-    .select()
-    .from(passwordResetsTable)
-    .where(
-      and(
-        eq(passwordResetsTable.token, token),
-        eq(passwordResetsTable.used, false),
-        gt(passwordResetsTable.expiresAt, new Date()),
-      ),
-    );
+  const reset = await PasswordReset.findOne({
+    token,
+    used: false,
+    expiresAt: { $gt: new Date() },
+  });
 
   if (!reset) {
     res.status(400).json({ error: "Invalid or expired reset token" });
@@ -108,8 +105,8 @@ router.post("/auth/reset-password", async (req, res): Promise<void> => {
   }
 
   const hashed = await hashPassword(password);
-  await db.update(usersTable).set({ password: hashed }).where(eq(usersTable.email, reset.email));
-  await db.update(passwordResetsTable).set({ used: true }).where(eq(passwordResetsTable.id, reset.id));
+  await User.findOneAndUpdate({ email: reset.email }, { password: hashed });
+  await PasswordReset.findByIdAndUpdate(reset._id, { used: true });
 
   res.json({ success: true, message: "Password reset successfully" });
 });

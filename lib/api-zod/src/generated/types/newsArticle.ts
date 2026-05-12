@@ -7,7 +7,7 @@
  */
 
 export interface NewsArticle {
-  id: number;
+  id: string;
   title: string;
   titleAr: string;
   /** @nullable */

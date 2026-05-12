@@ -1,21 +1,21 @@
-import { pgTable, text, serial, timestamp, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { Schema, model, type InferSchemaType, type Model } from "mongoose";
+import { baseOptions } from "../_helpers";
 
-export const newsTable = pgTable("news", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  titleAr: text("title_ar").notNull(),
-  content: text("content"),
-  contentAr: text("content_ar"),
-  category: text("category").notNull().default("news"),
-  imageUrl: text("image_url"),
-  featured: boolean("featured").notNull().default(false),
-  publishedAt: timestamp("published_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const newsSchema = new Schema(
+  {
+    title: { type: String, required: true },
+    titleAr: { type: String, required: true },
+    content: { type: String, default: null },
+    contentAr: { type: String, default: null },
+    category: { type: String, required: true, default: "news" },
+    imageUrl: { type: String, default: null },
+    featured: { type: Boolean, required: true, default: false },
+    publishedAt: { type: Date, default: null },
+  },
+  baseOptions,
+);
 
-export const insertNewsSchema = createInsertSchema(newsTable).omit({ id: true, createdAt: true, updatedAt: true });
-export type InsertNews = z.infer<typeof insertNewsSchema>;
-export type News = typeof newsTable.$inferSelect;
+export type News = InferSchemaType<typeof newsSchema> & { id: string; createdAt: Date; updatedAt: Date };
+export type InsertNews = Omit<News, "id" | "createdAt" | "updatedAt">;
+export const News: Model<News> = (globalThis as any).__nawa_News || model<News>("News", newsSchema);
+(globalThis as any).__nawa_News = News;

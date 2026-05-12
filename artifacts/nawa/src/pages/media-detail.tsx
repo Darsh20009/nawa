@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 
 export default function MediaDetail() {
   const params = useParams();
-  const id = parseInt(params.id || "0");
+  const id = params.id || "";
   const { language, isRtl } = useLanguage();
   const t = translations[language];
 

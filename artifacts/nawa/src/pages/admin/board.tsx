@@ -18,8 +18,8 @@ export default function AdminBoard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = language === "ar" ? "إدارة مجلس الإدارة | نوى العقارية" : "Manage Board | Nawa Real Estate Platform";

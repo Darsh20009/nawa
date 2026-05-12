@@ -7,7 +7,7 @@
  */
 
 export interface Project {
-  id: number;
+  id: string;
   title: string;
   titleAr: string;
   /** @nullable */

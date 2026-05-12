@@ -16,7 +16,7 @@ export default function AdminMessages() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function AdminMessages() {
     }
   };
 
-  const handleStatusChange = (id: number, status: string) => {
+  const handleStatusChange = (id: string, status: string) => {
     updateMut.mutate({ id, data: { status } });
     toast({ title: language === "ar" ? "تم تحديث الحالة" : "Status Updated" });
   };

@@ -1,25 +1,25 @@
-import { pgTable, text, serial, timestamp, boolean, real, integer } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { Schema, model, type InferSchemaType, type Model } from "mongoose";
+import { baseOptions } from "../_helpers";
 
-export const brokersTable = pgTable("brokers", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  nameAr: text("name_ar").notNull(),
-  email: text("email"),
-  phone: text("phone"),
-  specialization: text("specialization"),
-  specializationAr: text("specialization_ar"),
-  bio: text("bio"),
-  bioAr: text("bio_ar"),
-  avatar: text("avatar"),
-  rating: real("rating"),
-  dealsCount: integer("deals_count"),
-  active: boolean("active").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const brokerSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    nameAr: { type: String, required: true },
+    email: { type: String, default: null },
+    phone: { type: String, default: null },
+    specialization: { type: String, default: null },
+    specializationAr: { type: String, default: null },
+    bio: { type: String, default: null },
+    bioAr: { type: String, default: null },
+    avatar: { type: String, default: null },
+    rating: { type: Number, default: null },
+    dealsCount: { type: Number, default: null },
+    active: { type: Boolean, required: true, default: true },
+  },
+  baseOptions,
+);
 
-export const insertBrokerSchema = createInsertSchema(brokersTable).omit({ id: true, createdAt: true, updatedAt: true });
-export type InsertBroker = z.infer<typeof insertBrokerSchema>;
-export type Broker = typeof brokersTable.$inferSelect;
+export type Broker = InferSchemaType<typeof brokerSchema> & { id: string; createdAt: Date; updatedAt: Date };
+export type InsertBroker = Omit<Broker, "id" | "createdAt" | "updatedAt">;
+export const Broker: Model<Broker> = (globalThis as any).__nawa_Broker || model<Broker>("Broker", brokerSchema);
+(globalThis as any).__nawa_Broker = Broker;

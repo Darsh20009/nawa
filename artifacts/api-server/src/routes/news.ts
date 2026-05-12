@@ -1,60 +1,47 @@
 import { Router, type IRouter } from "express";
-import { db } from "@workspace/db";
-import { newsTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { Types } from "@workspace/db";
+import { News } from "@workspace/db";
 import { requireAdmin } from "../middlewares/auth";
 
 const router: IRouter = Router();
-
-const toDto = (n: typeof newsTable.$inferSelect) => ({
-  ...n,
-  publishedAt: n.publishedAt ? n.publishedAt.toISOString() : null,
-  createdAt: n.createdAt.toISOString(),
-  updatedAt: n.updatedAt.toISOString(),
-});
+const isValidId = (id: string) => Types.ObjectId.isValid(id);
 
 router.get("/news", async (req, res): Promise<void> => {
-  const results = await db.select().from(newsTable).orderBy(desc(newsTable.createdAt));
-  const { category, featured } = req.query;
-  let filtered = results;
-  if (category) filtered = filtered.filter(n => n.category === category);
-  if (featured === "true") filtered = filtered.filter(n => n.featured);
-  res.json(filtered.map(toDto));
+  const filter: Record<string, unknown> = {};
+  if (req.query.category) filter.category = req.query.category;
+  if (req.query.featured === "true") filter.featured = true;
+  const results = await News.find(filter).sort({ createdAt: -1 });
+  res.json(results.map(n => n.toJSON()));
 });
 
 router.post("/news", requireAdmin, async (req, res): Promise<void> => {
-  const body = req.body;
-  const [article] = await db.insert(newsTable).values({
-    ...body,
-    publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
-  }).returning();
-  res.status(201).json(toDto(article));
+  const body = { ...req.body, publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : null };
+  const article = await News.create(body);
+  res.status(201).json(article.toJSON());
 });
 
 router.get("/news/:id", async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
-  const [article] = await db.select().from(newsTable).where(eq(newsTable.id, id));
+  const id = String(req.params.id);
+  if (!isValidId(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  const article = await News.findById(id);
   if (!article) { res.status(404).json({ error: "Not found" }); return; }
-  res.json(toDto(article));
+  res.json(article.toJSON());
 });
 
 router.patch("/news/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
-  const body = req.body;
-  const [article] = await db.update(newsTable).set({
-    ...body,
-    publishedAt: body.publishedAt ? new Date(body.publishedAt) : undefined,
-  }).where(eq(newsTable.id, id)).returning();
+  const id = String(req.params.id);
+  if (!isValidId(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  const body = { ...req.body };
+  if (body.publishedAt) body.publishedAt = new Date(body.publishedAt);
+  const article = await News.findByIdAndUpdate(id, body, { new: true });
   if (!article) { res.status(404).json({ error: "Not found" }); return; }
-  res.json(toDto(article));
+  res.json(article.toJSON());
 });
 
 router.delete("/news/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
-  await db.delete(newsTable).where(eq(newsTable.id, id));
+  const id = String(req.params.id);
+  if (!isValidId(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  await News.findByIdAndDelete(id);
   res.sendStatus(204);
 });
 

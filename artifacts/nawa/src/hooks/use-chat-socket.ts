@@ -1,21 +1,21 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 type WsEvent =
-  | { type: "message"; conversationId: number; message: any }
-  | { type: "typing"; conversationId: number; userId: number; userName: string; isTyping: boolean }
-  | { type: "presence"; userId: number; online: boolean }
-  | { type: "presence:init"; onlineIds: number[] }
-  | { type: "read"; conversationId: number; userId: number }
+  | { type: "message"; conversationId: string; message: any }
+  | { type: "typing"; conversationId: string; userId: string; userName: string; isTyping: boolean }
+  | { type: "presence"; userId: string; online: boolean }
+  | { type: "presence:init"; onlineIds: string[] }
+  | { type: "read"; conversationId: string; userId: string }
   | { type: "pong" };
 
 interface UseChatSocketOptions {
-  onMessage?: (conversationId: number, message: any) => void;
-  onTyping?: (conversationId: number, userId: number, userName: string, isTyping: boolean) => void;
+  onMessage?: (conversationId: string, message: any) => void;
+  onTyping?: (conversationId: string, userId: string, userName: string, isTyping: boolean) => void;
 }
 
 export function useChatSocket({ onMessage, onTyping }: UseChatSocketOptions = {}) {
   const [connected, setConnected] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shouldReconnectRef = useRef(true);
@@ -82,14 +82,14 @@ export function useChatSocket({ onMessage, onTyping }: UseChatSocketOptions = {}
     };
   }, [connect]);
 
-  const sendTyping = useCallback((conversationId: number, isTyping: boolean) => {
+  const sendTyping = useCallback((conversationId: string, isTyping: boolean) => {
     const ws = wsRef.current;
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: "typing", conversationId, isTyping }));
     }
   }, []);
 
-  const subscribe = useCallback((_conversationId: number) => {
+  const subscribe = useCallback((_conversationId: string) => {
     // Server-side authorization derives subscription from conversation membership;
     // no explicit subscribe call needed.
   }, []);

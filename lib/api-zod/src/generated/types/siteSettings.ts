@@ -7,7 +7,7 @@
  */
 
 export interface SiteSettings {
-  id?: number;
+  id?: string;
   siteName?: string;
   siteNameEn?: string;
   tagline?: string;

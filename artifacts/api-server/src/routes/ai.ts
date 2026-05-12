@@ -1,9 +1,7 @@
 import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/auth";
 import { logger } from "../lib/logger";
-import { db } from "@workspace/db";
-import { newsTable, jobsTable, messagesTable, projectsTable, brokersTable, usersTable } from "@workspace/db";
-import { count, desc, eq } from "drizzle-orm";
+import { News, Job, Message, Project, Broker, User } from "@workspace/db";
 import { sendNawaMail, wrapNawaEmailHtml, NAWA_EMAIL_ACCOUNTS } from "../lib/mailer";
 
 const router: IRouter = Router();
@@ -149,7 +147,7 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
         const contentAr = typeof args.contentAr === "string" ? args.contentAr.trim() : "";
         if (!titleAr || !title) return { ok: false, error: "العنوان بالعربي والإنجليزي إلزامي" };
         if (!contentAr) return { ok: false, error: "محتوى الخبر بالعربي إلزامي" };
-        const [row] = await db.insert(newsTable).values({
+        const row = await News.create({
           title,
           titleAr,
           content: typeof args.content === "string" ? args.content : contentAr,
@@ -157,7 +155,7 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
           category: typeof args.category === "string" ? args.category : "news",
           featured: !!args.featured,
           publishedAt: new Date(),
-        }).returning();
+        });
         return { ok: true, result: { id: row.id, title: row.titleAr, kind: "news" } };
       }
       case "publish_job": {
@@ -168,7 +166,7 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
         const department = typeof args.department === "string" ? args.department.trim() : departmentAr;
         if (!titleAr || !title) return { ok: false, error: "اسم الوظيفة بالعربي والإنجليزي إلزامي" };
         if (!departmentAr || !department) return { ok: false, error: "القسم إلزامي" };
-        const [row] = await db.insert(jobsTable).values({
+        const row = await Job.create({
           title,
           titleAr,
           department,
@@ -180,7 +178,7 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
           type: typeof args.type === "string" ? args.type : "full-time",
           location: typeof args.location === "string" ? args.location : "الرياض",
           active: true,
-        }).returning();
+        });
         return { ok: true, result: { id: row.id, title: row.titleAr, kind: "job" } };
       }
       case "send_email": {
@@ -195,7 +193,7 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
         if (args.fromAccount && isAdmin(authUser) && (NAWA_EMAIL_ACCOUNTS as readonly string[]).includes(args.fromAccount)) {
           from = args.fromAccount;
         } else {
-          const [u] = await db.select({ emailAccount: usersTable.emailAccount }).from(usersTable).where(eq(usersTable.id, authUser.id));
+          const u = await User.findById(authUser.id, { emailAccount: 1 });
           if (u?.emailAccount && (NAWA_EMAIL_ACCOUNTS as readonly string[]).includes(u.emailAccount)) from = u.emailAccount;
         }
         const html = wrapNawaEmailHtml({ title: typeof args.title === "string" ? args.title : undefined, bodyHtml, lang: args.language === "en" ? "en" : "ar" });
@@ -205,30 +203,30 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
       }
       case "review_pending_tasks": {
         const limit = Math.min(Number(args.limit) || 5, 20);
-        const [unread] = await db.select({ c: count() }).from(messagesTable).where(eq(messagesTable.status, "unread"));
-        const recentMsgs = await db.select().from(messagesTable).orderBy(desc(messagesTable.createdAt)).limit(limit);
+        const [unread, recentMsgs] = await Promise.all([
+          Message.countDocuments({ status: "unread" }),
+          Message.find().sort({ createdAt: -1 }).limit(limit),
+        ]);
         return {
           ok: true,
           result: {
-            unreadMessages: unread.c,
+            unreadMessages: unread,
             recentMessages: recentMsgs.map(m => ({ id: m.id, name: m.name, subject: m.subject, status: m.status, at: m.createdAt })),
           },
         };
       }
       case "get_dashboard_stats": {
-        const [[p], [b], [m], [u], [j], [unread]] = await Promise.all([
-          db.select({ c: count() }).from(projectsTable),
-          db.select({ c: count() }).from(brokersTable),
-          db.select({ c: count() }).from(messagesTable),
-          db.select({ c: count() }).from(usersTable),
-          db.select({ c: count() }).from(jobsTable),
-          db.select({ c: count() }).from(messagesTable).where(eq(messagesTable.status, "unread")),
+        const [p, b, m, u, j, unread] = await Promise.all([
+          Project.countDocuments(),
+          Broker.countDocuments(),
+          Message.countDocuments(),
+          User.countDocuments(),
+          Job.countDocuments(),
+          Message.countDocuments({ status: "unread" }),
         ]);
         return {
           ok: true,
-          result: {
-            projects: p.c, brokers: b.c, messages: m.c, employees: u.c, jobs: j.c, unreadMessages: unread.c,
-          },
+          result: { projects: p, brokers: b, messages: m, employees: u, jobs: j, unreadMessages: unread },
         };
       }
       case "draft_project_description":

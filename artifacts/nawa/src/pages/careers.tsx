@@ -51,7 +51,7 @@ export default function Careers() {
   const { language } = useLanguage();
   const t = translations[language];
   const { toast } = useToast();
-  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [resumeUploading, setResumeUploading] = useState(false);
   const [resumeProgress, setResumeProgress] = useState(0);
@@ -147,7 +147,7 @@ export default function Careers() {
 
   const goPrev = () => setStep((s) => Math.max(1, s - 1));
 
-  const openApply = (jobId: number) => { setSelectedJobId(jobId); setStep(1); };
+  const openApply = (jobId: string) => { setSelectedJobId(jobId); setStep(1); };
 
   const closeApply = (open: boolean) => {
     if (!open) { setSelectedJobId(null); setStep(1); form.reset(); setResumeFileName(""); }

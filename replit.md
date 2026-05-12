@@ -9,15 +9,14 @@ A full-stack luxury real estate platform for nawainv.sa — cinematic client web
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string, `KIMI_API_KEY` — Kimi AI key, `SESSION_SECRET` — JWT secret
+- Required env: `MONGODB_URI` — MongoDB Atlas connection string, `KIMI_API_KEY` — Kimi AI key, `SESSION_SECRET` — JWT secret, `SMTP_PASSWORD` — outbound email password
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
 - API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
+- DB: MongoDB Atlas + Mongoose 8 (models in `lib/db/src/schema/`)
+- Validation: Zod (`zod/v4`)
 - API codegen: Orval (from OpenAPI spec)
 - Build: esbuild (CJS bundle)
 - Frontend: React + Vite + Tailwind + shadcn/ui + Framer Motion + Zustand
@@ -26,13 +25,14 @@ A full-stack luxury real estate platform for nawainv.sa — cinematic client web
 
 - `artifacts/nawa/` — React+Vite frontend (client site + admin CMS + employee portal)
 - `artifacts/api-server/` — Express 5 API server
-- `lib/db/` — Drizzle ORM schema + migrations
+- `lib/db/` — Mongoose models + connectDb()
 - `lib/api-client-react/` — Orval-generated React Query hooks
 - `lib/api-spec/` — OpenAPI spec source of truth
 - `scripts/src/seed.ts` — database seeding script
 
 ### Key files
-- `lib/db/src/schema/index.ts` — source of truth for DB schema
+- `lib/db/src/schema/index.ts` — barrel re-exports for all 13 Mongoose models
+- `lib/db/src/_helpers.ts` — shared `baseOptions` (timestamps + toJSON id transform). Intentionally untyped so InferSchemaType flows correctly.
 - `lib/api-spec/` — OpenAPI spec → all generated hooks/schemas derive from this
 - `artifacts/nawa/src/App.tsx` — routing, splash screen, QueryClientProvider
 - `artifacts/nawa/src/hooks/use-language.ts` — Zustand AR/EN language store
@@ -66,14 +66,17 @@ Three portals in one app:
 ## Seed data / credentials
 
 - Admin login: `ceo@nawainv.sa` / `admin123` (role: `super_admin`)
-- 4 seeded projects, 6 services, 3 news articles, 3 jobs, 3 brokers, 4 board members
+- 4 seeded projects, 6 services, 3 news articles, 3 jobs, 3 brokers, 4 board members, 1 group conversation
 
 ## Gotchas
 
 - **Do not run `pnpm dev` at workspace root** — use `restart_workflow` instead.
 - `useListJobs`, `useListMessages`, `useListNews`, `useListProjects` accept NO options wrapper when no params needed (Orval-generated signatures vary).
 - Pages admin uses `slug` (not `id`) for `updatePage`/`deletePage` mutations.
-- `pnpm --filter @workspace/db run push` requires `DATABASE_URL` in env — it's available in the workflow environment automatically.
+- All entity ids are MongoDB ObjectId strings (24-char hex). The OpenAPI spec uses `type: string` for all id fields. Frontend state for selected ids is `useState<string | null>`.
+- API server imports `Types` from `@workspace/db` (re-exported from mongoose) for `ObjectId.isValid` checks — mongoose itself is not in api-server deps.
+- `@workspace/db` is consumed via package.json `exports` pointing directly to `./src/index.ts` (no dist build, no composite ref). Don't add it back to project references.
+- Seed: `pnpm --filter @workspace/scripts exec tsx src/seed.ts`. It uses `Model.deleteMany({})` then `insertMany`.
 - Stats routes are intentionally public (no `requireAuth`) so the homepage can show live counts.
 - bcryptjs (not bcrypt) is used — native bcrypt fails in this NixOS environment.
 

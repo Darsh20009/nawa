@@ -7,8 +7,8 @@
  */
 
 export interface JobApplication {
-  id: number;
-  jobId: number;
+  id: string;
+  jobId: string;
   applicantName: string;
   email: string;
   /** @nullable */

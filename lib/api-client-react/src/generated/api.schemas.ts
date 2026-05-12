@@ -34,7 +34,7 @@ export interface LoginInput {
 }
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
   name: string;
   /** @nullable */
@@ -53,7 +53,7 @@ export interface AuthResponse {
 }
 
 export interface Project {
-  id: number;
+  id: string;
   title: string;
   titleAr: string;
   /** @nullable */
@@ -122,7 +122,7 @@ export interface ProjectUpdate {
 }
 
 export interface Service {
-  id: number;
+  id: string;
   title: string;
   titleAr: string;
   /** @nullable */
@@ -158,7 +158,7 @@ export interface ServiceUpdate {
 }
 
 export interface NewsArticle {
-  id: number;
+  id: string;
   title: string;
   titleAr: string;
   /** @nullable */
@@ -197,7 +197,7 @@ export interface NewsUpdate {
 }
 
 export interface Job {
-  id: number;
+  id: string;
   title: string;
   titleAr: string;
   /** @nullable */
@@ -247,8 +247,8 @@ export interface JobUpdate {
 }
 
 export interface JobApplication {
-  id: number;
-  jobId: number;
+  id: string;
+  jobId: string;
   applicantName: string;
   email: string;
   /** @nullable */
@@ -323,7 +323,7 @@ export interface JobApplicationUpdate {
 }
 
 export interface Broker {
-  id: number;
+  id: string;
   name: string;
   nameAr: string;
   /** @nullable */
@@ -379,7 +379,7 @@ export interface BrokerUpdate {
 }
 
 export interface BoardMember {
-  id: number;
+  id: string;
   name: string;
   nameAr: string;
   position: string;
@@ -421,7 +421,7 @@ export interface BoardMemberUpdate {
 }
 
 export interface Employee {
-  id: number;
+  id: string;
   name: string;
   /** @nullable */
   nameAr?: string | null;
@@ -464,7 +464,7 @@ export interface EmployeeUpdate {
 }
 
 export interface Message {
-  id: number;
+  id: string;
   name: string;
   email: string;
   /** @nullable */
@@ -493,7 +493,7 @@ export interface MessageUpdate {
 }
 
 export interface Conversation {
-  id: number;
+  id: string;
   title: string;
   isGroup?: boolean;
   /** @nullable */
@@ -512,9 +512,9 @@ export interface ConversationInput {
 }
 
 export interface ChatMessage {
-  id: number;
-  conversationId: number;
-  senderId: number;
+  id: string;
+  conversationId: string;
+  senderId: string;
   senderName?: string;
   /** @nullable */
   senderAvatar?: string | null;
@@ -551,7 +551,7 @@ export interface AiResponse {
 }
 
 export interface Page {
-  id: number;
+  id: string;
   slug: string;
   title: string;
   titleAr: string;
@@ -593,7 +593,7 @@ export interface PageUpdate {
 }
 
 export interface SiteSettings {
-  id?: number;
+  id?: string;
   siteName?: string;
   siteNameEn?: string;
   tagline?: string;

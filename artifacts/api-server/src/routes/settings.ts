@@ -1,38 +1,24 @@
 import { Router, type IRouter } from "express";
-import { db } from "@workspace/db";
-import { siteSettingsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { SiteSettings } from "@workspace/db";
 import { requireAdmin } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
-const toDto = (s: typeof siteSettingsTable.$inferSelect) => ({
-  ...s,
-  updatedAt: s.updatedAt.toISOString(),
-});
-
 const ensureSettings = async () => {
-  const [existing] = await db.select().from(siteSettingsTable);
-  if (!existing) {
-    const [created] = await db.insert(siteSettingsTable).values({}).returning();
-    return created;
-  }
-  return existing;
+  const existing = await SiteSettings.findOne();
+  if (existing) return existing;
+  return await SiteSettings.create({});
 };
 
 router.get("/settings", async (_req, res): Promise<void> => {
   const settings = await ensureSettings();
-  res.json(toDto(settings));
+  res.json(settings.toJSON());
 });
 
 router.patch("/settings", requireAdmin, async (req, res): Promise<void> => {
   const existing = await ensureSettings();
-  const [updated] = await db
-    .update(siteSettingsTable)
-    .set(req.body)
-    .where(eq(siteSettingsTable.id, existing.id))
-    .returning();
-  res.json(toDto(updated));
+  const updated = await SiteSettings.findByIdAndUpdate(existing._id, req.body, { new: true });
+  res.json(updated!.toJSON());
 });
 
 export default router;

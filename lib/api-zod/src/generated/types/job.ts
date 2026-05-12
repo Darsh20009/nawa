@@ -7,7 +7,7 @@
  */
 
 export interface Job {
-  id: number;
+  id: string;
   title: string;
   titleAr: string;
   /** @nullable */

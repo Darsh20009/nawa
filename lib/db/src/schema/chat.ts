@@ -1,37 +1,50 @@
-import { pgTable, text, serial, timestamp, boolean, integer, index } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { Schema, model, Types, type InferSchemaType, type Model } from "mongoose";
+import { baseOptions } from "../_helpers";
 
-export const conversationsTable = pgTable("conversations", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  isGroup: boolean("is_group").notNull().default(false),
-  participants: text("participants"),
-  lastMessage: text("last_message"),
-  unreadCount: integer("unread_count").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-}, (t) => [
-  index("conversations_updated_at_idx").on(t.updatedAt),
-]);
+const conversationSchema = new Schema(
+  {
+    title: { type: String, required: true },
+    isGroup: { type: Boolean, required: true, default: false },
+    participants: { type: [String], default: [] },
+    lastMessage: { type: String, default: null },
+    unreadCount: { type: Number, required: true, default: 0 },
+  },
+  baseOptions,
+);
+conversationSchema.index({ updatedAt: -1 });
 
-export const chatMessagesTable = pgTable("chat_messages", {
-  id: serial("id").primaryKey(),
-  conversationId: integer("conversation_id").notNull().references(() => conversationsTable.id, { onDelete: "cascade" }),
-  senderId: integer("sender_id").notNull(),
-  senderName: text("sender_name").notNull().default(""),
-  senderAvatar: text("sender_avatar"),
-  content: text("content").notNull(),
-  type: text("type").notNull().default("text"),
-  fileUrl: text("file_url"),
-  readBy: text("read_by"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [
-  index("chat_messages_conv_created_idx").on(t.conversationId, t.createdAt),
-]);
+export type Conversation = InferSchemaType<typeof conversationSchema> & { id: string; createdAt: Date; updatedAt: Date };
+export type InsertConversation = Omit<Conversation, "id" | "createdAt" | "updatedAt">;
+export const Conversation: Model<Conversation> = (globalThis as any).__nawa_Conversation || model<Conversation>("Conversation", conversationSchema);
+(globalThis as any).__nawa_Conversation = Conversation;
 
-export const insertConversationSchema = createInsertSchema(conversationsTable).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertChatMessageSchema = createInsertSchema(chatMessagesTable).omit({ id: true, createdAt: true });
-export type InsertConversation = z.infer<typeof insertConversationSchema>;
-export type Conversation = typeof conversationsTable.$inferSelect;
-export type ChatMessage = typeof chatMessagesTable.$inferSelect;
+const chatMessageSchema = new Schema(
+  {
+    conversationId: { type: Schema.Types.ObjectId, ref: "Conversation", required: true, index: true },
+    senderId: { type: String, required: true },
+    senderName: { type: String, required: true, default: "" },
+    senderAvatar: { type: String, default: null },
+    content: { type: String, required: true },
+    type: { type: String, required: true, default: "text" },
+    fileUrl: { type: String, default: null },
+    readBy: { type: [String], default: [] },
+  },
+  {
+    timestamps: { createdAt: true, updatedAt: false },
+    toJSON: {
+      virtuals: true,
+      versionKey: false,
+      transform: (_doc, ret: any) => {
+        ret.id = ret._id?.toString();
+        if (ret.conversationId && typeof ret.conversationId !== "string") ret.conversationId = ret.conversationId.toString();
+        delete ret._id;
+        return ret;
+      },
+    },
+  },
+);
+chatMessageSchema.index({ conversationId: 1, createdAt: 1 });
+
+export type ChatMessage = InferSchemaType<typeof chatMessageSchema> & { id: string; conversationId: string | Types.ObjectId; createdAt: Date };
+export const ChatMessage: Model<ChatMessage> = (globalThis as any).__nawa_ChatMessage || model<ChatMessage>("ChatMessage", chatMessageSchema);
+(globalThis as any).__nawa_ChatMessage = ChatMessage;

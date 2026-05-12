@@ -7,9 +7,9 @@
  */
 
 export interface ChatMessage {
-  id: number;
-  conversationId: number;
-  senderId: number;
+  id: string;
+  conversationId: string;
+  senderId: string;
   senderName?: string;
   /** @nullable */
   senderAvatar?: string | null;

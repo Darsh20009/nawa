@@ -37,3 +37,10 @@ externalPort = 3000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+KIMI_API_KEY = "sk-TC9JCntjcNk45guGovizAU1Pd4FS0JSSSBVB9Vsaq8s73srV"
+MONGODB_URI = "mongodb+srv://nawa:ASDqwe123@nawa.yjly5f4.mongodb.net/?appName=nawa"
+SMTP_PASSWORD = "ASDfgh@12345678nawa"

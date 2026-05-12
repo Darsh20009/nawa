@@ -7,7 +7,7 @@
  */
 
 export interface Page {
-  id: number;
+  id: string;
   slug: string;
   title: string;
   titleAr: string;

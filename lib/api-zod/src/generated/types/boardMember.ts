@@ -7,7 +7,7 @@
  */
 
 export interface BoardMember {
-  id: number;
+  id: string;
   name: string;
   nameAr: string;
   position: string;

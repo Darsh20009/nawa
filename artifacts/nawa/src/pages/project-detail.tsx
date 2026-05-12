@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 
 export default function ProjectDetail() {
   const params = useParams();
-  const id = parseInt(params.id || "0");
+  const id = params.id || "";
   const { language } = useLanguage();
   const t = translations[language];
 

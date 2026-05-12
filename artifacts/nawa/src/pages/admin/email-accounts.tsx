@@ -20,7 +20,7 @@ const NAWA_EMAIL_ACCOUNTS = [
 ];
 
 interface Employee {
-  id: number;
+  id: string;
   name: string;
   nameAr: string | null;
   role: string;
@@ -43,7 +43,7 @@ async function fetchEmailAccounts() {
   return res.json() as Promise<{ accounts: AccountInfo[]; employees: Employee[] }>;
 }
 
-async function assignAccount(employeeId: number, emailAccount: string | null) {
+async function assignAccount(employeeId: string, emailAccount: string | null) {
   const token = localStorage.getItem("nawa_token");
   const res = await fetch(`/api/email-accounts/assign`, {
     method: "PATCH",
@@ -66,7 +66,7 @@ export default function AdminEmailAccounts() {
   });
 
   const mutation = useMutation({
-    mutationFn: ({ employeeId, emailAccount }: { employeeId: number; emailAccount: string | null }) =>
+    mutationFn: ({ employeeId, emailAccount }: { employeeId: string; emailAccount: string | null }) =>
       assignAccount(employeeId, emailAccount),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["email-accounts"] });
@@ -205,7 +205,7 @@ export default function AdminEmailAccounts() {
                     <Select
                       value=""
                       onValueChange={(val) => {
-                        if (val) mutation.mutate({ employeeId: parseInt(val), emailAccount: email });
+                        if (val) mutation.mutate({ employeeId: val, emailAccount: email });
                       }}
                     >
                       <SelectTrigger className="h-8 text-xs">

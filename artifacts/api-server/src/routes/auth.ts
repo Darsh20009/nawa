@@ -1,8 +1,6 @@
 import { Router, type IRouter } from "express";
-import { db } from "@workspace/db";
-import { usersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
-import { hashPassword, verifyPassword, signToken } from "../lib/auth";
+import { User } from "@workspace/db";
+import { verifyPassword, signToken } from "../lib/auth";
 import { requireAuth } from "../middlewares/auth";
 
 const router: IRouter = Router();
@@ -14,7 +12,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+  const user = await User.findOne({ email: String(email).toLowerCase().trim() });
   if (!user || !user.active) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
@@ -27,7 +25,6 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   }
 
   const token = signToken({ id: user.id, email: user.email, role: user.role });
-
   res.json({
     token,
     user: {
@@ -45,7 +42,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
 router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, authUser.id));
+  const user = await User.findById(authUser.id);
   if (!user) {
     res.status(401).json({ error: "User not found" });
     return;

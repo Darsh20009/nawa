@@ -1,21 +1,21 @@
-import { pgTable, text, serial, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { Schema, model, type InferSchemaType, type Model } from "mongoose";
+import { baseOptions } from "../_helpers";
 
-export const messagesTable = pgTable("messages", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone"),
-  subject: text("subject").notNull(),
-  content: text("content").notNull(),
-  status: text("status").notNull().default("unread"),
-  priority: text("priority").notNull().default("normal"),
-  assignedTo: text("assigned_to"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const messageSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, default: null },
+    subject: { type: String, required: true },
+    content: { type: String, required: true },
+    status: { type: String, required: true, default: "unread" },
+    priority: { type: String, required: true, default: "normal" },
+    assignedTo: { type: String, default: null },
+  },
+  baseOptions,
+);
 
-export const insertMessageSchema = createInsertSchema(messagesTable).omit({ id: true, createdAt: true, updatedAt: true });
-export type InsertMessage = z.infer<typeof insertMessageSchema>;
-export type Message = typeof messagesTable.$inferSelect;
+export type Message = InferSchemaType<typeof messageSchema> & { id: string; createdAt: Date; updatedAt: Date };
+export type InsertMessage = Omit<Message, "id" | "createdAt" | "updatedAt">;
+export const Message: Model<Message> = (globalThis as any).__nawa_Message || model<Message>("Message", messageSchema);
+(globalThis as any).__nawa_Message = Message;

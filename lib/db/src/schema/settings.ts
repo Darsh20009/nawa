@@ -1,38 +1,39 @@
-import { pgTable, text, serial, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { Schema, model, type InferSchemaType, type Model } from "mongoose";
+import { baseOptions } from "../_helpers";
 
-export const siteSettingsTable = pgTable("site_settings", {
-  id: serial("id").primaryKey(),
-  siteName: text("site_name").notNull().default("منصة نوى العقارية"),
-  siteNameEn: text("site_name_en").notNull().default("Nawa Real Estate Platform"),
-  tagline: text("tagline").default("شريكك في الاستثمار العقاري"),
-  taglineEn: text("tagline_en").default("Your Real Estate Investment Partner"),
-  description: text("description"),
-  descriptionEn: text("description_en"),
-  phone: text("phone").default("+966500000000"),
-  whatsapp: text("whatsapp").default("+966500000000"),
-  email: text("email").default("info@nawainv.sa"),
-  address: text("address").default("الرياض، المملكة العربية السعودية"),
-  addressEn: text("address_en").default("Riyadh, Saudi Arabia"),
-  googleMapsUrl: text("google_maps_url"),
-  facebook: text("facebook"),
-  twitter: text("twitter"),
-  instagram: text("instagram"),
-  linkedin: text("linkedin"),
-  youtube: text("youtube"),
-  tiktok: text("tiktok"),
-  snapchat: text("snapchat"),
-  crNumber: text("cr_number"),
-  vatNumber: text("vat_number"),
-  metaTitle: text("meta_title"),
-  metaDescription: text("meta_description"),
-  metaDescriptionEn: text("meta_description_en"),
-  footerText: text("footer_text"),
-  footerTextEn: text("footer_text_en"),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const settingsSchema = new Schema(
+  {
+    siteName: { type: String, required: true, default: "منصة نوى العقارية" },
+    siteNameEn: { type: String, required: true, default: "Nawa Real Estate Platform" },
+    tagline: { type: String, default: "شريكك في الاستثمار العقاري" },
+    taglineEn: { type: String, default: "Your Real Estate Investment Partner" },
+    description: { type: String, default: null },
+    descriptionEn: { type: String, default: null },
+    phone: { type: String, default: "+966500000000" },
+    whatsapp: { type: String, default: "+966500000000" },
+    email: { type: String, default: "info@nawainv.sa" },
+    address: { type: String, default: "الرياض، المملكة العربية السعودية" },
+    addressEn: { type: String, default: "Riyadh, Saudi Arabia" },
+    googleMapsUrl: { type: String, default: null },
+    facebook: { type: String, default: null },
+    twitter: { type: String, default: null },
+    instagram: { type: String, default: null },
+    linkedin: { type: String, default: null },
+    youtube: { type: String, default: null },
+    tiktok: { type: String, default: null },
+    snapchat: { type: String, default: null },
+    crNumber: { type: String, default: null },
+    vatNumber: { type: String, default: null },
+    metaTitle: { type: String, default: null },
+    metaDescription: { type: String, default: null },
+    metaDescriptionEn: { type: String, default: null },
+    footerText: { type: String, default: null },
+    footerTextEn: { type: String, default: null },
+  },
+  baseOptions,
+);
 
-export const updateSiteSettingsSchema = createInsertSchema(siteSettingsTable).omit({ id: true, updatedAt: true }).partial();
-export type UpdateSiteSettings = z.infer<typeof updateSiteSettingsSchema>;
-export type SiteSettings = typeof siteSettingsTable.$inferSelect;
+export type SiteSettings = InferSchemaType<typeof settingsSchema> & { id: string; createdAt: Date; updatedAt: Date };
+export type UpdateSiteSettings = Partial<Omit<SiteSettings, "id" | "createdAt" | "updatedAt">>;
+export const SiteSettings: Model<SiteSettings> = (globalThis as any).__nawa_SiteSettings || model<SiteSettings>("SiteSettings", settingsSchema);
+(globalThis as any).__nawa_SiteSettings = SiteSettings;

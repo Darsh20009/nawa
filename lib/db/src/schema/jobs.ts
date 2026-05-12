@@ -1,51 +1,65 @@
-import { pgTable, text, serial, timestamp, boolean, integer } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { Schema, model, Types, type InferSchemaType, type Model } from "mongoose";
+import { baseOptions } from "../_helpers";
 
-export const jobsTable = pgTable("jobs", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  titleAr: text("title_ar").notNull(),
-  description: text("description"),
-  descriptionAr: text("description_ar"),
-  department: text("department").notNull(),
-  departmentAr: text("department_ar"),
-  type: text("type").notNull().default("full-time"),
-  location: text("location"),
-  requirements: text("requirements"),
-  requirementsAr: text("requirements_ar"),
-  active: boolean("active").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const jobSchema = new Schema(
+  {
+    title: { type: String, required: true },
+    titleAr: { type: String, required: true },
+    description: { type: String, default: null },
+    descriptionAr: { type: String, default: null },
+    department: { type: String, required: true },
+    departmentAr: { type: String, default: null },
+    type: { type: String, required: true, default: "full-time" },
+    location: { type: String, default: null },
+    requirements: { type: String, default: null },
+    requirementsAr: { type: String, default: null },
+    active: { type: Boolean, required: true, default: true },
+  },
+  baseOptions,
+);
 
-export const jobApplicationsTable = pgTable("job_applications", {
-  id: serial("id").primaryKey(),
-  jobId: integer("job_id").notNull().references(() => jobsTable.id, { onDelete: "cascade" }),
-  applicantName: text("applicant_name").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone"),
-  nationality: text("nationality"),
-  city: text("city"),
-  currentPosition: text("current_position"),
-  yearsExperience: integer("years_experience"),
-  education: text("education"),
-  linkedinUrl: text("linkedin_url"),
-  portfolioUrl: text("portfolio_url"),
-  expectedSalary: text("expected_salary"),
-  noticePeriod: text("notice_period"),
-  whyJoinUs: text("why_join_us"),
-  howDidYouHear: text("how_did_you_hear"),
-  coverLetter: text("cover_letter"),
-  resumeUrl: text("resume_url"),
-  status: text("status").notNull().default("pending"),
-  adminNotes: text("admin_notes"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+export type Job = InferSchemaType<typeof jobSchema> & { id: string; createdAt: Date; updatedAt: Date };
+export type InsertJob = Omit<Job, "id" | "createdAt" | "updatedAt">;
+export const Job: Model<Job> = (globalThis as any).__nawa_Job || model<Job>("Job", jobSchema);
+(globalThis as any).__nawa_Job = Job;
 
-export const insertJobSchema = createInsertSchema(jobsTable).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertJobApplicationSchema = createInsertSchema(jobApplicationsTable).omit({ id: true, createdAt: true, updatedAt: true, status: true });
-export type InsertJob = z.infer<typeof insertJobSchema>;
-export type Job = typeof jobsTable.$inferSelect;
-export type JobApplication = typeof jobApplicationsTable.$inferSelect;
+const jobAppSchema: Schema = new Schema(
+  {
+    jobId: { type: Schema.Types.ObjectId, ref: "Job", required: true, index: true },
+    applicantName: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, default: null },
+    nationality: { type: String, default: null },
+    city: { type: String, default: null },
+    currentPosition: { type: String, default: null },
+    yearsExperience: { type: Number, default: null },
+    education: { type: String, default: null },
+    linkedinUrl: { type: String, default: null },
+    portfolioUrl: { type: String, default: null },
+    expectedSalary: { type: String, default: null },
+    noticePeriod: { type: String, default: null },
+    whyJoinUs: { type: String, default: null },
+    howDidYouHear: { type: String, default: null },
+    coverLetter: { type: String, default: null },
+    resumeUrl: { type: String, default: null },
+    status: { type: String, required: true, default: "pending" },
+    adminNotes: { type: String, default: null },
+  },
+  {
+    ...baseOptions,
+    toJSON: {
+      virtuals: true,
+      versionKey: false,
+      transform: (_doc, ret: any) => {
+        ret.id = ret._id?.toString();
+        if (ret.jobId && typeof ret.jobId !== "string") ret.jobId = ret.jobId.toString();
+        delete ret._id;
+        return ret;
+      },
+    },
+  },
+);
+
+export type JobApplication = InferSchemaType<typeof jobAppSchema> & { id: string; jobId: string | Types.ObjectId; createdAt: Date; updatedAt: Date };
+export const JobApplication: Model<JobApplication> = (globalThis as any).__nawa_JobApp || model<JobApplication>("JobApplication", jobAppSchema);
+(globalThis as any).__nawa_JobApp = JobApplication;

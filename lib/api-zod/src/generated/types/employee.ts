@@ -7,7 +7,7 @@
  */
 
 export interface Employee {
-  id: number;
+  id: string;
   name: string;
   /** @nullable */
   nameAr?: string | null;

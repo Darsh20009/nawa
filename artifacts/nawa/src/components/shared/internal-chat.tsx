@@ -37,16 +37,18 @@ function formatChatTime(d: Date) {
   return format(d, "MMM d");
 }
 
-function avatarColor(seed: number) {
+function avatarColor(seed: string) {
   const hues = [340, 280, 220, 180, 140, 30, 10, 260];
-  return `hsl(${hues[seed % hues.length]}, 70%, 55%)`;
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return `hsl(${hues[h % hues.length]}, 70%, 55%)`;
 }
 
 export function InternalChat() {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [activeConvId, setActiveConvId] = useState<number | null>(null);
+  const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const [showNewChat, setShowNewChat] = useState(false);
@@ -56,7 +58,7 @@ export function InternalChat() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const queryClient = useQueryClient();
-  const [typingByConv, setTypingByConv] = useState<Record<number, { userName: string; until: number }[]>>({});
+  const [typingByConv, setTypingByConv] = useState<Record<string, { userName: string; until: number }[]>>({});
   const [search, setSearch] = useState("");
 
   const t = (ar: string, en: string) => language === "ar" ? ar : en;
@@ -65,7 +67,7 @@ export function InternalChat() {
     query: { queryKey: ["conversations"], refetchInterval: 30000 }
   });
 
-  const { data: messages } = useGetChatMessages(activeConvId || 0, {
+  const { data: messages } = useGetChatMessages(activeConvId || "", {
     query: { enabled: !!activeConvId, queryKey: ["messages", activeConvId] }
   });
 
@@ -81,7 +83,7 @@ export function InternalChat() {
     }
   });
 
-  const handleIncoming = useCallback((conversationId: number, message: any) => {
+  const handleIncoming = useCallback((conversationId: string, message: any) => {
     queryClient.setQueryData(["messages", conversationId], (old: any[] | undefined) => {
       if (!old) return [message];
       if (old.some(m => m.id === message.id)) return old;
@@ -91,7 +93,7 @@ export function InternalChat() {
     if (message.senderId !== user?.id) playPop();
   }, [queryClient, user?.id]);
 
-  const handleTyping = useCallback((conversationId: number, userId: number, userName: string, isTyping: boolean) => {
+  const handleTyping = useCallback((conversationId: string, userId: string, userName: string, isTyping: boolean) => {
     if (userId === user?.id) return;
     setTypingByConv(prev => {
       const next = { ...prev };
@@ -129,7 +131,7 @@ export function InternalChat() {
         if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       });
     }
-  }, [messages, activeConvId, typingByConv[activeConvId || 0]?.length]);
+  }, [messages, activeConvId, typingByConv[activeConvId || ""]?.length]);
 
   const sendMutation = useSendChatMessage({
     mutation: {
@@ -208,7 +210,7 @@ export function InternalChat() {
   }, [conversations, search]);
 
   const activeConv = conversations?.find(c => c.id === activeConvId);
-  const typingList = typingByConv[activeConvId || 0] || [];
+  const typingList = typingByConv[activeConvId || ""] || [];
 
   return (
     <div className="flex h-[calc(100vh-8rem)] bg-gradient-to-br from-background via-background to-primary/5 rounded-2xl border border-border shadow-xl overflow-hidden">

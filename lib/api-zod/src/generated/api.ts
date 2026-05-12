@@ -61,7 +61,7 @@ export const LoginBody = zod.object({
 export const LoginResponse = zod.object({
   token: zod.string(),
   user: zod.object({
-    id: zod.number(),
+    id: zod.string(),
     email: zod.string(),
     name: zod.string(),
     nameAr: zod.string().nullish(),
@@ -76,7 +76,7 @@ export const LoginResponse = zod.object({
  * @summary Get current user
  */
 export const GetMeResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   email: zod.string(),
   name: zod.string(),
   nameAr: zod.string().nullish(),
@@ -95,7 +95,7 @@ export const ListProjectsQueryParams = zod.object({
 });
 
 export const ListProjectsResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   description: zod.string().nullish(),
@@ -141,11 +141,11 @@ export const CreateProjectBody = zod.object({
  * @summary Get a project by ID
  */
 export const GetProjectParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetProjectResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   description: zod.string().nullish(),
@@ -169,7 +169,7 @@ export const GetProjectResponse = zod.object({
  * @summary Update a project
  */
 export const UpdateProjectParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateProjectBody = zod.object({
@@ -191,7 +191,7 @@ export const UpdateProjectBody = zod.object({
 });
 
 export const UpdateProjectResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   description: zod.string().nullish(),
@@ -215,14 +215,14 @@ export const UpdateProjectResponse = zod.object({
  * @summary Delete a project
  */
 export const DeleteProjectParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 /**
  * @summary List all services
  */
 export const ListServicesResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   description: zod.string().nullish(),
@@ -251,7 +251,7 @@ export const CreateServiceBody = zod.object({
  * @summary Update a service
  */
 export const UpdateServiceParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateServiceBody = zod.object({
@@ -265,7 +265,7 @@ export const UpdateServiceBody = zod.object({
 });
 
 export const UpdateServiceResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   description: zod.string().nullish(),
@@ -280,7 +280,7 @@ export const UpdateServiceResponse = zod.object({
  * @summary Delete a service
  */
 export const DeleteServiceParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 /**
@@ -292,7 +292,7 @@ export const ListNewsQueryParams = zod.object({
 });
 
 export const ListNewsResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   content: zod.string().nullish(),
@@ -323,11 +323,11 @@ export const CreateNewsArticleBody = zod.object({
  * @summary Get a news article
  */
 export const GetNewsArticleParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetNewsArticleResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   content: zod.string().nullish(),
@@ -343,7 +343,7 @@ export const GetNewsArticleResponse = zod.object({
  * @summary Update a news article
  */
 export const UpdateNewsArticleParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateNewsArticleBody = zod.object({
@@ -358,7 +358,7 @@ export const UpdateNewsArticleBody = zod.object({
 });
 
 export const UpdateNewsArticleResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   content: zod.string().nullish(),
@@ -374,7 +374,7 @@ export const UpdateNewsArticleResponse = zod.object({
  * @summary Delete a news article
  */
 export const DeleteNewsArticleParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 /**
@@ -385,7 +385,7 @@ export const ListJobsQueryParams = zod.object({
 });
 
 export const ListJobsResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   description: zod.string().nullish(),
@@ -422,7 +422,7 @@ export const CreateJobBody = zod.object({
  * @summary Update a job
  */
 export const UpdateJobParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateJobBody = zod.object({
@@ -440,7 +440,7 @@ export const UpdateJobBody = zod.object({
 });
 
 export const UpdateJobResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
   description: zod.string().nullish(),
@@ -459,14 +459,14 @@ export const UpdateJobResponse = zod.object({
  * @summary Delete a job
  */
 export const DeleteJobParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 /**
  * @summary Apply for a job
  */
 export const ApplyForJobParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const ApplyForJobBody = zod.object({
@@ -492,8 +492,8 @@ export const ApplyForJobBody = zod.object({
  * @summary List all job applications (admin)
  */
 export const ListJobApplicationsResponseItem = zod.object({
-  id: zod.number(),
-  jobId: zod.number(),
+  id: zod.string(),
+  jobId: zod.string(),
   applicantName: zod.string(),
   email: zod.string(),
   phone: zod.string().nullish(),
@@ -523,7 +523,7 @@ export const ListJobApplicationsResponse = zod.array(
  * @summary Update application status / notes (admin)
  */
 export const UpdateJobApplicationParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateJobApplicationBody = zod.object({
@@ -541,8 +541,8 @@ export const UpdateJobApplicationBody = zod.object({
 });
 
 export const UpdateJobApplicationResponse = zod.object({
-  id: zod.number(),
-  jobId: zod.number(),
+  id: zod.string(),
+  jobId: zod.string(),
   applicantName: zod.string(),
   email: zod.string(),
   phone: zod.string().nullish(),
@@ -569,14 +569,14 @@ export const UpdateJobApplicationResponse = zod.object({
  * @summary Delete an application (admin)
  */
 export const DeleteJobApplicationParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 /**
  * @summary List brokers
  */
 export const ListBrokersResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   nameAr: zod.string(),
   email: zod.string().nullish(),
@@ -615,7 +615,7 @@ export const CreateBrokerBody = zod.object({
  * @summary Update a broker
  */
 export const UpdateBrokerParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateBrokerBody = zod.object({
@@ -634,7 +634,7 @@ export const UpdateBrokerBody = zod.object({
 });
 
 export const UpdateBrokerResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   nameAr: zod.string(),
   email: zod.string().nullish(),
@@ -654,14 +654,14 @@ export const UpdateBrokerResponse = zod.object({
  * @summary Delete a broker
  */
 export const DeleteBrokerParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 /**
  * @summary List board members
  */
 export const ListBoardMembersResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   nameAr: zod.string(),
   position: zod.string(),
@@ -694,7 +694,7 @@ export const CreateBoardMemberBody = zod.object({
  * @summary Update a board member
  */
 export const UpdateBoardMemberParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateBoardMemberBody = zod.object({
@@ -710,7 +710,7 @@ export const UpdateBoardMemberBody = zod.object({
 });
 
 export const UpdateBoardMemberResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   nameAr: zod.string(),
   position: zod.string(),
@@ -727,14 +727,14 @@ export const UpdateBoardMemberResponse = zod.object({
  * @summary Delete a board member
  */
 export const DeleteBoardMemberParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 /**
  * @summary List employees
  */
 export const ListEmployeesResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   nameAr: zod.string().nullish(),
   email: zod.string(),
@@ -768,11 +768,11 @@ export const CreateEmployeeBody = zod.object({
  * @summary Get an employee
  */
 export const GetEmployeeParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetEmployeeResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   nameAr: zod.string().nullish(),
   email: zod.string(),
@@ -789,7 +789,7 @@ export const GetEmployeeResponse = zod.object({
  * @summary Update an employee
  */
 export const UpdateEmployeeParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateEmployeeBody = zod.object({
@@ -805,7 +805,7 @@ export const UpdateEmployeeBody = zod.object({
 });
 
 export const UpdateEmployeeResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   nameAr: zod.string().nullish(),
   email: zod.string(),
@@ -822,7 +822,7 @@ export const UpdateEmployeeResponse = zod.object({
  * @summary Delete an employee
  */
 export const DeleteEmployeeParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 /**
@@ -833,7 +833,7 @@ export const ListMessagesQueryParams = zod.object({
 });
 
 export const ListMessagesResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   email: zod.string(),
   phone: zod.string().nullish(),
@@ -861,11 +861,11 @@ export const SendMessageBody = zod.object({
  * @summary Get a message
  */
 export const GetMessageParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetMessageResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   email: zod.string(),
   phone: zod.string().nullish(),
@@ -881,7 +881,7 @@ export const GetMessageResponse = zod.object({
  * @summary Update message status
  */
 export const UpdateMessageParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateMessageBody = zod.object({
@@ -891,7 +891,7 @@ export const UpdateMessageBody = zod.object({
 });
 
 export const UpdateMessageResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   email: zod.string(),
   phone: zod.string().nullish(),
@@ -907,14 +907,14 @@ export const UpdateMessageResponse = zod.object({
  * @summary Delete a message
  */
 export const DeleteMessageParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 /**
  * @summary List chat conversations for current employee
  */
 export const ListConversationsResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   isGroup: zod.boolean().optional(),
   participants: zod.string().nullish(),
@@ -940,13 +940,13 @@ export const CreateConversationBody = zod.object({
  * @summary Get messages in a conversation
  */
 export const GetChatMessagesParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetChatMessagesResponseItem = zod.object({
-  id: zod.number(),
-  conversationId: zod.number(),
-  senderId: zod.number(),
+  id: zod.string(),
+  conversationId: zod.string(),
+  senderId: zod.string(),
   senderName: zod.string().optional(),
   senderAvatar: zod.string().nullish(),
   content: zod.string(),
@@ -961,7 +961,7 @@ export const GetChatMessagesResponse = zod.array(GetChatMessagesResponseItem);
  * @summary Send a message in a conversation
  */
 export const SendChatMessageParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const SendChatMessageBody = zod.object({
@@ -995,7 +995,7 @@ export const AiChatResponse = zod.object({
  * @summary List CMS pages
  */
 export const ListPagesResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   slug: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
@@ -1032,7 +1032,7 @@ export const GetPageParams = zod.object({
 });
 
 export const GetPageResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   slug: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
@@ -1064,7 +1064,7 @@ export const UpdatePageBody = zod.object({
 });
 
 export const UpdatePageResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   slug: zod.string(),
   title: zod.string(),
   titleAr: zod.string(),
@@ -1088,7 +1088,7 @@ export const DeletePageParams = zod.object({
  * @summary Get site settings
  */
 export const GetSiteSettingsResponse = zod.object({
-  id: zod.number().optional(),
+  id: zod.string().optional(),
   siteName: zod.string().optional(),
   siteNameEn: zod.string().optional(),
   tagline: zod.string().optional(),
@@ -1151,7 +1151,7 @@ export const UpdateSiteSettingsBody = zod.object({
 });
 
 export const UpdateSiteSettingsResponse = zod.object({
-  id: zod.number().optional(),
+  id: zod.string().optional(),
   siteName: zod.string().optional(),
   siteNameEn: zod.string().optional(),
   tagline: zod.string().optional(),

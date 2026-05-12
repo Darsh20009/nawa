@@ -232,7 +232,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: Project
@@ -251,7 +251,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -274,7 +274,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "204":
           description: Deleted
@@ -322,7 +322,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -345,7 +345,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "204":
           description: Deleted
@@ -402,7 +402,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: News article
@@ -419,7 +419,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -442,7 +442,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "204":
           description: Deleted
@@ -495,7 +495,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -518,7 +518,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "204":
           description: Deleted
@@ -533,7 +533,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -573,7 +573,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -596,7 +596,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "204":
           description: Deleted
@@ -644,7 +644,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -667,7 +667,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "204":
           description: Deleted
@@ -715,7 +715,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -738,7 +738,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "204":
           description: Deleted
@@ -786,7 +786,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: Employee
@@ -803,7 +803,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -826,7 +826,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "204":
           description: Deleted
@@ -879,7 +879,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: Message
@@ -896,7 +896,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -919,7 +919,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "204":
           description: Deleted
@@ -967,7 +967,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: Chat messages
@@ -986,7 +986,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -1232,7 +1232,7 @@ components:
       required: [id, email, name, role]
       properties:
         id:
-          type: integer
+          type: string
         email:
           type: string
         name:
@@ -1254,7 +1254,7 @@ components:
       required: [id, title, titleAr, status]
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         titleAr:
@@ -1365,7 +1365,7 @@ components:
       required: [id, title, titleAr]
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         titleAr:
@@ -1426,7 +1426,7 @@ components:
       required: [id, title, titleAr, category]
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         titleAr:
@@ -1493,7 +1493,7 @@ components:
       required: [id, title, titleAr, department]
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         titleAr:
@@ -1577,9 +1577,9 @@ components:
       required: [id, jobId, applicantName, email, status, createdAt]
       properties:
         id:
-          type: integer
+          type: string
         jobId:
-          type: integer
+          type: string
         applicantName:
           type: string
         email:
@@ -1673,7 +1673,7 @@ components:
       required: [id, name, nameAr]
       properties:
         id:
-          type: integer
+          type: string
         name:
           type: string
         nameAr:
@@ -1764,7 +1764,7 @@ components:
       required: [id, name, nameAr, position, positionAr]
       properties:
         id:
-          type: integer
+          type: string
         name:
           type: string
         nameAr:
@@ -1837,7 +1837,7 @@ components:
       required: [id, name, email, role, department]
       properties:
         id:
-          type: integer
+          type: string
         name:
           type: string
         nameAr:
@@ -1912,7 +1912,7 @@ components:
       required: [id, name, email, subject, content]
       properties:
         id:
-          type: integer
+          type: string
         name:
           type: string
         email:
@@ -1963,7 +1963,7 @@ components:
       required: [id, title]
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         isGroup:
@@ -1997,11 +1997,11 @@ components:
       required: [id, conversationId, senderId, content]
       properties:
         id:
-          type: integer
+          type: string
         conversationId:
-          type: integer
+          type: string
         senderId:
-          type: integer
+          type: string
         senderName:
           type: string
         senderAvatar:
@@ -2062,7 +2062,7 @@ components:
       required: [id, slug, title, titleAr]
       properties:
         id:
-          type: integer
+          type: string
         slug:
           type: string
         title:
@@ -2132,7 +2132,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         siteName:
           type: string
         siteNameEn:
