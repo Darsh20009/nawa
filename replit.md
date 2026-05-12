@@ -65,7 +65,7 @@ Three portals in one app:
 
 ## Seed data / credentials
 
-- Admin login: `admin@nawainv.sa` / `admin123` (role: `super_admin`)
+- Admin login: `ceo@nawainv.sa` / `admin123` (role: `super_admin`)
 - 4 seeded projects, 6 services, 3 news articles, 3 jobs, 3 brokers, 4 board members
 
 ## Gotchas
