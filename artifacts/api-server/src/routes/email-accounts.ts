@@ -13,7 +13,7 @@ export const NAWA_EMAIL_ACCOUNTS = [
   "investment@nawainv.sa",
   "marketing@nawainv.sa",
   "support@nawainv.sa",
-  "Info@nawainv.sa",
+  "info@nawainv.sa",
 ];
 
 router.get("/email-accounts", requireAdmin, async (_req, res): Promise<void> => {
