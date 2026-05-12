@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/shared/image-upload";
 
 const statusOptions = [
   { value: "planning", labelEn: "Planning", labelAr: "تخطيط" },
@@ -38,7 +39,7 @@ export default function AdminProjects() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = language === "ar" ? "إدارة المشاريع | منصة نوى العقارية" : "Manage Projects | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "إدارة المشاريع | نوى العقارية" : "Manage Projects | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: projects, isLoading } = useListProjects();
@@ -201,7 +202,7 @@ export default function AdminProjects() {
                 <FormField control={form.control} name="completionPercentage" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "نسبة الإنجاز %" : "Completion %"}</FormLabel><FormControl><Input type="number" min={0} max={100} {...field} /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "السعر" : "Price"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="area" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "المساحة" : "Area"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "رابط الصورة" : "Image URL"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "صورة المشروع" : "Project Image"}</FormLabel><FormControl><ImageUpload value={field.value} onChange={field.onChange} aspectRatio="wide" /></FormControl></FormItem>)} />
               </div>
               <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Description (EN)</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl></FormItem>)} />
               <FormField control={form.control} name="descriptionAr" render={({ field }) => (<FormItem><FormLabel>الوصف (AR)</FormLabel><FormControl><Textarea rows={3} {...field} dir="rtl" /></FormControl></FormItem>)} />

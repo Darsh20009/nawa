@@ -48,13 +48,13 @@ router.post("/auth/forgot-password", async (req, res): Promise<void> => {
   try {
     const transporter = getTransporter();
     await transporter.sendMail({
-      from: `"منصة نوى العقارية" <${SMTP_USER}>`,
+      from: `"نوى العقارية" <${SMTP_USER}>`,
       to: user.email,
-      subject: "إعادة تعيين كلمة المرور — منصة نوى العقارية",
+      subject: "إعادة تعيين كلمة المرور — نوى العقارية",
       html: `
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5;">
           <div style="background: #0D1B3E; padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
-            <h1 style="color: #C9A96E; margin: 0; font-size: 24px;">منصة نوى العقارية</h1>
+            <h1 style="color: #C9A96E; margin: 0; font-size: 24px;">نوى العقارية</h1>
           </div>
           <div style="background: white; padding: 40px; border-radius: 0 0 12px 12px;">
             <h2 style="color: #0D1B3E; margin-top: 0;">إعادة تعيين كلمة المرور</h2>
@@ -68,7 +68,7 @@ router.post("/auth/forgot-password", async (req, res): Promise<void> => {
             <p style="color: #888; font-size: 14px;">هذا الرابط صالح لمدة ساعة واحدة فقط.</p>
             <p style="color: #888; font-size: 14px;">إذا لم تطلب إعادة تعيين كلمة المرور، تجاهل هذا البريد الإلكتروني.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-            <p style="color: #aaa; font-size: 12px; text-align: center;">منصة نوى العقارية — nawainv.sa</p>
+            <p style="color: #aaa; font-size: 12px; text-align: center;">نوى العقارية — nawainv.sa</p>
           </div>
         </div>
       `,

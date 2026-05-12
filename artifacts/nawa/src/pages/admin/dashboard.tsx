@@ -57,7 +57,7 @@ export default function AdminDashboard() {
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
   useEffect(() => {
-    document.title = language === "ar" ? "لوحة القيادة | منصة نوى العقارية" : "Dashboard | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "لوحة القيادة | نوى العقارية" : "Dashboard | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: stats, isLoading } = useGetDashboardStats({

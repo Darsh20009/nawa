@@ -20,7 +20,7 @@ export default function AdminMessages() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
-    document.title = language === "ar" ? "رسائل العملاء | منصة نوى العقارية" : "Messages | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "رسائل العملاء | نوى العقارية" : "Messages | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: messages, isLoading } = useListMessages();

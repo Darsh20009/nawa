@@ -12,7 +12,7 @@ export default function Brokers() {
   const t = translations[language];
 
   useEffect(() => {
-    document.title = `${t.brokers} | منصة نوى العقارية`;
+    document.title = `${t.brokers} | نوى العقارية`;
   }, [t.brokers]);
 
   const { data: brokers, isLoading } = useListBrokers({

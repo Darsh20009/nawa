@@ -14,7 +14,7 @@ export default function Projects() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
-    document.title = `${t.projects} | منصة نوى العقارية`;
+    document.title = `${t.projects} | نوى العقارية`;
   }, [t.projects]);
 
   const { data: projects, isLoading } = useListProjects(

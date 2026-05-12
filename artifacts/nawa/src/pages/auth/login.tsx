@@ -31,7 +31,7 @@ export default function Login() {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = `${t.login} | منصة نوى العقارية`;
+    document.title = `${t.login} | نوى العقارية`;
     if (isAuthenticated && user) {
       if (user.role.includes("admin")) {
         setLocation("/admin");
@@ -86,10 +86,10 @@ export default function Login() {
         <div className="relative z-10 p-12 max-w-lg">
           <img src={logoPath} alt="Nawa" className="h-14 mb-8 brightness-0 invert" />
           <h1 className="text-4xl lg:text-5xl font-bold font-serif mb-6 leading-tight text-white">
-            {language === "ar" ? "مرحباً بك في منصة نوى العقارية" : "Welcome to Nawa Real Estate Platform"}
+            {language === "ar" ? "مرحباً بك في نوى العقارية" : "Welcome to Nawa Real Estate Platform"}
           </h1>
           <p className="text-lg text-white/70 mb-10 leading-relaxed">
-            {language === "ar" ? "منصة استثمارية عقارية متكاملة بمعايير عالمية" : "An integrated real estate investment platform with global standards"}
+            {language === "ar" ? "شركة استثمار عقاري متكاملة بمعايير عالمية" : "an integrated real estate investment company with global standards"}
           </p>
           <div className="space-y-4">
             <div className="flex items-center gap-3 text-white/80">

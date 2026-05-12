@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/shared/image-upload";
 
 export default function AdminBrokers() {
   const { language } = useLanguage();
@@ -22,7 +23,7 @@ export default function AdminBrokers() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = language === "ar" ? "إدارة الوسطاء | منصة نوى العقارية" : "Manage Brokers | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "إدارة الوسطاء | نوى العقارية" : "Manage Brokers | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: brokers, isLoading } = useListBrokers();
@@ -146,7 +147,7 @@ export default function AdminBrokers() {
                 <FormField control={form.control} name="specializationAr" render={({ field }) => (<FormItem><FormLabel>التخصص (AR)</FormLabel><FormControl><Input {...field} dir="rtl" /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="rating" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "التقييم (1-5)" : "Rating (1-5)"}</FormLabel><FormControl><Input type="number" step="0.1" min={1} max={5} {...field} /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="dealsCount" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "عدد الصفقات" : "Deals Count"}</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl></FormItem>)} />
-                <FormField control={form.control} name="avatar" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "رابط الصورة" : "Avatar URL"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="avatar" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "الصورة الشخصية" : "Avatar"}</FormLabel><FormControl><ImageUpload value={field.value} onChange={field.onChange} variant="avatar" /></FormControl></FormItem>)} />
               </div>
               <FormField control={form.control} name="bio" render={({ field }) => (<FormItem><FormLabel>Bio (EN)</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl></FormItem>)} />
               <FormField control={form.control} name="bioAr" render={({ field }) => (<FormItem><FormLabel>نبذة (AR)</FormLabel><FormControl><Textarea rows={3} {...field} dir="rtl" /></FormControl></FormItem>)} />

@@ -5,7 +5,7 @@ export default function Privacy() {
   const { language } = useLanguage();
 
   useEffect(() => {
-    document.title = language === "ar" ? "سياسة الخصوصية | منصة نوى العقارية" : "Privacy Policy | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "سياسة الخصوصية | نوى العقارية" : "Privacy Policy | Nawa Real Estate Platform";
   }, [language]);
 
   return (
@@ -20,7 +20,7 @@ export default function Privacy() {
             <>
               <p>تاريخ آخر تحديث: 1 يناير 2026</p>
               <h2>1. مقدمة</h2>
-              <p>نحن في منصة نوى العقارية نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. توضح سياسة الخصوصية هذه كيفية جمع واستخدام وحماية معلوماتك عند استخدام منصتنا.</p>
+              <p>نحن في نوى العقارية نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. توضح سياسة الخصوصية هذه كيفية جمع واستخدام وحماية معلوماتك عند استخدام منصتنا.</p>
               
               <h2>2. البيانات التي نجمعها</h2>
               <p>قد نجمع البيانات التالية:</p>

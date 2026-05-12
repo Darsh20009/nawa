@@ -31,7 +31,7 @@ export default function AdminJobs() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = language === "ar" ? "إدارة الوظائف | منصة نوى العقارية" : "Manage Jobs | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "إدارة الوظائف | نوى العقارية" : "Manage Jobs | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: jobs, isLoading } = useListJobs();

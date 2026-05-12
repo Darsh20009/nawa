@@ -8,6 +8,42 @@
 import * as zod from "zod";
 
 /**
+ * @summary Request a presigned URL for file upload
+ */
+
+export const RequestUploadUrlBody = zod.object({
+  name: zod.string().min(1),
+  size: zod.number().min(1),
+  contentType: zod.string().min(1),
+});
+
+export const RequestUploadUrlResponse = zod.object({
+  uploadURL: zod.string(),
+  objectPath: zod.string(),
+  metadata: zod
+    .object({
+      name: zod.string().min(1),
+      size: zod.number().min(1),
+      contentType: zod.string().min(1),
+    })
+    .optional(),
+});
+
+/**
+ * @summary Serve a public asset
+ */
+export const GetPublicObjectParams = zod.object({
+  filePath: zod.coerce.string(),
+});
+
+/**
+ * @summary Serve an object entity
+ */
+export const GetStorageObjectParams = zod.object({
+  objectPath: zod.coerce.string(),
+});
+
+/**
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
@@ -437,6 +473,17 @@ export const ApplyForJobBody = zod.object({
   applicantName: zod.string(),
   email: zod.string(),
   phone: zod.string().optional(),
+  nationality: zod.string().optional(),
+  city: zod.string().optional(),
+  currentPosition: zod.string().optional(),
+  yearsExperience: zod.number().optional(),
+  education: zod.string().optional(),
+  linkedinUrl: zod.string().optional(),
+  portfolioUrl: zod.string().optional(),
+  expectedSalary: zod.string().optional(),
+  noticePeriod: zod.string().optional(),
+  whyJoinUs: zod.string().optional(),
+  howDidYouHear: zod.string().optional(),
   coverLetter: zod.string().optional(),
   resumeUrl: zod.string().optional(),
 });
@@ -450,14 +497,80 @@ export const ListJobApplicationsResponseItem = zod.object({
   applicantName: zod.string(),
   email: zod.string(),
   phone: zod.string().nullish(),
+  nationality: zod.string().nullish(),
+  city: zod.string().nullish(),
+  currentPosition: zod.string().nullish(),
+  yearsExperience: zod.number().nullish(),
+  education: zod.string().nullish(),
+  linkedinUrl: zod.string().nullish(),
+  portfolioUrl: zod.string().nullish(),
+  expectedSalary: zod.string().nullish(),
+  noticePeriod: zod.string().nullish(),
+  whyJoinUs: zod.string().nullish(),
+  howDidYouHear: zod.string().nullish(),
   coverLetter: zod.string().nullish(),
   resumeUrl: zod.string().nullish(),
-  status: zod.string().optional(),
-  createdAt: zod.string().optional(),
+  status: zod.string(),
+  adminNotes: zod.string().nullish(),
+  createdAt: zod.string(),
+  updatedAt: zod.string().optional(),
 });
 export const ListJobApplicationsResponse = zod.array(
   ListJobApplicationsResponseItem,
 );
+
+/**
+ * @summary Update application status / notes (admin)
+ */
+export const UpdateJobApplicationParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateJobApplicationBody = zod.object({
+  status: zod
+    .enum([
+      "pending",
+      "reviewing",
+      "shortlisted",
+      "interview",
+      "hired",
+      "rejected",
+    ])
+    .optional(),
+  adminNotes: zod.string().optional(),
+});
+
+export const UpdateJobApplicationResponse = zod.object({
+  id: zod.number(),
+  jobId: zod.number(),
+  applicantName: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  nationality: zod.string().nullish(),
+  city: zod.string().nullish(),
+  currentPosition: zod.string().nullish(),
+  yearsExperience: zod.number().nullish(),
+  education: zod.string().nullish(),
+  linkedinUrl: zod.string().nullish(),
+  portfolioUrl: zod.string().nullish(),
+  expectedSalary: zod.string().nullish(),
+  noticePeriod: zod.string().nullish(),
+  whyJoinUs: zod.string().nullish(),
+  howDidYouHear: zod.string().nullish(),
+  coverLetter: zod.string().nullish(),
+  resumeUrl: zod.string().nullish(),
+  status: zod.string(),
+  adminNotes: zod.string().nullish(),
+  createdAt: zod.string(),
+  updatedAt: zod.string().optional(),
+});
+
+/**
+ * @summary Delete an application (admin)
+ */
+export const DeleteJobApplicationParams = zod.object({
+  id: zod.coerce.number(),
+});
 
 /**
  * @summary List brokers

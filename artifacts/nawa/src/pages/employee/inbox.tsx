@@ -12,7 +12,7 @@ export default function Inbox() {
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
 
   useEffect(() => {
-    document.title = language === "ar" ? "صندوق الوارد | منصة نوى العقارية" : "Inbox | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "صندوق الوارد | نوى العقارية" : "Inbox | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: messages, isLoading, refetch } = useListMessages();

@@ -115,7 +115,7 @@ const AGENT_TOOLS = [
 
 // System prompt for Kimi AI Agent
 function buildSystemPrompt(context?: string): string {
-  return `أنت "نوى AI" — المساعد الذكي المتقدم لمنصة نوى العقارية (nawainv.sa). أنت خبير عالمي في:
+  return `أنت "نوى AI" — المساعد الذكي المتقدم لنوى العقارية (nawainv.sa). أنت خبير عالمي في:
 
 🏢 الاستثمار والتطوير العقاري في المملكة العربية السعودية
 📊 تحليل السوق العقاري والاتجاهات

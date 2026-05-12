@@ -1,9 +1,10 @@
 {
-  "name": "منصة نوى العقارية",
+  "name": "نوى العقارية",
   "short_name": "نوى",
-  "description": "منصة نوى للاستثمار العقاري — الشريك الأمثل في الاستثمار العقاري بالمملكة العربية السعودية",
+  "description": "نوى العقارية (Nawa Real Estate) — الشركة الرائدة في الاستثمار العقاري الفاخر بالمملكة العربية السعودية",
   "start_url": "/",
   "scope": "/",
+  "id": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "any",
@@ -30,6 +31,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "screenshots": [
@@ -38,7 +45,7 @@
       "sizes": "1200x630",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "منصة نوى العقارية"
+      "label": "نوى العقارية"
     }
   ],
   "shortcuts": [
@@ -52,14 +59,14 @@
     {
       "name": "تواصل معنا",
       "short_name": "تواصل",
-      "description": "تواصل مع فريق نوى",
+      "description": "تواصل مع فريق نوى العقارية",
       "url": "/contact",
       "icons": [{ "src": "/icon-96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "الوظائف",
       "short_name": "وظائف",
-      "description": "فرص وظيفية في نوى",
+      "description": "فرص وظيفية في نوى العقارية",
       "url": "/careers",
       "icons": [{ "src": "/icon-96.png", "sizes": "96x96", "type": "image/png" }]
     }

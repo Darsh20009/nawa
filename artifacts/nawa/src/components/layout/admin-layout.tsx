@@ -166,6 +166,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         { href: "/admin/services", label: language === "ar" ? "الخدمات" : "Services", icon: Briefcase },
         { href: "/admin/news", label: language === "ar" ? "المركز الإعلامي" : "Media Center", icon: Newspaper },
         { href: "/admin/jobs", label: language === "ar" ? "الوظائف" : "Jobs", icon: Briefcase },
+        { href: "/admin/applications", label: language === "ar" ? "طلبات التوظيف" : "Job Applications", icon: FileText },
         { href: "/admin/pages", label: language === "ar" ? "الصفحات" : "Pages", icon: FileText },
       ],
     },

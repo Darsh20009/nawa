@@ -38,7 +38,7 @@ export default function Contact() {
   const mapsUrl = settings?.googleMapsUrl || `https://wa.me/${waPhone}`;
 
   useEffect(() => {
-    document.title = `${t.contact} | منصة نوى العقارية`;
+    document.title = `${t.contact} | نوى العقارية`;
   }, [t.contact]);
 
   const form = useForm<ContactFormValues>({

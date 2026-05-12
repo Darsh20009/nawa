@@ -14,9 +14,34 @@ export interface JobApplication {
   /** @nullable */
   phone?: string | null;
   /** @nullable */
+  nationality?: string | null;
+  /** @nullable */
+  city?: string | null;
+  /** @nullable */
+  currentPosition?: string | null;
+  /** @nullable */
+  yearsExperience?: number | null;
+  /** @nullable */
+  education?: string | null;
+  /** @nullable */
+  linkedinUrl?: string | null;
+  /** @nullable */
+  portfolioUrl?: string | null;
+  /** @nullable */
+  expectedSalary?: string | null;
+  /** @nullable */
+  noticePeriod?: string | null;
+  /** @nullable */
+  whyJoinUs?: string | null;
+  /** @nullable */
+  howDidYouHear?: string | null;
+  /** @nullable */
   coverLetter?: string | null;
   /** @nullable */
   resumeUrl?: string | null;
-  status?: string;
-  createdAt?: string;
+  status: string;
+  /** @nullable */
+  adminNotes?: string | null;
+  createdAt: string;
+  updatedAt?: string;
 }

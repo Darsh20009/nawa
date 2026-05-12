@@ -25,7 +25,7 @@ export default function About() {
   const t = translations[language];
 
   useEffect(() => {
-    document.title = `${t.about} | منصة نوى العقارية`;
+    document.title = `${t.about} | نوى العقارية`;
   }, [t.about]);
 
   const vals = values[language];
@@ -37,7 +37,7 @@ export default function About() {
         title={language === "ar" ? "من نحن" : "About Us"}
         subtitle={
           language === "ar"
-            ? "منصة استثمارية عقارية رائدة مبنية على رؤية 2030 وقيم الشفافية والتميز"
+            ? "شركة استثمار عقاري رائدة مبنية على رؤية 2030 وقيم الشفافية والتميز"
             : "A leading real estate investment platform built on Vision 2030 and the values of transparency and excellence"
         }
       />
@@ -52,7 +52,7 @@ export default function About() {
         >
           <p className="text-lg md:text-xl leading-relaxed text-muted-foreground">
             {language === "ar"
-              ? "نحن في منصة نوى العقارية نؤمن بأن العقار ليس مجرد مساحة، بل هو أصل ينمو ومستقبل يُبنى. انطلقنا من المملكة العربية السعودية برؤية طموحة تواكب تطلعات رؤية 2030، لنقدم حلاً متكاملاً في عالم الاستثمار العقاري."
+              ? "نحن في نوى العقارية نؤمن بأن العقار ليس مجرد مساحة، بل هو أصل ينمو ومستقبل يُبنى. انطلقنا من المملكة العربية السعودية برؤية طموحة تواكب تطلعات رؤية 2030، لنقدم حلاً متكاملاً في عالم الاستثمار العقاري."
               : "At Nawa Real Estate Platform, we believe that real estate is not just a space, but an asset that grows and a future that is built. We launched from Saudi Arabia with an ambitious vision aligned with Vision 2030."}
           </p>
         </motion.div>
@@ -63,7 +63,7 @@ export default function About() {
             {
               tag: language === "ar" ? "رؤيتنا" : "Our Vision",
               text: language === "ar"
-                ? "أن نكون المنصة الرائدة والأكثر موثوقية في تقديم الفرص الاستثمارية العقارية المبتكرة في الشرق الأوسط، بمعايير عالمية ولمسة محلية أصيلة."
+                ? "أن نكون الشركة الرائدة والأكثر موثوقية في تقديم الفرص الاستثمارية العقارية المبتكرة في الشرق الأوسط، بمعايير عالمية ولمسة محلية أصيلة."
                 : "To be the leading and most trusted platform for innovative real estate investment in the Middle East, with global standards and an authentic local touch.",
               bg: "bg-primary text-white",
               tagColor: "text-secondary",

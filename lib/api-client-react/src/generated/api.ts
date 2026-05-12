@@ -34,10 +34,12 @@ import type {
   Employee,
   EmployeeInput,
   EmployeeUpdate,
+  ErrorEnvelope,
   HealthStatus,
   Job,
   JobApplication,
   JobApplicationInput,
+  JobApplicationUpdate,
   JobInput,
   JobUpdate,
   ListJobsParams,
@@ -63,6 +65,8 @@ import type {
   ServiceUpdate,
   SiteSettings,
   SiteSettingsUpdate,
+  UploadUrlRequest,
+  UploadUrlResponse,
   User,
 } from "./api.schemas";
 
@@ -74,6 +78,269 @@ type AwaitedInput<T> = PromiseLike<T> | T;
 type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
+/**
+ * @summary Request a presigned URL for file upload
+ */
+export const getRequestUploadUrlUrl = () => {
+  return `/api/storage/uploads/request-url`;
+};
+
+export const requestUploadUrl = async (
+  uploadUrlRequest: UploadUrlRequest,
+  options?: RequestInit,
+): Promise<UploadUrlResponse> => {
+  return customFetch<UploadUrlResponse>(getRequestUploadUrlUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(uploadUrlRequest),
+  });
+};
+
+export const getRequestUploadUrlMutationOptions = <
+  TError = ErrorType<ErrorEnvelope>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof requestUploadUrl>>,
+    TError,
+    { data: BodyType<UploadUrlRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof requestUploadUrl>>,
+  TError,
+  { data: BodyType<UploadUrlRequest> },
+  TContext
+> => {
+  const mutationKey = ["requestUploadUrl"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof requestUploadUrl>>,
+    { data: BodyType<UploadUrlRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return requestUploadUrl(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RequestUploadUrlMutationResult = NonNullable<
+  Awaited<ReturnType<typeof requestUploadUrl>>
+>;
+export type RequestUploadUrlMutationBody = BodyType<UploadUrlRequest>;
+export type RequestUploadUrlMutationError = ErrorType<ErrorEnvelope>;
+
+/**
+ * @summary Request a presigned URL for file upload
+ */
+export const useRequestUploadUrl = <
+  TError = ErrorType<ErrorEnvelope>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof requestUploadUrl>>,
+    TError,
+    { data: BodyType<UploadUrlRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof requestUploadUrl>>,
+  TError,
+  { data: BodyType<UploadUrlRequest> },
+  TContext
+> => {
+  return useMutation(getRequestUploadUrlMutationOptions(options));
+};
+
+/**
+ * @summary Serve a public asset
+ */
+export const getGetPublicObjectUrl = (filePath: string) => {
+  return `/api/storage/public-objects/${filePath}`;
+};
+
+export const getPublicObject = async (
+  filePath: string,
+  options?: RequestInit,
+): Promise<Blob> => {
+  return customFetch<Blob>(getGetPublicObjectUrl(filePath), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetPublicObjectQueryKey = (filePath: string) => {
+  return [`/api/storage/public-objects/${filePath}`] as const;
+};
+
+export const getGetPublicObjectQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPublicObject>>,
+  TError = ErrorType<ErrorEnvelope>,
+>(
+  filePath: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPublicObject>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPublicObjectQueryKey(filePath);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicObject>>> = ({
+    signal,
+  }) => getPublicObject(filePath, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!filePath,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPublicObject>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPublicObjectQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPublicObject>>
+>;
+export type GetPublicObjectQueryError = ErrorType<ErrorEnvelope>;
+
+/**
+ * @summary Serve a public asset
+ */
+
+export function useGetPublicObject<
+  TData = Awaited<ReturnType<typeof getPublicObject>>,
+  TError = ErrorType<ErrorEnvelope>,
+>(
+  filePath: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPublicObject>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPublicObjectQueryOptions(filePath, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Serve an object entity
+ */
+export const getGetStorageObjectUrl = (objectPath: string) => {
+  return `/api/storage/objects/${objectPath}`;
+};
+
+export const getStorageObject = async (
+  objectPath: string,
+  options?: RequestInit,
+): Promise<Blob> => {
+  return customFetch<Blob>(getGetStorageObjectUrl(objectPath), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetStorageObjectQueryKey = (objectPath: string) => {
+  return [`/api/storage/objects/${objectPath}`] as const;
+};
+
+export const getGetStorageObjectQueryOptions = <
+  TData = Awaited<ReturnType<typeof getStorageObject>>,
+  TError = ErrorType<ErrorEnvelope>,
+>(
+  objectPath: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getStorageObject>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetStorageObjectQueryKey(objectPath);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getStorageObject>>
+  > = ({ signal }) =>
+    getStorageObject(objectPath, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!objectPath,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getStorageObject>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetStorageObjectQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getStorageObject>>
+>;
+export type GetStorageObjectQueryError = ErrorType<ErrorEnvelope>;
+
+/**
+ * @summary Serve an object entity
+ */
+
+export function useGetStorageObject<
+  TData = Awaited<ReturnType<typeof getStorageObject>>,
+  TError = ErrorType<ErrorEnvelope>,
+>(
+  objectPath: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getStorageObject>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetStorageObjectQueryOptions(objectPath, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * @summary Health check
@@ -2098,6 +2365,177 @@ export function useListJobApplications<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Update application status / notes (admin)
+ */
+export const getUpdateJobApplicationUrl = (id: number) => {
+  return `/api/jobs/applications/${id}`;
+};
+
+export const updateJobApplication = async (
+  id: number,
+  jobApplicationUpdate: JobApplicationUpdate,
+  options?: RequestInit,
+): Promise<JobApplication> => {
+  return customFetch<JobApplication>(getUpdateJobApplicationUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(jobApplicationUpdate),
+  });
+};
+
+export const getUpdateJobApplicationMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateJobApplication>>,
+    TError,
+    { id: number; data: BodyType<JobApplicationUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateJobApplication>>,
+  TError,
+  { id: number; data: BodyType<JobApplicationUpdate> },
+  TContext
+> => {
+  const mutationKey = ["updateJobApplication"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateJobApplication>>,
+    { id: number; data: BodyType<JobApplicationUpdate> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateJobApplication(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateJobApplicationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateJobApplication>>
+>;
+export type UpdateJobApplicationMutationBody = BodyType<JobApplicationUpdate>;
+export type UpdateJobApplicationMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update application status / notes (admin)
+ */
+export const useUpdateJobApplication = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateJobApplication>>,
+    TError,
+    { id: number; data: BodyType<JobApplicationUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateJobApplication>>,
+  TError,
+  { id: number; data: BodyType<JobApplicationUpdate> },
+  TContext
+> => {
+  return useMutation(getUpdateJobApplicationMutationOptions(options));
+};
+
+/**
+ * @summary Delete an application (admin)
+ */
+export const getDeleteJobApplicationUrl = (id: number) => {
+  return `/api/jobs/applications/${id}`;
+};
+
+export const deleteJobApplication = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteJobApplicationUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteJobApplicationMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteJobApplication>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteJobApplication>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteJobApplication"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteJobApplication>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteJobApplication(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteJobApplicationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteJobApplication>>
+>;
+
+export type DeleteJobApplicationMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete an application (admin)
+ */
+export const useDeleteJobApplication = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteJobApplication>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteJobApplication>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteJobApplicationMutationOptions(options));
+};
 
 /**
  * @summary List brokers

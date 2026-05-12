@@ -5,6 +5,25 @@
  * Nawa Real Estate Platform API
  * OpenAPI spec version: 0.1.0
  */
+export interface UploadUrlRequest {
+  /** @minLength 1 */
+  name: string;
+  /** @minimum 1 */
+  size: number;
+  /** @minLength 1 */
+  contentType: string;
+}
+
+export interface UploadUrlResponse {
+  uploadURL: string;
+  objectPath: string;
+  metadata?: UploadUrlRequest;
+}
+
+export interface ErrorEnvelope {
+  error: string;
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -235,19 +254,72 @@ export interface JobApplication {
   /** @nullable */
   phone?: string | null;
   /** @nullable */
+  nationality?: string | null;
+  /** @nullable */
+  city?: string | null;
+  /** @nullable */
+  currentPosition?: string | null;
+  /** @nullable */
+  yearsExperience?: number | null;
+  /** @nullable */
+  education?: string | null;
+  /** @nullable */
+  linkedinUrl?: string | null;
+  /** @nullable */
+  portfolioUrl?: string | null;
+  /** @nullable */
+  expectedSalary?: string | null;
+  /** @nullable */
+  noticePeriod?: string | null;
+  /** @nullable */
+  whyJoinUs?: string | null;
+  /** @nullable */
+  howDidYouHear?: string | null;
+  /** @nullable */
   coverLetter?: string | null;
   /** @nullable */
   resumeUrl?: string | null;
-  status?: string;
-  createdAt?: string;
+  status: string;
+  /** @nullable */
+  adminNotes?: string | null;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface JobApplicationInput {
   applicantName: string;
   email: string;
   phone?: string;
+  nationality?: string;
+  city?: string;
+  currentPosition?: string;
+  yearsExperience?: number;
+  education?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  expectedSalary?: string;
+  noticePeriod?: string;
+  whyJoinUs?: string;
+  howDidYouHear?: string;
   coverLetter?: string;
   resumeUrl?: string;
+}
+
+export type JobApplicationUpdateStatus =
+  (typeof JobApplicationUpdateStatus)[keyof typeof JobApplicationUpdateStatus];
+
+export const JobApplicationUpdateStatus = {
+  pending: "pending",
+  reviewing: "reviewing",
+  shortlisted: "shortlisted",
+  interview: "interview",
+  hired: "hired",
+  rejected: "rejected",
+} as const;
+
+export interface JobApplicationUpdate {
+  status?: JobApplicationUpdateStatus;
+  adminNotes?: string;
 }
 
 export interface Broker {

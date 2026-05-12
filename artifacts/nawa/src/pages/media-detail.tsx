@@ -23,7 +23,7 @@ export default function MediaDetail() {
 
   useEffect(() => {
     if (article) {
-      document.title = `${language === "ar" ? article.titleAr : article.title} | منصة نوى العقارية`;
+      document.title = `${language === "ar" ? article.titleAr : article.title} | نوى العقارية`;
     }
   }, [article, language]);
 

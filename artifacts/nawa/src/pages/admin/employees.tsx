@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/shared/image-upload";
 
 const roles = [
   { value: "super_admin", label: "Super Admin" },
@@ -45,7 +46,7 @@ export default function AdminEmployees() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = language === "ar" ? "إدارة الموظفين | منصة نوى العقارية" : "Manage Employees | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "إدارة الموظفين | نوى العقارية" : "Manage Employees | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: employees, isLoading } = useListEmployees();
@@ -178,7 +179,7 @@ export default function AdminEmployees() {
                 )} />
                 <FormField control={form.control} name="department" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "القسم" : "Department"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "الهاتف" : "Phone"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                <FormField control={form.control} name="avatar" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "رابط الصورة" : "Avatar URL"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="avatar" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "الصورة الشخصية" : "Avatar"}</FormLabel><FormControl><ImageUpload value={field.value} onChange={field.onChange} variant="avatar" /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="permissions" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "الصلاحيات" : "Permissions"}</FormLabel><FormControl><Input {...field} placeholder={language === "ar" ? "مثال: read,write" : "e.g. read,write"} /></FormControl></FormItem>)} />
               </div>
               <FormField control={form.control} name="active" render={({ field }) => (

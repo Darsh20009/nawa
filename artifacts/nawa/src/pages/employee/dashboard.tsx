@@ -10,7 +10,7 @@ export default function EmployeeDashboard() {
   const { user } = useAuth();
 
   useEffect(() => {
-    document.title = language === "ar" ? "لوحة القيادة | منصة نوى العقارية" : "Dashboard | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "لوحة القيادة | نوى العقارية" : "Dashboard | Nawa Real Estate Platform";
   }, [language]);
 
   return (

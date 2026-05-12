@@ -22,7 +22,7 @@ export default function ProjectDetail() {
 
   useEffect(() => {
     if (project) {
-      document.title = `${language === "ar" ? project.titleAr : project.title} | منصة نوى العقارية`;
+      document.title = `${language === "ar" ? project.titleAr : project.title} | نوى العقارية`;
     }
   }, [project, language]);
 

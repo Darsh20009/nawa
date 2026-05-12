@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/shared/image-upload";
 
 export default function AdminBoard() {
   const { language } = useLanguage();
@@ -21,7 +22,7 @@ export default function AdminBoard() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = language === "ar" ? "إدارة مجلس الإدارة | منصة نوى العقارية" : "Manage Board | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "إدارة مجلس الإدارة | نوى العقارية" : "Manage Board | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: members, isLoading } = useListBoardMembers();
@@ -133,7 +134,7 @@ export default function AdminBoard() {
                 <FormField control={form.control} name="nameAr" render={({ field }) => (<FormItem><FormLabel>الاسم (AR)</FormLabel><FormControl><Input {...field} dir="rtl" /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="position" render={({ field }) => (<FormItem><FormLabel>Position (EN)</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="positionAr" render={({ field }) => (<FormItem><FormLabel>المنصب (AR)</FormLabel><FormControl><Input {...field} dir="rtl" /></FormControl></FormItem>)} />
-                <FormField control={form.control} name="avatar" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "رابط الصورة" : "Avatar URL"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="avatar" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "الصورة الشخصية" : "Avatar"}</FormLabel><FormControl><ImageUpload value={field.value} onChange={field.onChange} variant="avatar" /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="linkedIn" render={({ field }) => (<FormItem><FormLabel>LinkedIn URL</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="order" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "ترتيب العرض" : "Display Order"}</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
               </div>

@@ -30,7 +30,7 @@ export default function AdminSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = language === "ar" ? "إعدادات النظام | منصة نوى العقارية" : "System Settings | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "إعدادات النظام | نوى العقارية" : "System Settings | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: settings, isLoading } = useGetSiteSettings();
@@ -193,7 +193,7 @@ export default function AdminSettings() {
                   <FormField control={form.control} name="siteName" render={({ field }) => (
                     <FormItem>
                       <FormLabel>{language === "ar" ? "اسم الموقع (عربي)" : "Site Name (Arabic)"}</FormLabel>
-                      <FormControl><Input {...field} dir="rtl" placeholder="منصة نوى العقارية" /></FormControl>
+                      <FormControl><Input {...field} dir="rtl" placeholder="نوى العقارية" /></FormControl>
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="siteNameEn" render={({ field }) => (
@@ -379,14 +379,14 @@ export default function AdminSettings() {
                   <FormField control={form.control} name="metaTitle" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Meta Title</FormLabel>
-                      <FormControl><Input {...field} placeholder="منصة نوى العقارية | استثمر بذكاء" /></FormControl>
+                      <FormControl><Input {...field} placeholder="نوى العقارية | استثمر بذكاء" /></FormControl>
                       <FormDescription className="text-xs">{language === "ar" ? "العنوان الذي يظهر في نتائج البحث وتبويبات المتصفح" : "Title shown in search results and browser tabs"}</FormDescription>
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="metaDescription" render={({ field }) => (
                     <FormItem>
                       <FormLabel>{language === "ar" ? "وصف Meta (عربي)" : "Meta Description (Arabic)"}</FormLabel>
-                      <FormControl><Textarea rows={3} {...field} dir="rtl" placeholder="منصة نوى العقارية - شريكك في الاستثمار العقاري بالمملكة العربية السعودية..." /></FormControl>
+                      <FormControl><Textarea rows={3} {...field} dir="rtl" placeholder="نوى العقارية - شريكك في الاستثمار العقاري بالمملكة العربية السعودية..." /></FormControl>
                       <FormDescription className="text-xs">{language === "ar" ? "يُنصح بـ 150-160 حرف" : "Recommended: 150-160 characters"}</FormDescription>
                     </FormItem>
                   )} />

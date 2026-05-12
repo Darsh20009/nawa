@@ -38,7 +38,89 @@ tags:
     description: Site settings and configuration
   - name: stats
     description: Dashboard statistics
+  - name: Storage
+    description: Object storage upload and serving endpoints
 paths:
+  /storage/uploads/request-url:
+    post:
+      tags: [Storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadUrlRequest'
+      responses:
+        '200':
+          description: Presigned upload URL generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /storage/public-objects/{filePath}:
+    get:
+      tags: [Storage]
+      operationId: getPublicObject
+      summary: Serve a public asset
+      parameters:
+        - name: filePath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Object content
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /storage/objects/{objectPath}:
+    get:
+      tags: [Storage]
+      operationId: getStorageObject
+      summary: Serve an object entity
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Object content
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
   /healthz:
     get:
       operationId: healthCheck
@@ -480,6 +562,44 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/JobApplication"
+
+  /jobs/applications/{id}:
+    patch:
+      operationId: updateJobApplication
+      tags: [jobs]
+      summary: Update application status / notes (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobApplicationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobApplication"
+    delete:
+      operationId: deleteJobApplication
+      tags: [jobs]
+      summary: Delete an application (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
 
   # BROKERS
   /brokers:
@@ -1051,6 +1171,35 @@ paths:
 
 components:
   schemas:
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          minimum: 1
+        contentType:
+          type: string
+          minLength: 1
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/UploadUrlRequest'
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
     HealthStatus:
       type: object
       properties:
@@ -1425,7 +1574,7 @@ components:
 
     JobApplication:
       type: object
-      required: [id, jobId, applicantName, email]
+      required: [id, jobId, applicantName, email, status, createdAt]
       properties:
         id:
           type: integer
@@ -1437,13 +1586,39 @@ components:
           type: string
         phone:
           type: ["string", "null"]
+        nationality:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        currentPosition:
+          type: ["string", "null"]
+        yearsExperience:
+          type: ["integer", "null"]
+        education:
+          type: ["string", "null"]
+        linkedinUrl:
+          type: ["string", "null"]
+        portfolioUrl:
+          type: ["string", "null"]
+        expectedSalary:
+          type: ["string", "null"]
+        noticePeriod:
+          type: ["string", "null"]
+        whyJoinUs:
+          type: ["string", "null"]
+        howDidYouHear:
+          type: ["string", "null"]
         coverLetter:
           type: ["string", "null"]
         resumeUrl:
           type: ["string", "null"]
         status:
           type: string
+        adminNotes:
+          type: ["string", "null"]
         createdAt:
+          type: string
+        updatedAt:
           type: string
 
     JobApplicationInput:
@@ -1456,9 +1631,40 @@ components:
           type: string
         phone:
           type: string
+        nationality:
+          type: string
+        city:
+          type: string
+        currentPosition:
+          type: string
+        yearsExperience:
+          type: integer
+        education:
+          type: string
+        linkedinUrl:
+          type: string
+        portfolioUrl:
+          type: string
+        expectedSalary:
+          type: string
+        noticePeriod:
+          type: string
+        whyJoinUs:
+          type: string
+        howDidYouHear:
+          type: string
         coverLetter:
           type: string
         resumeUrl:
+          type: string
+
+    JobApplicationUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, reviewing, shortlisted, interview, hired, rejected]
+        adminNotes:
           type: string
 
     # BROKERS

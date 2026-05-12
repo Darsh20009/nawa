@@ -10,6 +10,17 @@ export interface JobApplicationInput {
   applicantName: string;
   email: string;
   phone?: string;
+  nationality?: string;
+  city?: string;
+  currentPosition?: string;
+  yearsExperience?: number;
+  education?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  expectedSalary?: string;
+  noticePeriod?: string;
+  whyJoinUs?: string;
+  howDidYouHear?: string;
   coverLetter?: string;
   resumeUrl?: string;
 }

@@ -55,6 +55,7 @@ import AdminJobs from "@/pages/admin/jobs";
 import AdminBrokers from "@/pages/admin/brokers";
 import AdminBoard from "@/pages/admin/board";
 import AdminEmployees from "@/pages/admin/employees";
+import AdminApplications from "@/pages/admin/applications";
 import AdminMessages from "@/pages/admin/messages";
 import AdminPages from "@/pages/admin/pages";
 import AdminAiPage from "@/pages/admin/ai";
@@ -121,6 +122,7 @@ function AnimatedRouter() {
           <Route path="/admin/services" component={AdminServices} />
           <Route path="/admin/news" component={AdminNews} />
           <Route path="/admin/jobs" component={AdminJobs} />
+          <Route path="/admin/applications" component={AdminApplications} />
           <Route path="/admin/brokers" component={AdminBrokers} />
           <Route path="/admin/board" component={AdminBoard} />
           <Route path="/admin/employees" component={AdminEmployees} />

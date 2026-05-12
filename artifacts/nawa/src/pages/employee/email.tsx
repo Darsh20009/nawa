@@ -252,7 +252,7 @@ export default function EmployeeEmail() {
   const unread = messages.filter(m => !m.seen).length;
 
   useEffect(() => {
-    document.title = ar ? "البريد الإلكتروني | منصة نوى العقارية" : "Email | Nawa Real Estate";
+    document.title = ar ? "البريد الإلكتروني | نوى العقارية" : "Email | Nawa Real Estate";
   }, [ar]);
 
   // No account available

@@ -14,7 +14,7 @@ export default function Media() {
   const t = translations[language];
 
   useEffect(() => {
-    document.title = `${t.media} | منصة نوى العقارية`;
+    document.title = `${t.media} | نوى العقارية`;
   }, [t.media]);
 
   const { data: news, isLoading } = useListNews({}, {

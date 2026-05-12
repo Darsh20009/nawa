@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/shared/image-upload";
 import * as Icons from "lucide-react";
 
 export default function AdminServices() {
@@ -22,7 +23,7 @@ export default function AdminServices() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = language === "ar" ? "إدارة الخدمات | منصة نوى العقارية" : "Manage Services | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "إدارة الخدمات | نوى العقارية" : "Manage Services | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: services, isLoading } = useListServices();
@@ -131,7 +132,7 @@ export default function AdminServices() {
                 <FormField control={form.control} name="titleAr" render={({ field }) => (<FormItem><FormLabel>العنوان (AR)</FormLabel><FormControl><Input {...field} dir="rtl" /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="icon" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "الأيقونة (Lucide)" : "Icon (Lucide name)"}</FormLabel><FormControl><Input {...field} placeholder="e.g. Building2" /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="order" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "ترتيب العرض" : "Display Order"}</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
-                <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "رابط الصورة" : "Image URL"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "صورة الخدمة" : "Service Image"}</FormLabel><FormControl><ImageUpload value={field.value} onChange={field.onChange} aspectRatio="video" /></FormControl></FormItem>)} />
               </div>
               <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Description (EN)</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl></FormItem>)} />
               <FormField control={form.control} name="descriptionAr" render={({ field }) => (<FormItem><FormLabel>الوصف (AR)</FormLabel><FormControl><Textarea rows={3} {...field} dir="rtl" /></FormControl></FormItem>)} />

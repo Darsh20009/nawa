@@ -1,7 +1,7 @@
-// Nawa Real Estate Platform — Service Worker v4
-const CACHE_NAME = 'nawa-v4';
-const STATIC_CACHE = 'nawa-static-v4';
-const API_CACHE = 'nawa-api-v4';
+// Nawa Real Estate — Service Worker v5
+const CACHE_NAME = 'nawa-v5';
+const STATIC_CACHE = 'nawa-static-v5';
+const API_CACHE = 'nawa-api-v5';
 
 const STATIC_ASSETS = [
   '/',
@@ -78,7 +78,7 @@ self.addEventListener('fetch', (event) => {
 // Push Notifications
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'منصة نوى العقارية';
+  const title = data.title || 'نوى العقارية';
   const options = {
     body: data.body || 'لديك إشعار جديد',
     icon: '/icon-192.png',

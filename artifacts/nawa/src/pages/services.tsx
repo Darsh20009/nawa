@@ -12,7 +12,7 @@ export default function Services() {
   const t = translations[language];
 
   useEffect(() => {
-    document.title = `${t.services} | منصة نوى العقارية`;
+    document.title = `${t.services} | نوى العقارية`;
   }, [t.services]);
 
   const { data: services, isLoading } = useListServices({

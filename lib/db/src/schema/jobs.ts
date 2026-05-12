@@ -25,14 +25,27 @@ export const jobApplicationsTable = pgTable("job_applications", {
   applicantName: text("applicant_name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
+  nationality: text("nationality"),
+  city: text("city"),
+  currentPosition: text("current_position"),
+  yearsExperience: integer("years_experience"),
+  education: text("education"),
+  linkedinUrl: text("linkedin_url"),
+  portfolioUrl: text("portfolio_url"),
+  expectedSalary: text("expected_salary"),
+  noticePeriod: text("notice_period"),
+  whyJoinUs: text("why_join_us"),
+  howDidYouHear: text("how_did_you_hear"),
   coverLetter: text("cover_letter"),
   resumeUrl: text("resume_url"),
   status: text("status").notNull().default("pending"),
+  adminNotes: text("admin_notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
 export const insertJobSchema = createInsertSchema(jobsTable).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertJobApplicationSchema = createInsertSchema(jobApplicationsTable).omit({ id: true, createdAt: true, status: true });
+export const insertJobApplicationSchema = createInsertSchema(jobApplicationsTable).omit({ id: true, createdAt: true, updatedAt: true, status: true });
 export type InsertJob = z.infer<typeof insertJobSchema>;
 export type Job = typeof jobsTable.$inferSelect;
 export type JobApplication = typeof jobApplicationsTable.$inferSelect;

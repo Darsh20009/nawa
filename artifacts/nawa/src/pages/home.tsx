@@ -37,7 +37,7 @@ export default function Home() {
   const t = translations[language];
 
   useEffect(() => {
-    document.title = `${t.home} | منصة نوى العقارية`;
+    document.title = `${t.home} | نوى العقارية`;
   }, [t.home]);
 
   const { data: stats } = useGetDashboardStats({ query: { queryKey: ["dashboardStats"] } });

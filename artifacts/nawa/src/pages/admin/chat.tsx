@@ -6,7 +6,7 @@ export default function AdminChatPage() {
   const { language } = useLanguage();
   
   useEffect(() => {
-    document.title = language === "ar" ? "المحادثات | منصة نوى العقارية" : "Internal Chat | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "المحادثات | نوى العقارية" : "Internal Chat | Nawa Real Estate Platform";
   }, [language]);
 
   return <InternalChat />;

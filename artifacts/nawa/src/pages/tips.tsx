@@ -93,7 +93,7 @@ export default function Tips() {
               : <Lock className="w-7 h-7 text-[#C9A96E]" />}
           </div>
           <h1 className="text-2xl font-bold text-white mb-1.5 font-mono">دليل النظام الكامل</h1>
-          <p className="text-white/35 text-xs tracking-widest uppercase">منصة نوى العقارية — وثيقة سرية</p>
+          <p className="text-white/35 text-xs tracking-widest uppercase">نوى العقارية — وثيقة سرية</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -142,9 +142,9 @@ export default function Tips() {
               className="space-y-2 font-mono"
             >
               {/* ===== OVERVIEW ===== */}
-              <Section title="نظرة عامة على المنصة">
+              <Section title="نظرة عامة على نوى العقارية">
                 <p className="text-white/55 text-xs leading-relaxed mb-4">
-                  منصة نوى العقارية — نظام متكامل يضم ثلاثة بوابات: موقع العميل العام (AR/EN)، بوابة الموظفين، ولوحة تحكم الإدارة. مبنية على React + Vite + Express 5 + PostgreSQL.
+                  نوى العقارية — نظام متكامل يضم ثلاثة بوابات: موقع العميل العام (AR/EN)، بوابة الموظفين، ولوحة تحكم الإدارة. مبنية على React + Vite + Express 5 + PostgreSQL.
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-center">
@@ -291,7 +291,7 @@ export default function Tips() {
               </Section>
 
               {/* ===== FEATURES ===== */}
-              <Section title="مميزات المنصة">
+              <Section title="مميزات نوى العقارية">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <FeatureCard icon="🌐" title="ثنائي اللغة (AR/EN)" desc="تبديل كامل بين العربية (RTL) والإنجليزية (LTR) بضغطة زر" />
                   <FeatureCard icon="🔐" title="JWT Authentication" desc="التوكن في localStorage — يُحقن تلقائياً في كل طلبات API" />
@@ -360,7 +360,7 @@ export default function Tips() {
               {/* ===== FOOTER ===== */}
               <div className="text-center pt-8 pb-4 border-t border-white/8">
                 <img src={logoPath} alt="نوى" className="h-8 mx-auto mb-3 brightness-0 invert opacity-30" />
-                <p className="text-white/20 text-xs">وثيقة سرية — منصة نوى العقارية</p>
+                <p className="text-white/20 text-xs">وثيقة سرية — نوى العقارية</p>
                 <p className="text-white/10 text-[10px] mt-1">nawainv.sa © {new Date().getFullYear()}</p>
               </div>
             </motion.div>

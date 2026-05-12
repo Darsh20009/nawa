@@ -61,7 +61,7 @@ export function Footer() {
   const whatsapp = settings?.whatsapp || DEFAULT_WHATSAPP;
   const email = settings?.email || DEFAULT_EMAIL;
   const footerText = language === "ar"
-    ? (settings?.footerText || "منصة نوى للاستثمار العقاري — شريكك الأمثل في بناء ثروتك العقارية بالمملكة العربية السعودية.")
+    ? (settings?.footerText || "نوى للاستثمار العقاري — شريكك الأمثل في بناء ثروتك العقارية بالمملكة العربية السعودية.")
     : (settings?.footerTextEn || "Nawa Real Estate Investment — your ideal partner in building your real estate wealth in Saudi Arabia.");
 
   const socialLinks = [

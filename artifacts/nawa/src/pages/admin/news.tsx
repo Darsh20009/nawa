@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/shared/image-upload";
 import { format } from "date-fns";
 
 const categories = [
@@ -32,7 +33,7 @@ export default function AdminNews() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = language === "ar" ? "المركز الإعلامي | منصة نوى العقارية" : "Media Center | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "المركز الإعلامي | نوى العقارية" : "Media Center | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: news, isLoading } = useListNews();
@@ -160,7 +161,7 @@ export default function AdminNews() {
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="publishedAt" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "تاريخ النشر" : "Publish Date"}</FormLabel><FormControl><Input type="date" {...field} /></FormControl></FormItem>)} />
-                <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "رابط الصورة" : "Image URL"}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "صورة الخبر" : "News Image"}</FormLabel><FormControl><ImageUpload value={field.value} onChange={field.onChange} aspectRatio="wide" /></FormControl></FormItem>)} />
               </div>
               <FormField control={form.control} name="content" render={({ field }) => (<FormItem><FormLabel>Content (EN)</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl></FormItem>)} />
               <FormField control={form.control} name="contentAr" render={({ field }) => (<FormItem><FormLabel>المحتوى (AR)</FormLabel><FormControl><Textarea rows={5} {...field} dir="rtl" /></FormControl></FormItem>)} />

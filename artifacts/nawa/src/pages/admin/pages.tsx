@@ -23,7 +23,7 @@ export default function AdminPages() {
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = language === "ar" ? "إدارة الصفحات | منصة نوى العقارية" : "Manage Pages | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "إدارة الصفحات | نوى العقارية" : "Manage Pages | Nawa Real Estate Platform";
   }, [language]);
 
   const { data: pages, isLoading } = useListPages();

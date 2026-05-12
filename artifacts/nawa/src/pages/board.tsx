@@ -12,7 +12,7 @@ export default function Board() {
   const t = translations[language];
 
   useEffect(() => {
-    document.title = `${t.board} | منصة نوى العقارية`;
+    document.title = `${t.board} | نوى العقارية`;
   }, [t.board]);
 
   const { data: members, isLoading } = useListBoardMembers({
