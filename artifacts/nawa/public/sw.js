@@ -1,7 +1,7 @@
-// Nawa Real Estate Platform — Service Worker v3
-const CACHE_NAME = 'nawa-v3';
-const STATIC_CACHE = 'nawa-static-v3';
-const API_CACHE = 'nawa-api-v3';
+// Nawa Real Estate Platform — Service Worker v4
+const CACHE_NAME = 'nawa-v4';
+const STATIC_CACHE = 'nawa-static-v4';
+const API_CACHE = 'nawa-api-v4';
 
 const STATIC_ASSETS = [
   '/',
