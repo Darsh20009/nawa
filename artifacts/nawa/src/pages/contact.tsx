@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLanguage } from "@/hooks/use-language";
 import { translations } from "@/lib/constants";
 import { motion } from "framer-motion";
-import { useSendMessage } from "@workspace/api-client-react";
+import { useSendMessage, useGetSiteSettings } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Mail, Send } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -27,6 +27,15 @@ export default function Contact() {
   const { language } = useLanguage();
   const t = translations[language];
   const { toast } = useToast();
+  const { data: settings } = useGetSiteSettings();
+
+  const phone = settings?.phone || "+966500073509";
+  const waPhone = (settings?.whatsapp || settings?.phone || "966500073509").replace(/\D/g, "");
+  const email = settings?.email || "info@nawainv.sa";
+  const address = language === "ar"
+    ? (settings?.address || "طريق الملك فهد، العليا\nالرياض 12214\nالمملكة العربية السعودية")
+    : (settings?.addressEn || "King Fahd Road, Olaya\nRiyadh 12214\nSaudi Arabia");
+  const mapsUrl = settings?.googleMapsUrl || `https://wa.me/${waPhone}`;
 
   useEffect(() => {
     document.title = `${t.contact} | منصة نوى العقارية`;
@@ -100,46 +109,58 @@ export default function Contact() {
             <div className="bg-white p-8 rounded-2xl border border-border shadow-sm">
               <h3 className="text-2xl font-bold font-serif text-primary mb-6">{t.contactInfo}</h3>
               <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-primary/5 text-primary rounded-xl flex items-center justify-center shrink-0">
-                    <MapPin className="w-6 h-6" />
+                {address && (
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-primary/5 text-primary rounded-xl flex items-center justify-center shrink-0">
+                      <MapPin className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-foreground mb-1">{language === "ar" ? "العنوان" : "Address"}</h4>
+                      <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-muted-foreground text-sm leading-relaxed hover:text-primary transition-colors whitespace-pre-line block"
+                      >
+                        {address}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-foreground mb-1">{language === "ar" ? "العنوان" : "Address"}</h4>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {language === "ar" 
-                        ? "طريق الملك فهد، العليا\nالرياض 12214\nالمملكة العربية السعودية"
-                        : "King Fahd Road, Olaya\nRiyadh 12214\nSaudi Arabia"}
-                    </p>
-                  </div>
-                </div>
+                )}
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-primary/5 text-primary rounded-xl flex items-center justify-center shrink-0">
-                    <Phone className="w-6 h-6" />
+                {phone && (
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-primary/5 text-primary rounded-xl flex items-center justify-center shrink-0">
+                      <Phone className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-foreground mb-1">{language === "ar" ? "الهاتف" : "Phone"}</h4>
+                      <a
+                        href={`https://wa.me/${waPhone}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-muted-foreground text-sm hover:text-primary transition-colors block"
+                        dir="ltr"
+                      >
+                        {phone.startsWith("+") ? phone : `+${phone}`}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-foreground mb-1">{language === "ar" ? "الهاتف" : "Phone"}</h4>
-                    <a href="https://wa.me/966500073509" target="_blank" rel="noreferrer" className="text-muted-foreground text-sm hover:text-primary transition-colors block" dir="ltr">
-                      +966 50 007 3509
-                    </a>
-                  </div>
-                </div>
+                )}
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-primary/5 text-primary rounded-xl flex items-center justify-center shrink-0">
-                    <Mail className="w-6 h-6" />
+                {email && (
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-primary/5 text-primary rounded-xl flex items-center justify-center shrink-0">
+                      <Mail className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-foreground mb-1">{language === "ar" ? "البريد الإلكتروني" : "Email"}</h4>
+                      <a href={`mailto:${email}`} className="text-muted-foreground text-sm hover:text-primary transition-colors block">
+                        {email}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-foreground mb-1">{language === "ar" ? "البريد الإلكتروني" : "Email"}</h4>
-                    <a href="mailto:info@nawainv.sa" className="text-muted-foreground text-sm hover:text-primary transition-colors block mb-1">
-                      info@nawainv.sa
-                    </a>
-                    <a href="mailto:invest@nawainv.sa" className="text-muted-foreground text-sm hover:text-primary transition-colors block">
-                      invest@nawainv.sa
-                    </a>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </motion.div>
