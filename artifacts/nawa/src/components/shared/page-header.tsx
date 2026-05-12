@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { HeroVideo } from "./hero-video";
 
 interface PageHeaderProps {
   eyebrow?: string;
@@ -16,15 +17,7 @@ export function PageHeader({ eyebrow, title, subtitle, overlayStrength = "medium
 
   return (
     <div className="relative h-[38vh] md:h-[46vh] flex items-end overflow-hidden">
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src="/nawa-hero.mov" type="video/mp4" />
-      </video>
+      <HeroVideo />
       <div className={`absolute inset-0 bg-gradient-to-b ${overlay}`} />
 
       {/* Gold shimmer bar at bottom */}

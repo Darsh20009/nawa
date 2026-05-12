@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Building2, Users, TrendingUp, ArrowRight, ArrowLeft, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HeroVideo } from "@/components/shared/hero-video";
 
 function Counter({ from, to, duration = 2 }: { from: number; to: number; duration?: number }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
@@ -50,15 +51,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-[100dvh] min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover"
-          >
-            <source src="/nawa-hero.mov" type="video/mp4" />
-          </video>
+          <HeroVideo className="w-full h-full object-cover" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30 md:to-primary/10" />
         </div>
 
@@ -256,15 +249,7 @@ export default function Home() {
 
       {/* Video Break Banner */}
       <section className="h-[40vh] md:h-[60vh] relative flex items-center justify-center overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/nawa-hero.mov" type="video/mp4" />
-        </video>
+        <HeroVideo />
         <div className="absolute inset-0 bg-primary/50 backdrop-blur-[1px]" />
         <div className="relative z-10 text-center text-white px-5">
           <motion.div

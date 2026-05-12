@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import { MapPin } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HeroVideo } from "@/components/shared/hero-video";
 
 export default function Projects() {
   const { language } = useLanguage();
@@ -30,9 +31,7 @@ export default function Projects() {
     <div className="pb-20 min-h-screen bg-muted/10">
       {/* Video Banner Header */}
       <div className="relative h-[40vh] md:h-[50vh] flex items-center justify-center overflow-hidden">
-        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
-          <source src="/nawa-hero.mov" type="video/mp4" />
-        </video>
+        <HeroVideo />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/60 to-primary/80" />
         <div className="relative z-10 text-center text-white px-5">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
