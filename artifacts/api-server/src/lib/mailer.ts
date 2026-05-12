@@ -47,6 +47,22 @@ export interface SendNawaMailOptions {
 const NAWA_NAVY = "#0D1B3E";
 const NAWA_GOLD = "#C9A96E";
 
+/** Escape user-controlled text for safe interpolation into HTML. */
+export function escapeHtml(input: unknown): string {
+  if (input == null) return "";
+  return String(input)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/** Escape + convert newlines to <br/> for plain-text bodies pasted into HTML. */
+export function escapeHtmlMultiline(input: unknown): string {
+  return escapeHtml(input).replace(/\n/g, "<br/>");
+}
+
 export function wrapNawaEmailHtml(opts: { title?: string; bodyHtml: string; lang?: "ar" | "en" }): string {
   const dir = opts.lang === "en" ? "ltr" : "rtl";
   const align = dir === "rtl" ? "right" : "left";

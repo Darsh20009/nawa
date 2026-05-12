@@ -144,12 +144,17 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
     switch (toolName) {
       case "publish_news": {
         if (!isAdmin(authUser)) return { ok: false, error: "صلاحية النشر مطلوبة (admin)" };
+        const titleAr = typeof args.titleAr === "string" ? args.titleAr.trim() : "";
+        const title = typeof args.title === "string" ? args.title.trim() : titleAr;
+        const contentAr = typeof args.contentAr === "string" ? args.contentAr.trim() : "";
+        if (!titleAr || !title) return { ok: false, error: "العنوان بالعربي والإنجليزي إلزامي" };
+        if (!contentAr) return { ok: false, error: "محتوى الخبر بالعربي إلزامي" };
         const [row] = await db.insert(newsTable).values({
-          title: args.title,
-          titleAr: args.titleAr,
-          content: args.content || args.contentAr,
-          contentAr: args.contentAr,
-          category: args.category || "news",
+          title,
+          titleAr,
+          content: typeof args.content === "string" ? args.content : contentAr,
+          contentAr,
+          category: typeof args.category === "string" ? args.category : "news",
           featured: !!args.featured,
           publishedAt: new Date(),
         }).returning();
@@ -157,22 +162,35 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
       }
       case "publish_job": {
         if (!isAdmin(authUser)) return { ok: false, error: "صلاحية النشر مطلوبة (admin)" };
+        const titleAr = typeof args.titleAr === "string" ? args.titleAr.trim() : "";
+        const title = typeof args.title === "string" ? args.title.trim() : titleAr;
+        const departmentAr = typeof args.departmentAr === "string" ? args.departmentAr.trim() : "";
+        const department = typeof args.department === "string" ? args.department.trim() : departmentAr;
+        if (!titleAr || !title) return { ok: false, error: "اسم الوظيفة بالعربي والإنجليزي إلزامي" };
+        if (!departmentAr || !department) return { ok: false, error: "القسم إلزامي" };
         const [row] = await db.insert(jobsTable).values({
-          title: args.title,
-          titleAr: args.titleAr,
-          department: args.department,
-          departmentAr: args.departmentAr,
-          description: args.description,
-          descriptionAr: args.descriptionAr,
-          requirements: args.requirements,
-          requirementsAr: args.requirementsAr,
-          type: args.type || "full-time",
-          location: args.location || "الرياض",
+          title,
+          titleAr,
+          department,
+          departmentAr,
+          description: typeof args.description === "string" ? args.description : null,
+          descriptionAr: typeof args.descriptionAr === "string" ? args.descriptionAr : null,
+          requirements: typeof args.requirements === "string" ? args.requirements : null,
+          requirementsAr: typeof args.requirementsAr === "string" ? args.requirementsAr : null,
+          type: typeof args.type === "string" ? args.type : "full-time",
+          location: typeof args.location === "string" ? args.location : "الرياض",
           active: true,
         }).returning();
         return { ok: true, result: { id: row.id, title: row.titleAr, kind: "job" } };
       }
       case "send_email": {
+        const to = typeof args.to === "string" ? args.to.trim() : "";
+        const subject = typeof args.subject === "string" ? args.subject.trim() : "";
+        const bodyHtml = typeof args.bodyHtml === "string" ? args.bodyHtml : "";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return { ok: false, error: "بريد المستلم غير صالح" };
+        if (!subject) return { ok: false, error: "موضوع البريد مطلوب" };
+        if (!bodyHtml.trim()) return { ok: false, error: "محتوى البريد فارغ" };
+
         let from: any = "info@nawainv.sa";
         if (args.fromAccount && isAdmin(authUser) && (NAWA_EMAIL_ACCOUNTS as readonly string[]).includes(args.fromAccount)) {
           from = args.fromAccount;
@@ -180,10 +198,10 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
           const [u] = await db.select({ emailAccount: usersTable.emailAccount }).from(usersTable).where(eq(usersTable.id, authUser.id));
           if (u?.emailAccount && (NAWA_EMAIL_ACCOUNTS as readonly string[]).includes(u.emailAccount)) from = u.emailAccount;
         }
-        const html = wrapNawaEmailHtml({ title: args.title, bodyHtml: args.bodyHtml, lang: args.language || "ar" });
-        const r = await sendNawaMail({ from, to: args.to, subject: args.subject, html });
+        const html = wrapNawaEmailHtml({ title: typeof args.title === "string" ? args.title : undefined, bodyHtml, lang: args.language === "en" ? "en" : "ar" });
+        const r = await sendNawaMail({ from, to, subject, html });
         if (!r.ok) return { ok: false, error: r.error };
-        return { ok: true, result: { sent: true, from, to: args.to, messageId: r.messageId } };
+        return { ok: true, result: { sent: true, from, to, messageId: r.messageId } };
       }
       case "review_pending_tasks": {
         const limit = Math.min(Number(args.limit) || 5, 20);
@@ -198,12 +216,14 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
         };
       }
       case "get_dashboard_stats": {
-        const [p] = await db.select({ c: count() }).from(projectsTable);
-        const [b] = await db.select({ c: count() }).from(brokersTable);
-        const [m] = await db.select({ c: count() }).from(messagesTable);
-        const [u] = await db.select({ c: count() }).from(usersTable);
-        const [j] = await db.select({ c: count() }).from(jobsTable);
-        const [unread] = await db.select({ c: count() }).from(messagesTable).where(eq(messagesTable.status, "unread"));
+        const [[p], [b], [m], [u], [j], [unread]] = await Promise.all([
+          db.select({ c: count() }).from(projectsTable),
+          db.select({ c: count() }).from(brokersTable),
+          db.select({ c: count() }).from(messagesTable),
+          db.select({ c: count() }).from(usersTable),
+          db.select({ c: count() }).from(jobsTable),
+          db.select({ c: count() }).from(messagesTable).where(eq(messagesTable.status, "unread")),
+        ]);
         return {
           ok: true,
           result: {
@@ -294,7 +314,7 @@ router.post("/ai/chat", requireAuth, async (req, res): Promise<void> => {
         model: KIMI_MODEL,
         messages,
         max_tokens: 4096,
-        temperature: 0.6,
+        temperature: 1,
       };
       if (useTools) { body.tools = AGENT_TOOLS; body.tool_choice = "auto"; }
 
@@ -321,8 +341,13 @@ router.post("/ai/chat", requireAuth, async (req, res): Promise<void> => {
         return;
       }
 
-      // Execute each tool, then loop with results
-      messages.push({ role: "assistant", content: aiText || "", tool_calls: toolCalls });
+      // Execute each tool, then loop with results.
+      // Kimi k2.6 (thinking model) requires `reasoning_content` to be echoed back
+      // alongside the tool_calls — otherwise it errors with
+      //   "thinking is enabled but reasoning_content is missing".
+      const assistantEcho: any = { role: "assistant", content: msg?.content ?? "", tool_calls: toolCalls };
+      if (msg?.reasoning_content) assistantEcho.reasoning_content = msg.reasoning_content;
+      messages.push(assistantEcho);
       for (const tc of toolCalls) {
         const args = (() => { try { return JSON.parse(tc.function?.arguments || "{}"); } catch { return {}; } })();
         const exec = await executeTool(tc.function?.name, args, authUser);
@@ -369,7 +394,7 @@ router.post("/ai/stream", requireAuth, async (req, res): Promise<void> => {
     const r = await fetch(`${KIMI_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${KIMI_API_KEY}` },
-      body: JSON.stringify({ model: KIMI_MODEL, messages, max_tokens: 2048, temperature: 0.6, stream: true }),
+      body: JSON.stringify({ model: KIMI_MODEL, messages, max_tokens: 2048, temperature: 1, stream: true }),
     });
     if (!r.ok || !r.body) {
       res.write(`data: ${JSON.stringify({ error: "Stream failed" })}\n\n`);
@@ -408,7 +433,7 @@ export async function generateAiText(prompt: string, system?: string, maxTokens 
           { role: "user", content: prompt },
         ],
         max_tokens: maxTokens,
-        temperature: 0.7,
+        temperature: 1,
       }),
     });
     if (!r.ok) return "";

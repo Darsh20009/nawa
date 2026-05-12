@@ -316,13 +316,13 @@ export function AiChat() {
                               </a>
                             )}
                           </div>
-                          {ok && tc.result && (
+                          {ok && tc.result && typeof tc.result === "object" && (
                             <div className="text-[10px] text-muted-foreground bg-white/50 rounded px-2 py-1 mt-1 font-mono break-all">
-                              {tc.toolName === "send_email" && `→ ${tc.result.to} (من ${tc.result.from})`}
-                              {tc.toolName === "publish_news" && `#${tc.result.id} — ${tc.result.title || ""}`}
-                              {tc.toolName === "publish_job" && `#${tc.result.id} — ${tc.result.title || ""}`}
-                              {tc.toolName === "get_dashboard_stats" && `📊 ${tc.result.projects} مشروع · ${tc.result.unreadMessages} رسالة جديدة · ${tc.result.jobs} وظيفة`}
-                              {tc.toolName === "review_pending_tasks" && `📥 ${tc.result.unreadMessages} رسالة غير مقروءة`}
+                              {tc.toolName === "send_email" && tc.result?.to && `→ ${tc.result.to} (من ${tc.result?.from || "info@"})`}
+                              {tc.toolName === "publish_news" && tc.result?.id != null && `#${tc.result.id} — ${tc.result?.title ?? ""}`}
+                              {tc.toolName === "publish_job" && tc.result?.id != null && `#${tc.result.id} — ${tc.result?.title ?? ""}`}
+                              {tc.toolName === "get_dashboard_stats" && `📊 ${tc.result?.projects ?? 0} مشروع · ${tc.result?.unreadMessages ?? 0} رسالة جديدة · ${tc.result?.jobs ?? 0} وظيفة`}
+                              {tc.toolName === "review_pending_tasks" && `📥 ${tc.result?.unreadMessages ?? 0} رسالة غير مقروءة`}
                             </div>
                           )}
                         </div>
