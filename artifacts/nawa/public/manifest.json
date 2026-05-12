@@ -1,21 +1,69 @@
 {
   "name": "منصة نوى العقارية",
   "short_name": "نوى",
-  "description": "Nawa Real Estate Platform - Luxury Saudi real estate investment platform",
+  "description": "منصة نوى للاستثمار العقاري — الشريك الأمثل في الاستثمار العقاري بالمملكة العربية السعودية",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
   "background_color": "#0D1B3E",
   "theme_color": "#0D1B3E",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["business", "finance", "lifestyle"],
   "icons": [
     {
       "src": "/favicon.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml"
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/logo-transparent.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-transparent.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "/opengraph.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "منصة نوى العقارية"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "المشاريع",
+      "short_name": "مشاريع",
+      "description": "استعرض مشاريعنا العقارية",
+      "url": "/projects",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "تواصل معنا",
+      "short_name": "تواصل",
+      "description": "تواصل مع فريق نوى",
+      "url": "/contact",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "الوظائف",
+      "short_name": "وظائف",
+      "description": "فرص وظيفية في نوى",
+      "url": "/careers",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }

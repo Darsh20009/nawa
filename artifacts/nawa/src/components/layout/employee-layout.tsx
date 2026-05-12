@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { cn } from "@/lib/utils";
+import { useAuthNotifications } from "@/hooks/use-notifications";
 const logoPath = "/logo-transparent.png";
 import {
   LayoutDashboard,
@@ -13,6 +14,9 @@ import {
   Globe,
   Inbox,
   Mail,
+  Bell,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -24,13 +28,17 @@ function SidebarContent({
   language,
   logout,
   onNavigate,
+  soundOn,
+  onToggleSound,
 }: {
-  sidebarLinks: { href: string; label: string; icon: any }[];
+  sidebarLinks: { href: string; label: string; icon: any; badge?: number }[];
   location: string;
   user: any;
   language: string;
   logout: () => void;
   onNavigate?: () => void;
+  soundOn: boolean;
+  onToggleSound: () => void;
 }) {
   return (
     <>
@@ -60,7 +68,12 @@ function SidebarContent({
                   : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}>
                 <Icon className="w-5 h-5 shrink-0" />
-                <span className="truncate">{link.label}</span>
+                <span className="truncate flex-1">{link.label}</span>
+                {link.badge != null && link.badge > 0 && (
+                  <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                    {link.badge}
+                  </span>
+                )}
               </div>
             </Link>
           );
@@ -76,6 +89,13 @@ function SidebarContent({
             <p className="text-sm font-medium text-sidebar-foreground truncate">{language === "ar" ? user?.nameAr || user?.name : user?.name}</p>
             <p className="text-xs text-sidebar-foreground/60 truncate capitalize">{user?.role?.replace("_", " ")}</p>
           </div>
+          <button
+            onClick={onToggleSound}
+            className="p-1.5 rounded-lg hover:bg-sidebar-accent transition-colors shrink-0"
+            title={soundOn ? (language === "ar" ? "كتم الصوت" : "Mute") : (language === "ar" ? "تفعيل الصوت" : "Unmute")}
+          >
+            {soundOn ? <Volume2 className="w-4 h-4 text-sidebar-foreground/60" /> : <VolumeX className="w-4 h-4 text-sidebar-foreground/30" />}
+          </button>
         </div>
         <Button
           variant="ghost"
@@ -95,6 +115,7 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { language, toggleLanguage } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { counts, soundOn, toggleSound } = useAuthNotifications();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -106,9 +127,9 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
 
   const sidebarLinks = [
     { href: "/employee", label: language === "ar" ? "لوحة القيادة" : "Dashboard", icon: LayoutDashboard },
-    { href: "/employee/email", label: language === "ar" ? "البريد الإلكتروني" : "Email", icon: Mail },
-    { href: "/employee/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare },
-    { href: "/employee/inbox", label: language === "ar" ? "صندوق الرسائل" : "Messages", icon: Inbox },
+    { href: "/employee/email", label: language === "ar" ? "البريد الإلكتروني" : "Email", icon: Mail, badge: counts.emails },
+    { href: "/employee/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare, badge: counts.chat },
+    { href: "/employee/inbox", label: language === "ar" ? "صندوق الرسائل" : "Messages", icon: Inbox, badge: counts.messages },
     { href: "/employee/ai", label: language === "ar" ? "مساعد نوى الذكي" : "AI Assistant", icon: Bot },
   ];
 
@@ -116,7 +137,15 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-[100dvh] flex bg-muted/20">
       {/* Desktop Sidebar */}
       <aside className="w-64 bg-sidebar text-sidebar-foreground flex-shrink-0 flex-col hidden lg:flex border-r border-sidebar-border sticky top-0 h-[100dvh]">
-        <SidebarContent sidebarLinks={sidebarLinks} location={location} user={user} language={language} logout={logout} />
+        <SidebarContent
+          sidebarLinks={sidebarLinks}
+          location={location}
+          user={user}
+          language={language}
+          logout={logout}
+          soundOn={soundOn}
+          onToggleSound={toggleSound}
+        />
       </aside>
 
       {/* Mobile Sidebar Sheet */}
@@ -132,6 +161,8 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
             language={language}
             logout={logout}
             onNavigate={() => setMobileOpen(false)}
+            soundOn={soundOn}
+            onToggleSound={toggleSound}
           />
         </SheetContent>
       </Sheet>
@@ -151,12 +182,21 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
             <h2 className="text-base md:text-lg font-semibold text-foreground hidden sm:block">
               {language === "ar" ? "بوابة الموظفين" : "Employee Portal"}
             </h2>
-            {/* Mobile: show logo */}
             <Link href="/" className="lg:hidden">
               <img src={logoPath} alt="Nawa" className="h-6" />
             </Link>
           </div>
           <div className="flex items-center gap-2">
+            {counts.total > 0 && (
+              <div className="relative">
+                <Button variant="ghost" size="icon" className="w-8 h-8 relative">
+                  <Bell className="w-4 h-4" />
+                  <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    {counts.total > 9 ? "9+" : counts.total}
+                  </span>
+                </Button>
+              </div>
+            )}
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5 h-8 px-2.5 text-xs">
               <Globe className="w-3.5 h-3.5" />
               <span>{language === "ar" ? "EN" : "AR"}</span>

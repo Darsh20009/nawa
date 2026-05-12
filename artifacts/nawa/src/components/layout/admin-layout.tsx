@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { cn } from "@/lib/utils";
+import { useAuthNotifications } from "@/hooks/use-notifications";
 const logoPath = "/logo-transparent.png";
 import {
   LayoutDashboard,
@@ -23,13 +24,16 @@ import {
   X,
   FileText,
   Sliders,
+  Volume2,
+  VolumeX,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 interface SidebarSection {
   title: string;
-  links: { href: string; label: string; icon: any }[];
+  links: { href: string; label: string; icon: any; badge?: number }[];
 }
 
 function SidebarContent({
@@ -39,6 +43,9 @@ function SidebarContent({
   language,
   logout,
   onNavigate,
+  soundOn,
+  onToggleSound,
+  totalBadge,
 }: {
   sections: SidebarSection[];
   location: string;
@@ -46,6 +53,9 @@ function SidebarContent({
   language: string;
   logout: () => void;
   onNavigate?: () => void;
+  soundOn: boolean;
+  onToggleSound: () => void;
+  totalBadge: number;
 }) {
   return (
     <>
@@ -56,6 +66,11 @@ function SidebarContent({
         <span className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40 border-r border-sidebar-foreground/20 pl-3 rtl:pl-0 rtl:pr-3">
           {language === "ar" ? "الإدارة" : "Admin"}
         </span>
+        {totalBadge > 0 && (
+          <span className="ml-auto rtl:ml-0 rtl:mr-auto bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+            {totalBadge > 99 ? "99+" : totalBadge}
+          </span>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto py-4 px-3 space-y-5">
@@ -77,7 +92,12 @@ function SidebarContent({
                         : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     )}>
                       <Icon className="w-4 h-4 shrink-0" />
-                      <span className="truncate text-sm">{link.label}</span>
+                      <span className="truncate text-sm flex-1">{link.label}</span>
+                      {link.badge != null && link.badge > 0 && (
+                        <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                          {link.badge}
+                        </span>
+                      )}
                     </div>
                   </Link>
                 );
@@ -96,6 +116,13 @@ function SidebarContent({
             <p className="text-sm font-medium text-sidebar-foreground truncate">{language === "ar" ? user?.nameAr || user?.name : user?.name}</p>
             <p className="text-xs text-sidebar-foreground/60 truncate capitalize">{user?.role?.replace("_", " ")}</p>
           </div>
+          <button
+            onClick={onToggleSound}
+            className="p-1.5 rounded-lg hover:bg-sidebar-accent transition-colors shrink-0"
+            title={soundOn ? (language === "ar" ? "كتم الصوت" : "Mute") : (language === "ar" ? "تفعيل الصوت" : "Unmute")}
+          >
+            {soundOn ? <Volume2 className="w-4 h-4 text-sidebar-foreground/60" /> : <VolumeX className="w-4 h-4 text-sidebar-foreground/30" />}
+          </button>
         </div>
         <Button
           variant="ghost"
@@ -115,6 +142,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { language, toggleLanguage } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { counts, soundOn, toggleSound } = useAuthNotifications();
 
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || !user?.role.includes("admin"))) {
@@ -152,10 +180,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     {
       title: language === "ar" ? "التواصل" : "Communication",
       links: [
-        { href: "/admin/messages", label: language === "ar" ? "رسائل العملاء" : "Client Messages", icon: Inbox },
-        { href: "/admin/email", label: language === "ar" ? "البريد الإلكتروني" : "Email", icon: Mail },
+        { href: "/admin/messages", label: language === "ar" ? "رسائل العملاء" : "Client Messages", icon: Inbox, badge: counts.messages },
+        { href: "/admin/email", label: language === "ar" ? "البريد الإلكتروني" : "Email", icon: Mail, badge: counts.emails },
         { href: "/admin/email-accounts", label: language === "ar" ? "حسابات البريد" : "Email Accounts", icon: ChevronRight },
-        { href: "/admin/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare },
+        { href: "/admin/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare, badge: counts.chat },
         { href: "/admin/ai", label: language === "ar" ? "مساعد نوى الذكي" : "AI Assistant", icon: Bot },
       ],
     },
@@ -171,7 +199,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-[100dvh] flex bg-muted/20">
       {/* Desktop Sidebar */}
       <aside className="w-64 bg-sidebar text-sidebar-foreground flex-shrink-0 flex-col hidden lg:flex border-r border-sidebar-border sticky top-0 h-[100dvh]">
-        <SidebarContent sections={sections} location={location} user={user} language={language} logout={logout} />
+        <SidebarContent
+          sections={sections}
+          location={location}
+          user={user}
+          language={language}
+          logout={logout}
+          soundOn={soundOn}
+          onToggleSound={toggleSound}
+          totalBadge={counts.total}
+        />
       </aside>
 
       {/* Mobile Sidebar Sheet */}
@@ -187,6 +224,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             language={language}
             logout={logout}
             onNavigate={() => setMobileOpen(false)}
+            soundOn={soundOn}
+            onToggleSound={toggleSound}
+            totalBadge={counts.total}
           />
         </SheetContent>
       </Sheet>
@@ -208,12 +248,22 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
               <span className="capitalize text-xs">{location.split("/").pop()?.replace("-", " ") || "dashboard"}</span>
             </div>
-            {/* Mobile: show logo */}
             <Link href="/" className="lg:hidden">
               <img src={logoPath} alt="Nawa" className="h-6" />
             </Link>
           </div>
           <div className="flex items-center gap-2">
+            {/* Notification bell */}
+            {counts.total > 0 && (
+              <div className="relative">
+                <Button variant="ghost" size="icon" className="w-8 h-8 relative">
+                  <Bell className="w-4 h-4" />
+                  <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    {counts.total > 9 ? "9+" : counts.total}
+                  </span>
+                </Button>
+              </div>
+            )}
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5 h-8 px-2.5 text-xs">
               <Globe className="w-3.5 h-3.5" />
               <span>{language === "ar" ? "EN" : "AR"}</span>

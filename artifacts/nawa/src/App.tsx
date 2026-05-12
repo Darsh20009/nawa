@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { setBaseUrl, setAuthTokenGetter } from "@workspace/api-client-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { PwaInstallPrompt } from "@/components/shared/pwa-install-prompt";
 const logoPath = "/logo-transparent.png";
 
 // Setup API Client
@@ -221,6 +222,7 @@ function App() {
             <AnimatedRouter />
           </WouterRouter>
         )}
+        <PwaInstallPrompt />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

@@ -1,2 +1,14 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /employee/
+Disallow: /auth/
+Disallow: /api/
+
+Sitemap: https://nawainv.sa/sitemap.xml
+
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
