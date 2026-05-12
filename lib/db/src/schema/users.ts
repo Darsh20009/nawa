@@ -14,6 +14,7 @@ export const usersTable = pgTable("users", {
   phone: text("phone"),
   active: boolean("active").notNull().default(true),
   permissions: text("permissions"),
+  emailAccount: text("email_account"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

@@ -18,6 +18,7 @@ const toDto = (u: typeof usersTable.$inferSelect) => ({
   phone: u.phone,
   active: u.active,
   permissions: u.permissions,
+  emailAccount: u.emailAccount,
   createdAt: u.createdAt.toISOString(),
 });
 

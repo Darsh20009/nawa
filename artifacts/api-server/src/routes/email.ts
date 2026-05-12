@@ -3,6 +3,9 @@ import { requireAuth } from "../middlewares/auth";
 import { logger } from "../lib/logger";
 import nodemailer from "nodemailer";
 import { ImapFlow } from "imapflow";
+import { db } from "@workspace/db";
+import { usersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -44,9 +47,14 @@ function toISOSafe(d: Date | string | undefined): string {
   return d.toISOString();
 }
 
+async function getEffectiveEmail(userId: number, fallbackEmail: string): Promise<string> {
+  const [row] = await db.select({ emailAccount: usersTable.emailAccount }).from(usersTable).where(eq(usersTable.id, userId));
+  return row?.emailAccount || fallbackEmail;
+}
+
 router.get("/email/inbox", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = authUser.email;
+  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
   const folder = (req.query.folder as string) || "INBOX";
@@ -99,7 +107,7 @@ router.get("/email/inbox", requireAuth, async (req, res): Promise<void> => {
 
 router.get("/email/message/:uid", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = authUser.email;
+  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
   const uid = parseUid(req.params["uid"]);
   const folder = (req.query.folder as string) || "INBOX";
 
@@ -144,7 +152,7 @@ router.get("/email/message/:uid", requireAuth, async (req, res): Promise<void> =
 
 router.get("/email/folders", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = authUser.email;
+  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
 
   const client = getImapClient(userEmail);
   try {
@@ -166,7 +174,7 @@ router.get("/email/folders", requireAuth, async (req, res): Promise<void> => {
 
 router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const fromEmail = authUser.email;
+  const fromEmail = await getEffectiveEmail(authUser.id, authUser.email);
   const { to, subject, body, cc, bcc, replyTo } = req.body;
 
   if (!to || !subject || !body) {
@@ -197,7 +205,7 @@ router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
 
 router.delete("/email/message/:uid", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = authUser.email;
+  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
   const uid = parseUid(req.params["uid"]);
   const folder = (req.query.folder as string) || "INBOX";
 
@@ -221,7 +229,7 @@ router.delete("/email/message/:uid", requireAuth, async (req, res): Promise<void
 
 router.post("/email/flag/:uid", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const userEmail = authUser.email;
+  const userEmail = await getEffectiveEmail(authUser.id, authUser.email);
   const uid = parseUid(req.params["uid"]);
   const { folder = "INBOX", flag = "\\Flagged", add = true } = req.body;
 

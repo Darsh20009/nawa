@@ -71,6 +71,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       links: [
         { href: "/admin/messages", label: language === "ar" ? "رسائل العملاء" : "Client Messages", icon: Inbox },
         { href: "/admin/email", label: language === "ar" ? "البريد الإلكتروني" : "Email", icon: Mail },
+        { href: "/admin/email-accounts", label: language === "ar" ? "حسابات البريد" : "Email Accounts", icon: ChevronRight },
         { href: "/admin/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare },
         { href: "/admin/ai", label: language === "ar" ? "مساعد نوى الذكي" : "AI Assistant", icon: Bot },
       ],

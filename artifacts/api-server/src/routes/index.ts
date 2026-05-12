@@ -15,6 +15,7 @@ import pagesRouter from "./pages";
 import statsRouter from "./stats";
 import emailRouter from "./email";
 import forgotPasswordRouter from "./forgot-password";
+import emailAccountsRouter from "./email-accounts";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(pagesRouter);
 router.use(statsRouter);
 router.use(emailRouter);
 router.use(forgotPasswordRouter);
+router.use(emailAccountsRouter);
 
 export default router;
