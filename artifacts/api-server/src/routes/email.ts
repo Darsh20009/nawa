@@ -207,7 +207,7 @@ router.get("/email/folders", requireAuth, async (req, res): Promise<void> => {
 
 router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
   const authUser = (req as any).user;
-  const { to, subject, body, cc, bcc, replyTo, asAccount } = req.body;
+  const { to, subject, body, cc, bcc, replyTo, asAccount, attachments } = req.body;
 
   if (!to || !subject || !body) {
     res.status(400).json({ error: "to, subject, and body are required" });
@@ -220,6 +220,37 @@ router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
+  let mailAttachments: Array<{ filename: string; content?: Buffer; path?: string; contentType?: string }> | undefined;
+  if (Array.isArray(attachments) && attachments.length > 0) {
+    if (attachments.length > 10) {
+      res.status(400).json({ error: "too_many_attachments", message: "الحد الأقصى ١٠ مرفقات" });
+      return;
+    }
+    try {
+      mailAttachments = await Promise.all(
+        attachments.map(async (a: any) => {
+          const filename = String(a?.filename || "file").slice(0, 200);
+          const contentType = a?.contentType ? String(a.contentType) : undefined;
+          if (typeof a?.content === "string" && a.content.length > 0) {
+            const buf = Buffer.from(a.content, "base64");
+            if (buf.length > 15 * 1024 * 1024) throw new Error(`المرفق ${filename} كبير جداً (الحد ١٥MB)`);
+            return { filename, content: buf, contentType };
+          }
+          if (typeof a?.objectPath === "string" && a.objectPath.startsWith("/objects/")) {
+            const proto = req.headers["x-forwarded-proto"] || (req.secure ? "https" : "http");
+            const host = req.headers["x-forwarded-host"] || req.headers.host;
+            const url = `${proto}://${host}/api/storage${a.objectPath}`;
+            return { filename, path: url, contentType };
+          }
+          throw new Error(`مرفق غير صالح: ${filename}`);
+        }),
+      );
+    } catch (err: any) {
+      res.status(400).json({ error: "invalid_attachment", message: err.message });
+      return;
+    }
+  }
+
   try {
     const transporter = getTransporter(fromEmail);
     const mailOptions: any = {
@@ -230,6 +261,7 @@ router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
     if (cc) mailOptions.cc = cc;
     if (bcc) mailOptions.bcc = bcc;
     if (replyTo) mailOptions.replyTo = replyTo;
+    if (mailAttachments) mailOptions.attachments = mailAttachments;
 
     await transporter.sendMail(mailOptions);
     res.json({ success: true, message: "Email sent successfully", from: fromEmail });

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -99,6 +99,56 @@ export default function EmployeeEmail() {
   const [compose, setCompose] = useState(false);
   const [composeData, setComposeData] = useState<ComposeData>({ to: "", subject: "", body: "", cc: "" });
   const [sending, setSending] = useState(false);
+  const [attachments, setAttachments] = useState<Array<{ filename: string; objectPath: string; contentType: string; size: number }>>([]);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    if (attachments.length + files.length > 10) {
+      toast({ variant: "destructive", title: ar ? "عدد كبير من المرفقات" : "Too many attachments", description: ar ? "الحد الأقصى ١٠ مرفقات" : "Max 10 attachments" });
+      return;
+    }
+    setUploadingFile(true);
+    try {
+      for (const file of files) {
+        if (file.size > 15 * 1024 * 1024) {
+          toast({ variant: "destructive", title: ar ? "ملف كبير" : "File too large", description: `${file.name}: ${ar ? "الحد ١٥ ميجابايت" : "Max 15MB"}` });
+          continue;
+        }
+        const metaRes = await fetch("/api/storage/uploads/request-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+          body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type || "application/octet-stream" }),
+        });
+        if (!metaRes.ok) throw new Error("upload url failed");
+        const { uploadURL, objectPath } = await metaRes.json();
+        const putRes = await fetch(uploadURL, {
+          method: "PUT",
+          headers: { "Content-Type": file.type || "application/octet-stream" },
+          body: file,
+        });
+        if (!putRes.ok) throw new Error("upload failed");
+        setAttachments(prev => [...prev, { filename: file.name, objectPath, contentType: file.type || "application/octet-stream", size: file.size }]);
+      }
+    } catch (err: any) {
+      toast({ variant: "destructive", title: ar ? "فشل الرفع" : "Upload failed", description: err.message });
+    } finally {
+      setUploadingFile(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const removeAttachment = (idx: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   const authToken = localStorage.getItem("nawa_token");
 
@@ -213,13 +263,21 @@ export default function EmployeeEmail() {
       const res = await fetch("/api/email/send", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-        body: JSON.stringify({ to: composeData.to, subject: composeData.subject, body: composeData.body, cc: composeData.cc, asAccount: effectiveAccount }),
+        body: JSON.stringify({
+          to: composeData.to,
+          subject: composeData.subject,
+          body: composeData.body,
+          cc: composeData.cc,
+          asAccount: effectiveAccount,
+          attachments: attachments.map(a => ({ filename: a.filename, objectPath: a.objectPath, contentType: a.contentType })),
+        }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Send failed");
+      if (!res.ok) throw new Error(json.error || json.message || "Send failed");
       toast({ title: ar ? "تم الإرسال بنجاح ✓" : "Sent successfully ✓" });
       setCompose(false);
       setComposeData({ to: "", subject: "", body: "", cc: "" });
+      setAttachments([]);
     } catch (err: any) {
       toast({ variant: "destructive", title: ar ? "فشل الإرسال" : "Send failed", description: err.message });
     } finally {
@@ -500,14 +558,59 @@ export default function EmployeeEmail() {
               placeholder={ar ? "اكتب رسالتك هنا..." : "Write your message here..."}
               value={composeData.body}
               onChange={e => setComposeData(d => ({ ...d, body: e.target.value }))}
-              className="min-h-[200px] resize-none"
+              className="min-h-[180px] resize-none"
             />
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setCompose(false)}>{ar ? "إلغاء" : "Cancel"}</Button>
-              <Button onClick={sendEmail} disabled={sending} className="gap-2">
-                {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {ar ? "إرسال" : "Send"}
+
+            {attachments.length > 0 && (
+              <div className="space-y-1.5 border border-border rounded-lg p-2 bg-muted/30">
+                <p className="text-xs font-medium text-muted-foreground px-1">
+                  {ar ? `المرفقات (${attachments.length})` : `Attachments (${attachments.length})`}
+                </p>
+                {attachments.map((att, idx) => (
+                  <div key={idx} className="flex items-center gap-2 bg-white border border-border rounded-md px-2 py-1.5 text-sm">
+                    <Paperclip className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    <span className="truncate flex-1" title={att.filename}>{att.filename}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">{formatSize(att.size)}</span>
+                    <Button
+                      variant="ghost" size="icon"
+                      className="w-6 h-6 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeAttachment(idx)}
+                      type="button"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+
+            <div className="flex justify-between items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingFile || attachments.length >= 10}
+                className="gap-2"
+                type="button"
+              >
+                {uploadingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
+                {ar ? "إرفاق ملف" : "Attach file"}
               </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setCompose(false)}>{ar ? "إلغاء" : "Cancel"}</Button>
+                <Button onClick={sendEmail} disabled={sending || uploadingFile} className="gap-2">
+                  {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  {ar ? "إرسال" : "Send"}
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
