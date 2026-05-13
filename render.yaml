@@ -6,8 +6,7 @@ services:
     plan: free
     branch: main
     buildCommand: |
-      corepack enable
-      corepack prepare pnpm@10.26.1 --activate
+      npm install -g pnpm@10.26.1
       pnpm install --frozen-lockfile=false
       BASE_PATH=/ pnpm --filter @workspace/nawa run build
       pnpm --filter @workspace/api-server run build
