@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
+import { AIChatWidget } from "@/components/shared/ai-chat-widget";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
-  // Splash screen logic should be in App.tsx or a separate component to wrap everything
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background selection:bg-primary/20 selection:text-primary">
       <Navbar />
@@ -11,6 +11,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <Footer />
+      <AIChatWidget />
     </div>
   );
 }

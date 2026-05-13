@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AIWriteAssist, aiSmartReply, aiSummarize } from "@/components/shared/ai-write-assist";
+import { Sparkles, FileText as FileTextIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -98,6 +100,8 @@ export default function EmployeeEmail() {
   const [search, setSearch] = useState("");
   const [compose, setCompose] = useState(false);
   const [composeData, setComposeData] = useState<ComposeData>({ to: "", subject: "", body: "", cc: "" });
+  const [aiBusy, setAiBusy] = useState<"reply" | "sum" | null>(null);
+  const [aiSummary, setAiSummary] = useState<string>("");
   const [sending, setSending] = useState(false);
   const [attachments, setAttachments] = useState<Array<{ filename: string; objectPath: string; contentType: string; size: number }>>([]);
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -477,6 +481,53 @@ export default function EmployeeEmail() {
               <div className="flex items-start justify-between gap-3 mb-3">
                 <h2 className="text-lg font-semibold leading-tight flex-1">{selectedMsg.subject}</h2>
                 <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    variant="ghost" size="sm"
+                    className="h-8 gap-1.5 text-primary hover:bg-primary/10"
+                    disabled={aiBusy !== null}
+                    onClick={async () => {
+                      if (!selectedMsg) return;
+                      setAiBusy("reply");
+                      try {
+                        const body = parseEmailBody(selectedMsg.source).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 4000);
+                        const reply = await aiSmartReply(`Subject: ${selectedMsg.subject}\nFrom: ${selectedMsg.from}\n\n${body}`);
+                        if (reply) {
+                          setComposeData({
+                            to: selectedMsg.from.replace(/.*<([^>]+)>.*/, "$1") || selectedMsg.from,
+                            cc: "",
+                            subject: selectedMsg.subject.startsWith("Re:") ? selectedMsg.subject : `Re: ${selectedMsg.subject}`,
+                            body: reply,
+                          });
+                          setCompose(true);
+                          toast({ title: ar ? "تم توليد الرد بالذكاء ✨" : "AI reply drafted ✨" });
+                        }
+                      } catch (e: any) {
+                        toast({ title: ar ? "فشل التوليد" : "AI failed", description: e?.message, variant: "destructive" });
+                      } finally { setAiBusy(null); }
+                    }}
+                    title={ar ? "رد ذكي بالذكاء الاصطناعي" : "AI smart reply"}
+                  >
+                    {aiBusy === "reply" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    <span className="text-xs hidden sm:inline">{ar ? "رد ذكي" : "AI Reply"}</span>
+                  </Button>
+                  <Button
+                    variant="ghost" size="icon" className="w-8 h-8 text-primary hover:bg-primary/10"
+                    disabled={aiBusy !== null}
+                    onClick={async () => {
+                      if (!selectedMsg) return;
+                      setAiBusy("sum");
+                      try {
+                        const body = parseEmailBody(selectedMsg.source).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 4000);
+                        const sum = await aiSummarize(`Subject: ${selectedMsg.subject}\n\n${body}`);
+                        setAiSummary(sum);
+                      } catch (e: any) {
+                        toast({ title: ar ? "فشل التلخيص" : "Summary failed", description: e?.message, variant: "destructive" });
+                      } finally { setAiBusy(null); }
+                    }}
+                    title={ar ? "تلخيص ذكي" : "AI summarize"}
+                  >
+                    {aiBusy === "sum" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileTextIcon className="w-4 h-4" />}
+                  </Button>
                   <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => replyTo(selectedMsg)}>
                     <Reply className="w-4 h-4" />
                   </Button>
@@ -495,6 +546,20 @@ export default function EmployeeEmail() {
               </div>
             </div>
             <ScrollArea className="flex-1 p-6">
+              {aiSummary && (
+                <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3 flex gap-3">
+                  <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <div className="text-[11px] font-semibold text-primary uppercase tracking-wide mb-1">
+                      {ar ? "ملخص ذكي" : "AI Summary"}
+                    </div>
+                    <p className="text-sm text-foreground/90 leading-relaxed">{aiSummary}</p>
+                  </div>
+                  <button onClick={() => setAiSummary("")} className="text-muted-foreground hover:text-foreground self-start" aria-label="close">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
               <div
                 className="prose prose-sm max-w-none"
                 dangerouslySetInnerHTML={{ __html: parseEmailBody(selectedMsg.source) }}
@@ -554,12 +619,22 @@ export default function EmployeeEmail() {
               value={composeData.subject}
               onChange={e => setComposeData(d => ({ ...d, subject: e.target.value }))}
             />
-            <Textarea
-              placeholder={ar ? "اكتب رسالتك هنا..." : "Write your message here..."}
-              value={composeData.body}
-              onChange={e => setComposeData(d => ({ ...d, body: e.target.value }))}
-              className="min-h-[180px] resize-none"
-            />
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground font-medium">{ar ? "نص الرسالة" : "Message body"}</span>
+                <AIWriteAssist
+                  value={composeData.body}
+                  onChange={(v) => setComposeData(d => ({ ...d, body: v }))}
+                  actions={["improve", "fix", "shorten", "expand", "formalize", "friendly", "translate_ar", "translate_en"]}
+                />
+              </div>
+              <Textarea
+                placeholder={ar ? "اكتب رسالتك هنا... ثم اضغط 'ذكاء اصطناعي' لتحسينها ✨" : "Write your message here... then click 'AI Assist' to enhance it ✨"}
+                value={composeData.body}
+                onChange={e => setComposeData(d => ({ ...d, body: e.target.value }))}
+                className="min-h-[180px] resize-none"
+              />
+            </div>
 
             {attachments.length > 0 && (
               <div className="space-y-1.5 border border-border rounded-lg p-2 bg-muted/30">
