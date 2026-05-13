@@ -1,0 +1,30 @@
+ mode change 100644 => 100755 artifacts/nawa/src/components/ui/password-input.tsx
+ mode change 100644 => 100755 artifacts/nawa/src/pages/admin/ai-conversations.tsx
+ mode change 100644 => 100755 attached_assets/screenshots/34ea0fe0-9143-4eb4-9ba7-421f5317fa8a-00-170ds55a2xy1d_sisko_replit_dev_3002.png
+ mode change 100644 => 100755 lib/db/src/schema/ai_logs.ts
+ mode change 100644 => 100755 render.yaml
+macbook@Darwishs-MacBook-Pro nawa-2 2 % git push -u origin main --force
+Username for 'https://github.com': 
+Password for 'https://github.com': 
+remote: No anonymous write access.
+fatal: Authentication failed for 'https://github.com/Darsh20009/nawa/'
+macbook@Darwishs-MacBook-Pro nawa-2 2 % git remote add origin git@github.com:Darsh20009/nawa.git
+error: remote origin already exists.
+macbook@Darwishs-MacBook-Pro nawa-2 2 % git remote add origin git@github.com:Darsh20009/nawa   
+error: remote origin already exists.
+macbook@Darwishs-MacBook-Pro nawa-2 2 % ssh -T git@github.com
+Hi Darsh20009! You've successfully authenticated, but GitHub does not provide shell access.
+macbook@Darwishs-MacBook-Pro nawa-2 2 % git push -u origin main --force 
+Username for 'https://github.com': 
+Password for 'https://github.com': 
+remote: No anonymous write access.
+fatal: Authentication failed for 'https://github.com/Darsh20009/nawa/'
+macbook@Darwishs-MacBook-Pro nawa-2 2 % git remote  set-url origin git@github.com:Darsh20009/nawa
+macbook@Darwishs-MacBook-Pro nawa-2 2 % git push -u origin main --force
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+
+This repository is configured for Git LFS but 'git-lfs' was not found on your path. If you no longer wish to use Git LFS, remove this hook by deleting the 'pre-push' file in the hooks directory (set by 'core.hookspath'; usually '.git/hooks').
+
+error: failed to push some refs to 'github.com:Darsh20009/nawa'
+macbook@Darwishs-MacBook-Pro nawa-2 2 % 
