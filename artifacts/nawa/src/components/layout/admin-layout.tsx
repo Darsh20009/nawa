@@ -27,6 +27,7 @@ import {
   Volume2,
   VolumeX,
   Bell,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -186,6 +187,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         { href: "/admin/email-accounts", label: language === "ar" ? "حسابات البريد" : "Email Accounts", icon: ChevronRight },
         { href: "/admin/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare, badge: counts.chat },
         { href: "/admin/ai", label: language === "ar" ? "مساعد نوى الذكي" : "AI Assistant", icon: Bot },
+        { href: "/admin/ai-conversations", label: language === "ar" ? "محادثات الذكاء" : "AI Conversations", icon: Sparkles },
       ],
     },
     {

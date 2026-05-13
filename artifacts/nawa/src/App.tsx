@@ -62,6 +62,7 @@ const AdminApplications = lazy(() => import("@/pages/admin/applications"));
 const AdminMessages = lazy(() => import("@/pages/admin/messages"));
 const AdminPages = lazy(() => import("@/pages/admin/pages"));
 const AdminAiPage = lazy(() => import("@/pages/admin/ai"));
+const AdminAiConversations = lazy(() => import("@/pages/admin/ai-conversations"));
 const AdminChatPage = lazy(() => import("@/pages/admin/chat"));
 const AdminEmailPage = lazy(() => import("@/pages/admin/email"));
 const AdminEmailAccounts = lazy(() => import("@/pages/admin/email-accounts"));
@@ -137,6 +138,7 @@ function AnimatedRouter() {
             <Route path="/admin/messages" component={AdminMessages} />
             <Route path="/admin/pages" component={AdminPages} />
             <Route path="/admin/ai" component={AdminAiPage} />
+            <Route path="/admin/ai-conversations" component={AdminAiConversations} />
             <Route path="/admin/chat" component={AdminChatPage} />
             <Route path="/admin/email" component={AdminEmailPage} />
             <Route path="/admin/email-accounts" component={AdminEmailAccounts} />

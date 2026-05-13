@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/auth";
 import { logger } from "../lib/logger";
-import { News, Job, Message, Project, Broker, User } from "@workspace/db";
+import { News, Job, Message, Project, Broker, User, AiConversation, AiLearning } from "@workspace/db";
 import { sendNawaMail, wrapNawaEmailHtml, NAWA_EMAIL_ACCOUNTS } from "../lib/mailer";
 
 const router: IRouter = Router();
@@ -30,6 +30,67 @@ function cleanAiOutput(s: string): string {
 
 function isAdmin(user: any): boolean {
   return user?.role === "super_admin" || user?.role === "admin";
+}
+
+// =====================================================================
+// AI conversation logging — fire-and-forget so it never blocks responses
+// =====================================================================
+interface LogArgs {
+  channel: string;
+  action?: string | null;
+  user?: any;
+  visitorIp?: string | null;
+  visitorUserAgent?: string | null;
+  messages: Array<{ role: string; content: string }>;
+  inputPreview: string;
+  outputPreview: string;
+  durationMs?: number;
+  model?: string | null;
+}
+function logAi(args: LogArgs): void {
+  // Fire-and-forget; never await in the request path
+  AiConversation.create({
+    channel: args.channel,
+    action: args.action || null,
+    userId: args.user?.id ? String(args.user.id) : null,
+    userName: args.user?.nameAr || args.user?.name || null,
+    userRole: args.user?.role || null,
+    visitorIp: args.visitorIp || null,
+    visitorUserAgent: args.visitorUserAgent ? String(args.visitorUserAgent).slice(0, 200) : null,
+    messages: args.messages.map(m => ({ role: m.role, content: String(m.content).slice(0, 8000), at: new Date() })),
+    inputPreview: String(args.inputPreview || "").replace(/\s+/g, " ").trim().slice(0, 200),
+    outputPreview: String(args.outputPreview || "").replace(/\s+/g, " ").trim().slice(0, 200),
+    durationMs: args.durationMs || 0,
+    model: args.model || null,
+  }).catch(err => logger.warn({ err: err.message }, "AI log save failed"));
+}
+
+// Get top approved learnings for a channel — used to inject into prompts
+async function getRelevantLearnings(channel: string, query: string, max = 5): Promise<Array<{ q: string; a: string }>> {
+  try {
+    // Simple recency + token-overlap retrieval. No embeddings needed for this scale.
+    const all = await AiLearning.find({ enabled: true, $or: [{ channel }, { channel: "all" }] })
+      .sort({ useCount: -1, updatedAt: -1 })
+      .limit(50)
+      .lean();
+    if (all.length === 0) return [];
+    const queryTokens = new Set(String(query).toLowerCase().split(/\s+/).filter(t => t.length > 2));
+    const scored = all.map((l: any) => {
+      const qTokens = new Set(String(l.question).toLowerCase().split(/\s+/).filter((t: string) => t.length > 2));
+      let overlap = 0;
+      qTokens.forEach((t: any) => { if (queryTokens.has(t)) overlap++; });
+      return { l, score: overlap };
+    });
+    const top = scored.sort((a, b) => b.score - a.score).slice(0, max).filter(s => s.score > 0);
+    // Bump useCount asynchronously
+    if (top.length > 0) {
+      AiLearning.updateMany({ _id: { $in: top.map(t => (t.l as any)._id) } }, { $inc: { useCount: 1 } }).catch(() => {});
+    }
+    return top.map(t => ({ q: (t.l as any).question, a: (t.l as any).answer }));
+  } catch (err) {
+    logger.warn({ err: (err as any)?.message }, "getRelevantLearnings failed");
+    return [];
+  }
 }
 
 // =====================================================================
@@ -510,9 +571,19 @@ router.post("/ai/text-action", requireAuth, async (req, res): Promise<void> => {
   const cfg = TEXT_ACTIONS[action];
   if (!cfg) { res.status(400).json({ error: `Unknown action: ${action}` }); return; }
   const truncated = text.slice(0, 8000);
+  const t0 = Date.now();
   const result = await generateAiText(cfg.user(truncated, context), cfg.system, cfg.maxTokens || 800, KIMI_FAST_MODEL, 0.3);
   if (!result) { res.status(502).json({ error: "AI returned empty" }); return; }
-  res.json({ result: cleanAiOutput(result) });
+  const cleaned = cleanAiOutput(result);
+  res.json({ result: cleaned });
+  // Log
+  const channel = action === "smart_reply" ? "smart-reply" : action === "summarize" ? "summarize" : "text-action";
+  logAi({
+    channel, action, user: (req as any).user,
+    messages: [{ role: "user", content: truncated }, { role: "assistant", content: cleaned }],
+    inputPreview: truncated, outputPreview: cleaned,
+    durationMs: Date.now() - t0, model: KIMI_FAST_MODEL,
+  });
 });
 
 // =====================================================================
@@ -525,14 +596,27 @@ router.post("/ai/classify-message", requireAuth, async (req, res): Promise<void>
   const sys = `You are a strict JSON classifier for Nawa Real Estate customer messages. Output ONLY a single JSON object, no other text, no markdown, no code fences. Schema:
 {"category":"inquiry|complaint|investment|partnership|career|media|support|other","priority":"low|medium|high|urgent","summary":"one short sentence in same language as input","language":"ar|en"}
 Rules: complaints with words like شكوى/غاضب/مرفوض/angry/refund => priority urgent. Investment requests => investment + high. Partnership offers => partnership + medium.`;
+  const t0 = Date.now();
   const out = await generateAiText(`Subject: ${subject || ""}\n\nBody: ${body.slice(0, 4000)}\n\nOutput JSON now:`, sys, 300, KIMI_FAST_MODEL, 0.1);
+  let result: any;
   try {
     const m = out.match(/\{[\s\S]*\}/);
     if (!m) throw new Error("no json");
-    res.json(JSON.parse(m[0]));
+    result = JSON.parse(m[0]);
   } catch {
-    res.json({ category: "other", priority: "medium", summary: "", language: "ar" });
+    result = { category: "other", priority: "medium", summary: "", language: "ar" };
   }
+  res.json(result);
+  logAi({
+    channel: "classify", user: (req as any).user,
+    messages: [
+      { role: "user", content: `Subject: ${subject || ""}\n\n${body.slice(0, 2000)}` },
+      { role: "assistant", content: JSON.stringify(result) },
+    ],
+    inputPreview: subject || body.slice(0, 100),
+    outputPreview: `${result.category} / ${result.priority}`,
+    durationMs: Date.now() - t0, model: KIMI_FAST_MODEL,
+  });
 });
 
 // =====================================================================
@@ -557,6 +641,7 @@ router.post("/ai/public-chat", async (req, res): Promise<void> => {
   if (!checkPublicRateLimit(ip)) { res.status(429).json({ error: "Too many requests" }); return; }
   const { message, history } = req.body as { message?: string; history?: Array<{ role: string; content: string }> };
   if (!message || typeof message !== "string") { res.status(400).json({ error: "message required" }); return; }
+  const t0 = Date.now();
 
   // Pull live public data so chatbot answers from real database, not hallucinations
   // Only allow explicitly public statuses — never $ne filters which leak future statuses
@@ -583,14 +668,20 @@ Contact: info@nawainv.sa | +966500073509 | Riyadh, Saudi Arabia
 Website: nawainv.sa
 `;
 
+  // Inject curated learnings (RAG) so AI gets smarter over time
+  const learnings = await getRelevantLearnings("public-chat", message, 5);
+  const learningsBlock = learnings.length > 0
+    ? `\n=== Curated past Q&A (use these as gold-standard examples for similar questions) ===\n${learnings.map((l, i) => `Q${i + 1}: ${l.q}\nA${i + 1}: ${l.a}`).join("\n\n")}\n`
+    : "";
+
   const system = `You are "نوى" (Nawa) — the friendly Arabic-first AI assistant for Nawa Real Estate (نوى العقارية). 
 Answer in the SAME language as the user (Arabic by default). 
 Be warm, concise (max 4 short sentences unless asked for detail), and helpful. 
-Use ONLY facts from the live data below. If you don't know, say so politely and suggest contacting the team. 
+Use ONLY facts from the live data below and the curated Q&A. If you don't know, say so politely and suggest contacting the team. 
 Never invent prices, projects, or contact info. 
 For specific queries (viewing, pricing, partnerships) suggest contacting info@nawainv.sa or +966500073509.
 
-${dataContext}`;
+${dataContext}${learningsBlock}`;
 
   const messages: any[] = [{ role: "system", content: system }];
   if (Array.isArray(history)) {
@@ -615,11 +706,109 @@ ${dataContext}`;
     }
     const data = await r.json() as any;
     const raw = data.choices?.[0]?.message?.content || data.choices?.[0]?.message?.reasoning_content || "";
-    res.json({ reply: cleanAiOutput(raw) });
+    const reply = cleanAiOutput(raw);
+    res.json({ reply });
+    // Log full conversation
+    const fullMessages = [...(history || []).slice(-8).map(h => ({ role: h.role, content: String(h.content) })), { role: "user", content: message }, { role: "assistant", content: reply }];
+    logAi({
+      channel: "public-chat",
+      visitorIp: ip,
+      visitorUserAgent: req.headers["user-agent"] as string,
+      messages: fullMessages,
+      inputPreview: message,
+      outputPreview: reply,
+      durationMs: Date.now() - t0, model: KIMI_FAST_MODEL,
+    });
   } catch (err) {
     logger.error({ err }, "public-chat failed");
     res.status(502).json({ error: "AI request failed" });
   }
+});
+
+// =====================================================================
+// Admin endpoints: browse conversations, rate, save as learning, manage
+// =====================================================================
+function requireAdmin(req: any, res: any, next: any): void {
+  if (!isAdmin(req.user)) { res.status(403).json({ error: "Admin only" }); return; }
+  next();
+}
+
+router.get("/ai/conversations", requireAuth, requireAdmin, async (req, res): Promise<void> => {
+  const page = Math.max(1, parseInt(String(req.query.page || "1"), 10));
+  const limit = Math.min(100, Math.max(1, parseInt(String(req.query.limit || "25"), 10)));
+  const channel = req.query.channel ? String(req.query.channel) : null;
+  const search = req.query.search ? String(req.query.search).trim() : null;
+  const filter: any = {};
+  if (channel) filter.channel = channel;
+  if (search) {
+    const re = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    filter.$or = [{ inputPreview: re }, { outputPreview: re }, { userName: re }];
+  }
+  const [items, total, byChannelAgg] = await Promise.all([
+    AiConversation.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit)
+      .select("channel action userId userName userRole visitorIp inputPreview outputPreview rating durationMs model createdAt").lean(),
+    AiConversation.countDocuments(filter),
+    AiConversation.aggregate([{ $group: { _id: "$channel", count: { $sum: 1 } } }]),
+  ]);
+  const byChannel: Record<string, number> = {};
+  let totalAll = 0;
+  for (const r of byChannelAgg) { byChannel[r._id] = r.count; totalAll += r.count; }
+  res.json({ items: items.map((i: any) => ({ ...i, id: String(i._id) })), total, stats: { total: totalAll, byChannel } });
+});
+
+router.get("/ai/conversations/:id", requireAuth, requireAdmin, async (req, res): Promise<void> => {
+  const conv = await AiConversation.findById(req.params.id).lean();
+  if (!conv) { res.status(404).json({ error: "Not found" }); return; }
+  res.json({ ...conv, id: String((conv as any)._id) });
+});
+
+router.post("/ai/conversations/:id/rate", requireAuth, requireAdmin, async (req, res): Promise<void> => {
+  const { rating, note } = req.body as { rating?: "good" | "bad" | null; note?: string };
+  await AiConversation.findByIdAndUpdate(req.params.id, {
+    $set: { rating: rating || null, reviewedBy: (req as any).user?.name || null, reviewNote: note || null },
+  });
+  res.json({ ok: true });
+});
+
+router.delete("/ai/conversations/:id", requireAuth, requireAdmin, async (req, res): Promise<void> => {
+  await AiConversation.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
+});
+
+router.get("/ai/learnings", requireAuth, requireAdmin, async (_req, res): Promise<void> => {
+  const items = await AiLearning.find().sort({ createdAt: -1 }).limit(200).lean();
+  res.json({ items: items.map((i: any) => ({ ...i, id: String(i._id) })) });
+});
+
+router.post("/ai/learnings", requireAuth, requireAdmin, async (req, res): Promise<void> => {
+  const { question, answer, channel, tags, sourceConversationId } = req.body as any;
+  if (!question || !answer) { res.status(400).json({ error: "question + answer required" }); return; }
+  const created = await AiLearning.create({
+    question: String(question).slice(0, 2000),
+    answer: String(answer).slice(0, 4000),
+    channel: channel || "public-chat",
+    tags: Array.isArray(tags) ? tags : [],
+    sourceConversationId: sourceConversationId || null,
+    approvedBy: (req as any).user?.name || (req as any).user?.email || "admin",
+    enabled: true,
+  });
+  res.json({ ok: true, id: String(created._id) });
+});
+
+router.patch("/ai/learnings/:id", requireAuth, requireAdmin, async (req, res): Promise<void> => {
+  const { enabled, question, answer, tags } = req.body as any;
+  const update: any = {};
+  if (typeof enabled === "boolean") update.enabled = enabled;
+  if (typeof question === "string") update.question = question.slice(0, 2000);
+  if (typeof answer === "string") update.answer = answer.slice(0, 4000);
+  if (Array.isArray(tags)) update.tags = tags;
+  await AiLearning.findByIdAndUpdate(req.params.id, { $set: update });
+  res.json({ ok: true });
+});
+
+router.delete("/ai/learnings/:id", requireAuth, requireAdmin, async (req, res): Promise<void> => {
+  await AiLearning.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
 });
 
 // Helper for other routes to ask Kimi for content (used by message auto-reply etc.)
