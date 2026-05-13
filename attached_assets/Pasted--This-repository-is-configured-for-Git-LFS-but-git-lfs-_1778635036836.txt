@@ -1,0 +1,41 @@
+
+This repository is configured for Git LFS but 'git-lfs' was not found on your path. If you no longer wish to use Git LFS, remove this hook by deleting the 'post-commit' file in the hooks directory (set by 'core.hookspath'; usually '.git/hooks').
+
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+[main 66fabfb] Fix Render: pin Node 24.x, skip corepack enable
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+ mode change 100644 => 100755 .node-version
+ mode change 100644 => 100755 .nvmrc
+ mode change 100644 => 100755 render.yaml
+Username for 'https://github.com': 
+Password for 'https://github.com': 
+remote: No anonymous write access.
+fatal: Authentication failed for 'https://github.com/Darsh20009/nawa/'
+macbook@Darwishs-MacBook-Pro nawa-2 4 % git remote add origin git@github.com:Darsh20009/nawa.git
+error: remote origin already exists.
+macbook@Darwishs-MacBook-Pro nawa-2 4 % git reomte set-url origin git@github.com:Darsh20009/nawa
+git: 'reomte' is not a git command. See 'git --help'.
+
+The most similar command is
+	remote
+macbook@Darwishs-MacBook-Pro nawa-2 4 % git remote set-url origin git@github.com:Darsh20009/nawa                          
+macbook@Darwishs-MacBook-Pro nawa-2 4 % ssh -T git@github.com
+Hi Darsh20009! You've successfully authenticated, but GitHub does not provide shell access.
+macbook@Darwishs-MacBook-Pro nawa-2 4 % git push -u origin main --force
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+
+This repository is configured for Git LFS but 'git-lfs' was not found on your path. If you no longer wish to use Git LFS, remove this hook by deleting the 'pre-push' file in the hooks directory (set by 'core.hookspath'; usually '.git/hooks').
+
+error: failed to push some refs to 'g
