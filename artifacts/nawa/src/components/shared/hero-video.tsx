@@ -42,12 +42,17 @@ export const HeroVideo = memo(function HeroVideo({
       muted
       loop
       playsInline
-      preload={loading === "eager" ? "auto" : "none"}
+      preload={loading === "eager" ? "auto" : "metadata"}
       poster={poster}
       disablePictureInPicture
       disableRemotePlayback
       aria-hidden="true"
       className={className}
+      onLoadedData={(e) => {
+        // Force play as soon as first frame is ready (mobile autoplay safeguard)
+        const v = e.currentTarget;
+        v.play().catch(() => {});
+      }}
     >
       {shouldLoad && (
         <>

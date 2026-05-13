@@ -1,13 +1,17 @@
-// Nawa Real Estate — Service Worker v5
-const CACHE_NAME = 'nawa-v5';
-const STATIC_CACHE = 'nawa-static-v5';
-const API_CACHE = 'nawa-api-v5';
+// Nawa Real Estate — Service Worker v6 (hero video precached for 24/7 instant playback)
+const CACHE_NAME = 'nawa-v6';
+const STATIC_CACHE = 'nawa-static-v6';
+const API_CACHE = 'nawa-api-v6';
 
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/logo-transparent.png',
   '/favicon.svg',
+  '/nawa-hero-poster.jpg',
+  '/nawa-hero-mobile.mp4',
+  '/nawa-hero.webm',
+  '/nawa-hero.mp4',
 ];
 
 // Install
