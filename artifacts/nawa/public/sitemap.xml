@@ -6,7 +6,7 @@
     <loc>https://nawainv.sa/</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://nawainv.sa/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://nawainv.sa/"/>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -14,7 +14,7 @@
   <url>
     <loc>https://nawainv.sa/about</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://nawainv.sa/about"/>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -22,7 +22,7 @@
   <url>
     <loc>https://nawainv.sa/projects</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://nawainv.sa/projects"/>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
@@ -30,7 +30,7 @@
   <url>
     <loc>https://nawainv.sa/services</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://nawainv.sa/services"/>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
@@ -38,7 +38,7 @@
   <url>
     <loc>https://nawainv.sa/board</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://nawainv.sa/board"/>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -46,7 +46,7 @@
   <url>
     <loc>https://nawainv.sa/media</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://nawainv.sa/media"/>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -54,7 +54,7 @@
   <url>
     <loc>https://nawainv.sa/careers</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://nawainv.sa/careers"/>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
@@ -62,7 +62,7 @@
   <url>
     <loc>https://nawainv.sa/brokers</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://nawainv.sa/brokers"/>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -70,21 +70,21 @@
   <url>
     <loc>https://nawainv.sa/contact</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://nawainv.sa/contact"/>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://nawainv.sa/privacy</loc>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <url>
     <loc>https://nawainv.sa/terms</loc>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>

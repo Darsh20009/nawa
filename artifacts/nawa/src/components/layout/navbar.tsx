@@ -273,11 +273,35 @@ export function Navbar() {
               <Globe className="w-4 h-4" />
               <span className="text-sm font-medium">{language === "ar" ? "English" : "العربية"}</span>
             </button>
-            <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-              <Button className="w-full bg-secondary text-primary hover:bg-secondary/90 font-bold" size="lg">
-                {t.login}
-              </Button>
-            </Link>
+
+            {/* AI Chat trigger — opens the floating widget */}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setTimeout(() => window.dispatchEvent(new CustomEvent("nawa:open-ai-chat")), 250);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-secondary/20 to-secondary/10 hover:from-secondary/30 hover:to-secondary/20 border border-secondary/30 text-white transition-all"
+            >
+              <svg className="w-4 h-4 text-secondary" viewBox="0 0 24 24" fill="currentColor"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+              <span className="text-sm font-bold">{language === "ar" ? "اسأل نوى الذكي ✨" : "Ask Nawa AI ✨"}</span>
+            </button>
+
+            {isAuthenticated ? (
+              <Link
+                href={user?.role.includes("admin") ? "/admin" : "/employee"}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Button className="w-full bg-secondary text-primary hover:bg-secondary/90 font-bold" size="lg">
+                  {user?.role.includes("admin") ? t.adminPortal : t.employeePortal}
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full bg-secondary text-primary hover:bg-secondary/90 font-bold" size="lg">
+                  {t.login}
+                </Button>
+              </Link>
+            )}
             <div className="flex gap-3 pt-2">
               <a href="https://instagram.com/nawainv" target="_blank" rel="noreferrer"
                 className="w-10 h-10 rounded-full bg-white/10 hover:bg-secondary hover:text-primary flex items-center justify-center text-white text-xs transition-all">

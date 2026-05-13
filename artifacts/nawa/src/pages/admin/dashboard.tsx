@@ -7,6 +7,7 @@ import { Building2, Users, Briefcase, MessageSquare, Inbox, TrendingUp, Star, Cl
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { AIInsightsWidget } from "@/components/admin/ai-insights-widget";
 
 function StatCard({ title, value, icon: Icon, color, bg, isLoading, suffix }: {
   title: string; value?: number | string; icon: any; color: string; bg: string; isLoading?: boolean; suffix?: string;
@@ -131,6 +132,9 @@ export default function AdminDashboard() {
           })}
         </div>
       </div>
+
+      {/* AI Insights — Hero Widget */}
+      <AIInsightsWidget stats={stats} />
 
       {/* Info Cards */}
       <div className="grid lg:grid-cols-3 gap-4">

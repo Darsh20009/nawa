@@ -26,6 +26,13 @@ export function AIChatWidget() {
   });
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Allow other components (mobile nav etc.) to open the chat
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener("nawa:open-ai-chat", handler);
+    return () => window.removeEventListener("nawa:open-ai-chat", handler);
+  }, []);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-20))); } catch {}

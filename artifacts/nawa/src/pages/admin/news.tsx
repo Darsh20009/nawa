@@ -15,6 +15,8 @@ import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/shared/image-upload";
+import { AIWriteAssist, aiTextAction } from "@/components/shared/ai-write-assist";
+import { Sparkles } from "lucide-react";
 import { format } from "date-fns";
 
 const categories = [
@@ -163,8 +165,53 @@ export default function AdminNews() {
                 <FormField control={form.control} name="publishedAt" render={({ field }) => (<FormItem><FormLabel>{language === "ar" ? "تاريخ النشر" : "Publish Date"}</FormLabel><FormControl><Input type="date" {...field} /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>{language === "ar" ? "صورة الخبر" : "News Image"}</FormLabel><FormControl><ImageUpload value={field.value} onChange={field.onChange} aspectRatio="wide" /></FormControl></FormItem>)} />
               </div>
-              <FormField control={form.control} name="content" render={({ field }) => (<FormItem><FormLabel>Content (EN)</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl></FormItem>)} />
-              <FormField control={form.control} name="contentAr" render={({ field }) => (<FormItem><FormLabel>المحتوى (AR)</FormLabel><FormControl><Textarea rows={5} {...field} dir="rtl" /></FormControl></FormItem>)} />
+              {/* AI auto-generate full article from title */}
+              <div className="flex flex-wrap gap-2 items-center bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20 rounded-lg p-3">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-xs font-medium text-foreground/80 me-auto">
+                  {language === "ar" ? "مساعد نوى الذكي — توليد مقال كامل من العنوان" : "Nawa AI — generate full article from title"}
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs gap-1 border-primary/30 text-primary"
+                  onClick={async () => {
+                    const t = form.getValues("titleAr") || form.getValues("title");
+                    if (!t) { toast({ title: language === "ar" ? "اكتب العنوان أولاً" : "Enter a title first", variant: "destructive" }); return; }
+                    try {
+                      const ar = await aiTextAction("expand", t, "مقال صحفي احترافي عقاري لشركة نوى العقارية بعنوان: " + t);
+                      const en = await aiTextAction("translate_en", ar);
+                      form.setValue("contentAr", ar);
+                      form.setValue("content", en);
+                      toast({ title: language === "ar" ? "تم توليد المقال ✨" : "Article generated ✨" });
+                    } catch (e: any) {
+                      toast({ title: language === "ar" ? "فشل التوليد" : "Generation failed", description: e?.message, variant: "destructive" });
+                    }
+                  }}
+                >
+                  <Sparkles className="w-3 h-3" />
+                  {language === "ar" ? "ولّد المقال تلقائياً" : "Auto-generate article"}
+                </Button>
+              </div>
+              <FormField control={form.control} name="content" render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Content (EN)</FormLabel>
+                    <AIWriteAssist value={field.value} onChange={field.onChange} actions={["improve","fix","shorten","expand","formalize","translate_ar"]} />
+                  </div>
+                  <FormControl><Textarea rows={5} {...field} /></FormControl>
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="contentAr" render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>المحتوى (AR)</FormLabel>
+                    <AIWriteAssist value={field.value} onChange={field.onChange} actions={["improve","fix","shorten","expand","formalize","friendly","translate_en"]} />
+                  </div>
+                  <FormControl><Textarea rows={5} {...field} dir="rtl" /></FormControl>
+                </FormItem>
+              )} />
               <FormField control={form.control} name="featured" render={({ field }) => (
                 <FormItem className="flex items-center gap-3 space-y-0 border rounded-lg p-3">
                   <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
