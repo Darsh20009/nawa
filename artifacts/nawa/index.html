@@ -24,10 +24,9 @@
 
     <!-- Hero perf: instant first paint -->
     <link rel="preload" as="image" href="/nawa-hero-poster.jpg" fetchpriority="high" />
-    <!-- Eager preload of hero video — high priority, parallel with HTML parsing -->
-    <link rel="preload" as="video" type="video/mp4" href="/nawa-hero-mobile.mp4" media="(max-width: 768px)" fetchpriority="high" />
-    <link rel="preload" as="video" type="video/webm" href="/nawa-hero.webm" media="(min-width: 769px)" fetchpriority="high" />
-    <link rel="preload" as="video" type="video/mp4" href="/nawa-hero.mp4" media="(min-width: 769px)" />
+    <!-- Eager preload of hero video via fetch (universal browser support, high priority) -->
+    <link rel="preload" as="fetch" type="video/mp4" href="/nawa-hero-mobile.mp4" media="(max-width: 768px)" fetchpriority="high" crossorigin="anonymous" />
+    <link rel="preload" as="fetch" type="video/webm" href="/nawa-hero.webm" media="(min-width: 769px)" fetchpriority="high" crossorigin="anonymous" />
     <link rel="alternate" hreflang="ar-SA" href="https://nawainv.sa/" />
     <link rel="alternate" hreflang="en-SA" href="https://nawainv.sa/?lang=en" />
     <link rel="alternate" hreflang="x-default" href="https://nawainv.sa/" />
