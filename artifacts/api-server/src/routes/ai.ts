@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/auth";
 import { logger } from "../lib/logger";
 import { News, Job, JobApplication, Message, Project, Broker, User, Service, SiteSettings, BoardMember, AiConversation, AiLearning } from "@workspace/db";
-import { Types } from "mongoose";
+import { Types } from "@workspace/db";
 import { sendNawaMail, wrapNawaEmailHtml, NAWA_EMAIL_ACCOUNTS } from "../lib/mailer";
 
 const router: IRouter = Router();

@@ -1,0 +1,156 @@
+Read our docs for common ways to troubleshoot your deploy.
+
+All logs
+Search
+Search
+
+May 13, 10:37 PM - 10:39 PM
+GMT+3
+
+
+
+==> Downloading cache...
+==> Cloning from https://github.com/Darsh20009/nawa
+==> Checking out commit 09768143e17de749df0ffe72f55b734ce116a39e in branch main
+==> Downloaded 160MB in 6s. Extraction took 4s.
+==> Using Node.js version 24.13.0 via /opt/render/project/src/.node-version
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Running build command 'corepack enable && corepack prepare pnpm@10.26.1 --activate && pnpm install --frozen-lockfile=false && BASE_PATH=/ pnpm --filter @workspace/nawa run build && pnpm --filter @workspace/api-server run build'...
+Preparing pnpm@10.26.1 for immediate activation...
+> @workspace/nawa@0.0.0 build /opt/render/project/src/artifacts/nawa
+> vite build --config vite.config.ts
+vite v7.3.2 building client environment for production...
+transforming...
+src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+src/components/ui/select.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+src/components/ui/sheet.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+src/components/ui/label.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+✓ 2616 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/public/index.html                            15.06 kB │ gzip:   4.08 kB
+dist/public/assets/index-BvPSFAub.css            203.58 kB │ gzip:  28.14 kB
+dist/public/assets/index-BdQq_4o_.js               0.06 kB │ gzip:   0.08 kB
+dist/public/assets/check-D2XslfuM.js               0.13 kB │ gzip:   0.14 kB
+dist/public/assets/chevron-left-HGEMHSBd.js        0.13 kB │ gzip:   0.15 kB
+dist/public/assets/plus-DjcWFgyc.js                0.15 kB │ gzip:   0.15 kB
+dist/public/assets/clock-ClclkVAu.js               0.17 kB │ gzip:   0.17 kB
+dist/public/assets/search-ply08kuJ.js              0.18 kB │ gzip:   0.17 kB
+dist/public/assets/reply-DLhycUCu.js               0.18 kB │ gzip:   0.17 kB
+dist/public/assets/circle-check-DiUOL_AD.js        0.18 kB │ gzip:   0.17 kB
+dist/public/assets/index-B3q3fy1h.js               0.19 kB │ gzip:   0.17 kB
+dist/public/assets/lock-Dw2gQSgF.js                0.21 kB │ gzip:   0.19 kB
+dist/public/assets/chevron-up-BfU87oJu.js          0.21 kB │ gzip:   0.18 kB
+dist/public/assets/lock-open-gYvwO8Yv.js           0.21 kB │ gzip:   0.20 kB
+dist/public/assets/upload-Dexf2DrQ.js              0.23 kB │ gzip:   0.19 kB
+dist/public/assets/log-in-D-8vw64L.js              0.23 kB │ gzip:   0.19 kB
+dist/public/assets/paperclip-CPDEUOYX.js           0.23 kB │ gzip:   0.20 kB
+dist/public/assets/copy-C6mMtNg2.js                0.24 kB │ gzip:   0.21 kB
+dist/public/assets/index-BEm6JuwY.js               0.24 kB │ gzip:   0.18 kB
+dist/public/assets/archive-BlPSQe98.js             0.25 kB │ gzip:   0.21 kB
+dist/public/assets/eye-Cn1Ycrw5.js                 0.26 kB │ gzip:   0.20 kB
+dist/public/assets/calendar-CaAuTTMX.js            0.26 kB │ gzip:   0.21 kB
+dist/public/assets/image-CukDOCIl.js               0.27 kB │ gzip:   0.22 kB
+dist/public/assets/shield-vwi6uH1c.js              0.27 kB │ gzip:   0.23 kB
+dist/public/assets/award-DtIh6mz2.js               0.28 kB │ gzip:   0.23 kB
+dist/public/assets/lightbulb-xipRhg8m.js           0.29 kB │ gzip:   0.23 kB
+dist/public/assets/mail-open-CwWvVNUS.js           0.29 kB │ gzip:   0.23 kB
+dist/public/assets/smile-BHNBXNvw.js               0.29 kB │ gzip:   0.22 kB
+dist/public/assets/linkedin-IgKtgwpp.js            0.30 kB │ gzip:   0.24 kB
+dist/public/assets/shield-check-DY3_2_VZ.js        0.32 kB │ gzip:   0.25 kB
+dist/public/assets/square-pen-DpynMKU3.js          0.32 kB │ gzip:   0.24 kB
+dist/public/assets/refresh-cw-ILqM241v.js          0.32 kB │ gzip:   0.23 kB
+dist/public/assets/tag-CG7nbctF.js                 0.33 kB │ gzip:   0.25 kB
+dist/public/assets/trash-2-CfwmE56A.js             0.33 kB │ gzip:   0.22 kB
+dist/public/assets/scroll-text-DAMjGDPr.js         0.35 kB │ gzip:   0.24 kB
+dist/public/assets/eye-off-Dp_vkmR3.js             0.43 kB │ gzip:   0.27 kB
+dist/public/assets/star-BNwcIawM.js                0.47 kB │ gzip:   0.29 kB
+dist/public/assets/textarea-qMl4Wcyi.js            0.54 kB │ gzip:   0.36 kB
+dist/public/assets/input-DJbvvgZi.js               0.64 kB │ gzip:   0.40 kB
+dist/public/assets/ai-CFCKkuln.js                  0.65 kB │ gzip:   0.45 kB
+dist/public/assets/ai-1vd0Wkyz.js                  0.65 kB │ gzip:   0.45 kB
+dist/public/assets/chat-DJucXp07.js                0.71 kB │ gzip:   0.47 kB
+dist/public/assets/chat-ChpSaqOt.js                0.71 kB │ gzip:   0.46 kB
+dist/public/assets/graduation-cap-_g_sbddb.js      0.76 kB │ gzip:   0.43 kB
+dist/public/assets/badge-Crsz8XzY.js               0.78 kB │ gzip:   0.43 kB
+dist/public/assets/thumbs-up-qskPLaCN.js           0.79 kB │ gzip:   0.42 kB
+dist/public/assets/share-2-iOpkMqff.js             0.79 kB │ gzip:   0.42 kB
+dist/public/assets/ruler-C2ylrrbQ.js               0.91 kB │ gzip:   0.42 kB
+dist/public/assets/password-input-BCAnI2h1.js      0.96 kB │ gzip:   0.59 kB
+dist/public/assets/wifi-BmGbGXBs.js                1.21 kB │ gzip:   0.56 kB
+dist/public/assets/page-header-DtwLDe9t.js         1.21 kB │ gzip:   0.64 kB
+dist/public/assets/wand-sparkles-BZYxRzpd.js       1.44 kB │ gzip:   0.62 kB
+dist/public/assets/table-DLNStotg.js               1.64 kB │ gzip:   0.58 kB
+dist/public/assets/dialog-BMKxZ_oq.js              2.20 kB │ gzip:   0.87 kB
+dist/public/assets/zap-DK5P3x3T.js                 2.24 kB │ gzip:   0.98 kB
+dist/public/assets/switch-t-nj8QSm.js              2.57 kB │ gzip:   1.28 kB
+dist/public/assets/media-detail-Dc0eCjWQ.js        2.61 kB │ gzip:   1.16 kB
+dist/public/assets/board-BpUlrgFk.js               2.79 kB │ gzip:   1.35 kB
+dist/public/assets/dashboard-8r97hpmM.js           3.19 kB │ gzip:   1.08 kB
+dist/public/assets/inbox-DepmDsaJ.js               3.36 kB │ gzip:   1.36 kB
+dist/public/assets/media-Cw-4tA6A.js               3.51 kB │ gzip:   1.52 kB
+dist/public/assets/services-r78GwUxI.js            3.80 kB │ gzip:   1.83 kB
+dist/public/assets/reset-password-BIVCMEdc.js      3.94 kB │ gzip:   1.75 kB
+dist/public/assets/forgot-password-CJi-c9nS.js     3.95 kB │ gzip:   1.79 kB
+dist/public/assets/image-upload-lDSoXS8R.js        4.25 kB │ gzip:   2.06 kB
+dist/public/assets/brokers-CwgbdJ_0.js             4.32 kB │ gzip:   1.67 kB
+dist/public/assets/projects-BCN4vNJ9.js            4.34 kB │ gzip:   1.66 kB
+dist/public/assets/about-C7XPyCbh.js               5.47 kB │ gzip:   2.38 kB
+dist/public/assets/project-detail-DTAjwrQk.js      5.69 kB │ gzip:   1.68 kB
+dist/public/assets/login-CmZGX3_A.js               6.30 kB │ gzip:   2.52 kB
+dist/public/assets/tabs-Cb99r-bo.js                6.67 kB │ gzip:   2.66 kB
+dist/public/assets/board-CAyJhwL1.js               6.78 kB │ gzip:   2.32 kB
+dist/public/assets/contact-xToayFcr.js             7.01 kB │ gzip:   2.56 kB
+dist/public/assets/pages-DbHCw7r_.js               7.08 kB │ gzip:   2.44 kB
+dist/public/assets/services-C1kspUSA.js            7.57 kB │ gzip:   2.78 kB
+dist/public/assets/messages-DqyQZccQ.js            7.66 kB │ gzip:   2.55 kB
+dist/public/assets/brokers-xIU33br-.js             7.97 kB │ gzip:   2.57 kB
+dist/public/assets/email-accounts-BGFPK-ak.js      8.00 kB │ gzip:   2.70 kB
+dist/public/assets/jobs-RW8_WIqg.js                8.07 kB │ gzip:   2.67 kB
+dist/public/assets/ai-write-assist-H5kWS70k.js     8.67 kB │ gzip:   3.51 kB
+dist/public/assets/employees-BGSUzfLg.js           8.90 kB │ gzip:   3.07 kB
+dist/public/assets/news-BBB6V_XH.js                9.74 kB │ gzip:   3.42 kB
+dist/public/assets/projects-yRi2JtBP.js           12.24 kB │ gzip:   3.85 kB
+dist/public/assets/scroll-area-DItlSRv-.js        12.54 kB │ gzip:   3.96 kB
+dist/public/assets/dashboard-ApWbP2uD.js          13.15 kB │ gzip:   4.41 kB
+dist/public/assets/applications-DYSmi5h3.js       13.60 kB │ gzip:   4.61 kB
+dist/public/assets/settings-d3ZlbhbH.js           14.34 kB │ gzip:   3.76 kB
+dist/public/assets/ai-conversations-DusQpAWU.js   15.71 kB │ gzip:   5.02 kB
+dist/public/assets/react-vendor-D1hW_Jsa.js       16.69 kB │ gzip:   6.41 kB
+dist/public/assets/terms-R-Iuo-6F.js              16.83 kB │ gzip:   6.09 kB
+dist/public/assets/tips-BK_2SFTn.js               17.31 kB │ gzip:   5.51 kB
+dist/public/assets/internal-chat-DpWY8tIl.js      18.11 kB │ gzip:   6.18 kB
+dist/public/assets/privacy-77lTPrH9.js            18.16 kB │ gzip:   6.40 kB
+dist/public/assets/careers-lsVe8zOB.js            18.56 kB │ gzip:   6.27 kB
+dist/public/assets/ai-chat-DsGfpai4.js            19.24 kB │ gzip:   6.99 kB
+dist/public/assets/format-ZotK7DoN.js             19.50 kB │ gzip:   5.55 kB
+dist/public/assets/email-CFXxmAOs.js              20.84 kB │ gzip:   6.69 kB
+dist/public/assets/select-OHTXP7-q.js             20.98 kB │ gzip:   7.32 kB
+dist/public/assets/form-BuBJu9gD.js               30.31 kB │ gzip:  11.16 kB
+dist/public/assets/query-vendor-B6u2qk96.js       39.45 kB │ gzip:  11.84 kB
+dist/public/assets/zod-zab4TOiY.js                54.80 kB │ gzip:  12.83 kB
+dist/public/assets/index-CONsTKju.js             529.88 kB │ gzip: 166.66 kB
+dist/public/assets/lucide-react-CQptgWS-.js      548.08 kB │ gzip: 146.36 kB
+✓ built in 5.11s
+> @workspace/api-server@0.0.0 build /opt/render/project/src/artifacts/api-server
+> node ./build.mjs
+✘ [ERROR] Could not resolve "mongoose"
+    src/routes/ai.ts:5:22:
+      5 │ import { Types } from "mongoose";
+        ╵                       ~~~~~~~~~~
+  You can mark the path "mongoose" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+1 error
+Error: Build failed with 1 error:
+src/routes/ai.ts:5:22: ERROR: Could not resolve "mongoose"
+    at failureErrorWithLog (/opt/render/project/src/node_modules/.pnpm/esbuild@0.27.3/node_modules/esbuild/lib/main.js:1467:15)
+    at /opt/render/project/src/node_modules/.pnpm/esbuild@0.27.3/node_modules/esbuild/lib/main.js:926:25
+    at /opt/render/project/src/node_modules/.pnpm/esbuild@0.27.3/node_modules/esbuild/lib/main.js:1345:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  errors: [Getter/Setter],
+  warnings: [Getter/Setter]
+}
+/opt/render/project/src/artifacts/api-server:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/api-server@0.0.0 build: `node ./build.mjs`
+Exit status 1
+==> Build failed 😞
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
