@@ -1,0 +1,61 @@
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+[main 0976814] new edit
+ 14 files changed, 0 insertions(+), 0 deletions(-)
+ mode change 100644 => 100755 .gitattributes
+ mode change 100644 => 100755 .node-version
+ mode change 100644 => 100755 .nvmrc
+ mode change 100644 => 100755 artifacts/nawa/src/components/admin/ai-insights-widget.tsx
+ mode change 100644 => 100755 artifacts/nawa/src/components/shared/ai-chat-widget.tsx
+ mode change 100644 => 100755 artifacts/nawa/src/components/shared/ai-write-assist.tsx
+ mode change 100644 => 100755 artifacts/nawa/src/components/ui/password-input.tsx
+ mode change 100644 => 100755 artifacts/nawa/src/pages/admin/ai-conversations.tsx
+ mode change 100644 => 100755 attached_assets/Pasted--This-repository-is-configured-for-Git-LFS-but-git-lfs-_1778635036836.txt
+ mode change 100644 => 100755 attached_assets/Pasted--mode-change-100644-100755-artifacts-nawa-src-component_1778632413465.txt
+ mode change 100644 => 100755 attached_assets/Screenshot_2026-05-13_at_4.29.40_AM_1778635788717.png
+ mode change 100644 => 100755 attached_assets/screenshots/34ea0fe0-9143-4eb4-9ba7-421f5317fa8a-00-170ds55a2xy1d_sisko_replit_dev_3002.png
+ mode change 100644 => 100755 lib/db/src/schema/ai_logs.ts
+ mode change 100644 => 100755 render.yaml
+macbook@Darwishs-MBP nawa-2 6 % ssh -T git@github.com
+Hi Darsh20009! You've successfully authenticated, but GitHub does not provide shell access.
+macbook@Darwishs-MBP nawa-2 6 % git remote  set-url origin git@github.com:Darsh20009/nawa
+macbook@Darwishs-MBP nawa-2 6 % git push -u origin main
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+error: non-monotonic index .git/objects/pack/._pack-d6cfb7a793d26056325854488d3c6c694a0b1d0a.idx
+
+This repository is configured for Git LFS but 'git-lfs' was not found on your path. If you no longer wish to use Git LFS, remove this hook by deleting the 'pre-push' file in the hooks directory (set by 'core.hookspath'; usually '.git/hooks').
+
+error: failed to push some refs to 'github.com:Darsh20009/nawa'
+macbook@Darwishs-MBP nawa-2 6 % 
