@@ -274,14 +274,14 @@ export default function AdminSettings() {
                   <FormField control={form.control} name="phone" render={({ field }) => (
                     <FormItem>
                       <FormLabel>{language === "ar" ? "رقم الهاتف" : "Phone Number"}</FormLabel>
-                      <FormControl><Input {...field} placeholder="+966500000000" dir="ltr" /></FormControl>
+                      <FormControl><Input {...field} placeholder="+966500073509" dir="ltr" /></FormControl>
                       <FormDescription className="text-xs">{language === "ar" ? "يظهر في الموقع وبيانات التواصل" : "Displayed on site and contact info"}</FormDescription>
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="whatsapp" render={({ field }) => (
                     <FormItem>
                       <FormLabel>{language === "ar" ? "رقم واتساب" : "WhatsApp Number"}</FormLabel>
-                      <FormControl><Input {...field} placeholder="+966500000000" dir="ltr" /></FormControl>
+                      <FormControl><Input {...field} placeholder="+966500073509" dir="ltr" /></FormControl>
                       <FormDescription className="text-xs">{language === "ar" ? "للتواصل عبر واتساب" : "For WhatsApp contact"}</FormDescription>
                     </FormItem>
                   )} />
