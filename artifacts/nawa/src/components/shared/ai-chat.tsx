@@ -5,12 +5,52 @@ import {
   Bot, Send, User, Sparkles, Brain, FileText, Mail,
   TrendingUp, Zap, Copy, Check, Volume2, VolumeX,
   ChevronDown, RotateCcw, Search, Newspaper, Briefcase,
-  CheckCircle2, AlertCircle, BarChart3, Inbox, ExternalLink
+  CheckCircle2, AlertCircle, BarChart3, Inbox, ExternalLink,
+  Building2, Users, MessageSquare, Wrench, Settings, Trash2,
+  Pencil, ListChecks, UserPlus, Reply, Crown
 } from "lucide-react";
 
 const TOOL_META: Record<string, { icon: any; labelAr: string; labelEn: string; color: string }> = {
+  // Projects
+  create_project:             { icon: Building2,    labelAr: "إنشاء مشروع",      labelEn: "Create Project",    color: "emerald" },
+  update_project:             { icon: Pencil,       labelAr: "تعديل مشروع",      labelEn: "Update Project",    color: "amber" },
+  delete_project:             { icon: Trash2,       labelAr: "حذف مشروع",        labelEn: "Delete Project",    color: "rose" },
+  list_projects:              { icon: ListChecks,   labelAr: "قائمة المشاريع",   labelEn: "List Projects",     color: "indigo" },
+  // News
   publish_news:               { icon: Newspaper,    labelAr: "نشر خبر",         labelEn: "Publish News",      color: "emerald" },
+  update_news:                { icon: Pencil,       labelAr: "تعديل خبر",        labelEn: "Update News",       color: "amber" },
+  delete_news:                { icon: Trash2,       labelAr: "حذف خبر",          labelEn: "Delete News",       color: "rose" },
+  list_news:                  { icon: ListChecks,   labelAr: "قائمة الأخبار",    labelEn: "List News",         color: "indigo" },
+  // Jobs
   publish_job:                { icon: Briefcase,    labelAr: "نشر وظيفة",       labelEn: "Publish Job",       color: "blue" },
+  update_job:                 { icon: Pencil,       labelAr: "تعديل وظيفة",      labelEn: "Update Job",        color: "amber" },
+  delete_job:                 { icon: Trash2,       labelAr: "حذف وظيفة",        labelEn: "Delete Job",        color: "rose" },
+  list_jobs:                  { icon: ListChecks,   labelAr: "قائمة الوظائف",    labelEn: "List Jobs",         color: "indigo" },
+  list_applications:          { icon: ListChecks,   labelAr: "طلبات التوظيف",    labelEn: "Applications",      color: "indigo" },
+  update_application_status:  { icon: CheckCircle2, labelAr: "تحديث طلب",        labelEn: "Update Application",color: "amber" },
+  // Brokers
+  create_broker:              { icon: UserPlus,     labelAr: "إضافة وسيط",       labelEn: "Create Broker",     color: "emerald" },
+  update_broker:              { icon: Pencil,       labelAr: "تعديل وسيط",       labelEn: "Update Broker",     color: "amber" },
+  delete_broker:              { icon: Trash2,       labelAr: "حذف وسيط",         labelEn: "Delete Broker",     color: "rose" },
+  list_brokers:               { icon: Users,        labelAr: "قائمة الوسطاء",    labelEn: "List Brokers",      color: "indigo" },
+  // Messages
+  list_messages:              { icon: Inbox,        labelAr: "قائمة الرسائل",    labelEn: "List Messages",     color: "indigo" },
+  update_message:             { icon: Pencil,       labelAr: "تحديث رسالة",      labelEn: "Update Message",    color: "amber" },
+  delete_message:             { icon: Trash2,       labelAr: "حذف رسالة",        labelEn: "Delete Message",    color: "rose" },
+  reply_to_message:           { icon: Reply,        labelAr: "الرد على رسالة",   labelEn: "Reply to Message",  color: "purple" },
+  // Employees
+  create_employee:            { icon: UserPlus,     labelAr: "إضافة موظف",       labelEn: "Create Employee",   color: "emerald" },
+  update_employee:            { icon: Pencil,       labelAr: "تعديل موظف",       labelEn: "Update Employee",   color: "amber" },
+  delete_employee:            { icon: Trash2,       labelAr: "حذف موظف",         labelEn: "Delete Employee",   color: "rose" },
+  list_employees:             { icon: Users,        labelAr: "قائمة الموظفين",   labelEn: "List Employees",    color: "indigo" },
+  // Services
+  create_service:             { icon: Wrench,       labelAr: "إنشاء خدمة",       labelEn: "Create Service",    color: "emerald" },
+  update_service:             { icon: Pencil,       labelAr: "تعديل خدمة",       labelEn: "Update Service",    color: "amber" },
+  delete_service:             { icon: Trash2,       labelAr: "حذف خدمة",         labelEn: "Delete Service",    color: "rose" },
+  list_services:              { icon: ListChecks,   labelAr: "قائمة الخدمات",    labelEn: "List Services",     color: "indigo" },
+  // Settings + utility
+  update_site_settings:       { icon: Settings,     labelAr: "إعدادات الموقع",   labelEn: "Site Settings",     color: "purple" },
+  universal_search:           { icon: Search,       labelAr: "بحث شامل",         labelEn: "Universal Search",  color: "indigo" },
   send_email:                 { icon: Mail,         labelAr: "إرسال بريد",       labelEn: "Send Email",        color: "purple" },
   review_pending_tasks:       { icon: Inbox,        labelAr: "مراجعة المهام",    labelEn: "Review Tasks",      color: "amber" },
   get_dashboard_stats:        { icon: BarChart3,    labelAr: "إحصائيات",        labelEn: "Stats",             color: "indigo" },
@@ -41,20 +81,28 @@ interface Message {
 
 const QUICK_PROMPTS = {
   ar: [
-    { icon: Inbox,      label: "ايش الجديد؟",       prompt: "راجع الرسائل الجديدة والطلبات المعلقة وأعطني ملخصاً سريعاً" },
-    { icon: Newspaper,  label: "انشر إعلان",        prompt: "انشر إعلاناً عن إطلاق مرحلة جديدة من مشاريعنا السكنية الفاخرة في الرياض" },
-    { icon: Briefcase,  label: "افتح وظيفة",         prompt: "افتح وظيفة جديدة: مدير تطوير الأعمال — قسم الاستثمار، دوام كامل" },
-    { icon: Mail,       label: "أرسل بريد لعميل",    prompt: "أرسل بريد متابعة احترافياً لعميل مهتم بالاستثمار العقاري" },
-    { icon: BarChart3,  label: "إحصائيات المنصة",   prompt: "أعطني إحصائيات حية عن المنصة (مشاريع، رسائل، وظائف)" },
-    { icon: TrendingUp, label: "تحليل سوق",         prompt: "حلل سوق العقار السكني في الرياض لعام 2026" },
+    { icon: Building2,  label: "🚀 أنشئ مشروع كامل", prompt: "أنشئ مشروعاً سكنياً فاخراً جديداً في حي الياسمين بالرياض: 120 وحدة، نمط فيلات حديثة، حالة 'تخطيط'، اقترح اسماً مبدعاً ووصفاً تسويقياً قوياً بالعربي والإنجليزي وعلّمه featured." },
+    { icon: Newspaper,  label: "📰 إعلان إطلاق",     prompt: "اكتب وانشر خبراً صحفياً عن إطلاق المرحلة الثانية من مشاريعنا السكنية في الرياض — افتح بجملة قوية، اذكر الأرقام، واختم بدعوة للاستثمار." },
+    { icon: Inbox,      label: "📥 ملخص اليوم",      prompt: "راجع كل الرسائل غير المقروءة والطلبات المعلقة وأعطني ملخصاً تنفيذياً مع توصياتك الفورية لكل بند." },
+    { icon: Reply,      label: "✉️ رد على عميل",     prompt: "اجلب آخر 5 رسائل غير مقروءة من العملاء، رد على كل واحدة بإيميل احترافي مخصص، وعلّمها 'replied'." },
+    { icon: UserPlus,   label: "👨‍💼 وظّف موظف",      prompt: "أنشئ حساب موظف جديد: محمد العتيبي — دور 'sales'، قسم 'المبيعات'، كلمة سر مؤقتة قوية." },
+    { icon: Briefcase,  label: "💼 افتح 3 وظائف",    prompt: "افتح 3 وظائف جديدة بالتوازي: مدير تطوير أعمال، مهندس مدني، مسؤول تسويق رقمي — مع وصف ومتطلبات احترافية لكل وظيفة." },
+    { icon: Search,     label: "🔍 بحث شامل",         prompt: "ابحث في كل أنحاء المنصة عن أي ذكر لكلمة 'الياسمين' (مشاريع، أخبار، رسائل، وسطاء) واعرض النتائج مرتبة." },
+    { icon: Settings,   label: "⚙️ حدّث بيانات الموقع", prompt: "حدّث رقم الواتساب إلى +966500073509 ورابط الانستقرام إلى @nawainvsa." },
+    { icon: BarChart3,  label: "📊 لوحة الأرقام",     prompt: "أعطني إحصائيات حية شاملة (مشاريع، أخبار، وسطاء، موظفين، رسائل غير مقروءة) في جدول مرتب." },
+    { icon: TrendingUp, label: "📈 تحليل سوق",        prompt: "حلل سوق العقار السكني في الرياض لعام 2026 — اتجاهات، فرص استثمارية، مخاطر، وتوصيات لنوى." },
   ],
   en: [
-    { icon: Inbox,      label: "What's new?",         prompt: "Review pending messages and tasks, give me a quick summary" },
-    { icon: Newspaper,  label: "Publish News",        prompt: "Publish a news announcement about launching a new phase of our luxury residential projects in Riyadh" },
-    { icon: Briefcase,  label: "Open Job",            prompt: "Open a new job: Business Development Manager — Investment dept, full-time" },
-    { icon: Mail,       label: "Email a Client",      prompt: "Send a professional follow-up email to an investor interested in our projects" },
-    { icon: BarChart3,  label: "Platform Stats",      prompt: "Give me live platform statistics (projects, messages, jobs)" },
-    { icon: TrendingUp, label: "Market Analysis",     prompt: "Analyze the Riyadh residential real estate market for 2026" },
+    { icon: Building2,  label: "🚀 Full Project",     prompt: "Create a luxury residential project in Al Yasmin, Riyadh: 120 units, modern villa style, status 'planning'. Invent a creative name + powerful bilingual marketing description and mark it as featured." },
+    { icon: Newspaper,  label: "📰 Launch News",      prompt: "Write and publish a press release about launching Phase 2 of our Riyadh residential projects — strong opening, real numbers, investment CTA." },
+    { icon: Inbox,      label: "📥 Daily Brief",      prompt: "Review all unread messages and pending tasks. Give me an executive brief with your instant recommendation per item." },
+    { icon: Reply,      label: "✉️ Reply to Clients", prompt: "Fetch the 5 most recent unread client messages, reply to each with a personalized professional email, and mark them 'replied'." },
+    { icon: UserPlus,   label: "👨‍💼 Hire Employee",   prompt: "Create a new employee: Mohammed Al-Otaibi — role 'sales', department 'Sales', strong temp password." },
+    { icon: Briefcase,  label: "💼 Open 3 Jobs",      prompt: "Open 3 jobs in parallel: BD Manager, Civil Engineer, Digital Marketer — with full bilingual description & requirements." },
+    { icon: Search,     label: "🔍 Universal Search", prompt: "Search the entire platform for 'Yasmin' (projects, news, messages, brokers) and present sorted results." },
+    { icon: Settings,   label: "⚙️ Update Site Info", prompt: "Update WhatsApp to +966500073509 and Instagram link to @nawainvsa." },
+    { icon: BarChart3,  label: "📊 Live Stats",       prompt: "Give me live platform statistics (projects, news, brokers, employees, unread messages) in a clean table." },
+    { icon: TrendingUp, label: "📈 Market Analysis",  prompt: "Analyze the Riyadh residential real estate market for 2026 — trends, opportunities, risks, and recommendations for Nawa." },
   ],
 };
 

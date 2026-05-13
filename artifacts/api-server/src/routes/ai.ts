@@ -1,7 +1,8 @@
 import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/auth";
 import { logger } from "../lib/logger";
-import { News, Job, Message, Project, Broker, User, AiConversation, AiLearning } from "@workspace/db";
+import { News, Job, JobApplication, Message, Project, Broker, User, Service, SiteSettings, BoardMember, AiConversation, AiLearning } from "@workspace/db";
+import { Types } from "mongoose";
 import { sendNawaMail, wrapNawaEmailHtml, NAWA_EMAIL_ACCOUNTS } from "../lib/mailer";
 
 const router: IRouter = Router();
@@ -96,7 +97,93 @@ async function getRelevantLearnings(channel: string, query: string, max = 5): Pr
 // =====================================================================
 // Agent Tools — actions Nawa AI can perform
 // =====================================================================
+// Helpers
+function toObjId(id: string): Types.ObjectId | null {
+  try { return new Types.ObjectId(String(id)); } catch { return null; }
+}
+function pick<T extends Record<string, any>>(obj: T, keys: string[]): Partial<T> {
+  const o: any = {};
+  for (const k of keys) if (obj[k] !== undefined && obj[k] !== null && obj[k] !== "") o[k] = obj[k];
+  return o;
+}
+
 const AGENT_TOOLS = [
+  // ============== PROJECTS — full CRUD ==============
+  {
+    type: "function",
+    function: {
+      name: "create_project",
+      description: "Create a new real estate project on the Nawa platform. Admin only. Use this when admin says 'add/create a project'.",
+      parameters: {
+        type: "object",
+        properties: {
+          titleAr: { type: "string", description: "Project name in Arabic" },
+          title: { type: "string", description: "Project name in English" },
+          descriptionAr: { type: "string" },
+          description: { type: "string" },
+          locationAr: { type: "string", description: "e.g. الرياض - حي الياسمين" },
+          location: { type: "string" },
+          status: { type: "string", enum: ["planning", "construction", "ready", "sold-out"], description: "Project status" },
+          type: { type: "string", description: "residential / commercial / mixed-use / villa / apartment ..." },
+          totalUnits: { type: "number" },
+          availableUnits: { type: "number" },
+          completionPercentage: { type: "number" },
+          price: { type: "string", description: "Price range or starting price" },
+          area: { type: "string", description: "Land/built-up area" },
+          imageUrl: { type: "string" },
+          featured: { type: "boolean", description: "Show on homepage" },
+        },
+        required: ["titleAr", "title"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_project",
+      description: "Update an existing project's fields. Pass id and only the fields you want to change.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: { type: "string", description: "Project _id" },
+          titleAr: { type: "string" }, title: { type: "string" },
+          descriptionAr: { type: "string" }, description: { type: "string" },
+          locationAr: { type: "string" }, location: { type: "string" },
+          status: { type: "string" }, type: { type: "string" },
+          totalUnits: { type: "number" }, availableUnits: { type: "number" },
+          completionPercentage: { type: "number" }, price: { type: "string" },
+          area: { type: "string" }, imageUrl: { type: "string" }, featured: { type: "boolean" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "delete_project",
+      description: "Permanently delete a project. Admin only — destructive.",
+      parameters: { type: "object", properties: { id: { type: "string" } }, required: ["id"] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_projects",
+      description: "List or search projects. Filter by status, type, featured, or text in titleAr/title/locationAr.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "free-text search" },
+          status: { type: "string" }, type: { type: "string" },
+          featured: { type: "boolean" },
+          limit: { type: "number", description: "default 20, max 100" },
+        },
+      },
+    },
+  },
+
+  // ============== NEWS ==============
   {
     type: "function",
     function: {
@@ -119,6 +206,48 @@ const AGENT_TOOLS = [
   {
     type: "function",
     function: {
+      name: "update_news",
+      description: "Update an existing news article by id.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          titleAr: { type: "string" }, title: { type: "string" },
+          contentAr: { type: "string" }, content: { type: "string" },
+          category: { type: "string" }, featured: { type: "boolean" },
+          imageUrl: { type: "string" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "delete_news",
+      description: "Delete a news article. Destructive.",
+      parameters: { type: "object", properties: { id: { type: "string" } }, required: ["id"] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_news",
+      description: "List or search news articles.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string" }, category: { type: "string" },
+          featured: { type: "boolean" }, limit: { type: "number" },
+        },
+      },
+    },
+  },
+
+  // ============== JOBS ==============
+  {
+    type: "function",
+    function: {
       name: "publish_job",
       description: "Publish a new job posting to the Nawa careers page. Admin only.",
       parameters: {
@@ -136,6 +265,336 @@ const AGENT_TOOLS = [
           location: { type: "string" },
         },
         required: ["titleAr", "title", "departmentAr", "department"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_job",
+      description: "Update or close a job posting (set active:false to close).",
+      parameters: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          titleAr: { type: "string" }, title: { type: "string" },
+          departmentAr: { type: "string" }, department: { type: "string" },
+          descriptionAr: { type: "string" }, description: { type: "string" },
+          requirementsAr: { type: "string" }, requirements: { type: "string" },
+          type: { type: "string" }, location: { type: "string" }, active: { type: "boolean" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "delete_job",
+      description: "Permanently delete a job posting.",
+      parameters: { type: "object", properties: { id: { type: "string" } }, required: ["id"] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_jobs",
+      description: "List job postings (active and inactive).",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string" }, active: { type: "boolean" }, limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_applications",
+      description: "List job applications (with optional jobId or status filter).",
+      parameters: {
+        type: "object",
+        properties: {
+          jobId: { type: "string" }, status: { type: "string", enum: ["pending", "reviewing", "interview", "offered", "rejected", "hired"] },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_application_status",
+      description: "Update a job application's status and optionally add admin notes.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          status: { type: "string", enum: ["pending", "reviewing", "interview", "offered", "rejected", "hired"] },
+          adminNotes: { type: "string" },
+        },
+        required: ["id", "status"],
+      },
+    },
+  },
+
+  // ============== BROKERS ==============
+  {
+    type: "function",
+    function: {
+      name: "create_broker",
+      description: "Add a new broker / real estate agent profile.",
+      parameters: {
+        type: "object",
+        properties: {
+          nameAr: { type: "string" }, name: { type: "string" },
+          email: { type: "string" }, phone: { type: "string" },
+          specializationAr: { type: "string" }, specialization: { type: "string" },
+          bioAr: { type: "string" }, bio: { type: "string" },
+          avatar: { type: "string" }, rating: { type: "number" }, dealsCount: { type: "number" },
+          active: { type: "boolean" },
+        },
+        required: ["nameAr", "name"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_broker",
+      description: "Update a broker profile.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          nameAr: { type: "string" }, name: { type: "string" },
+          email: { type: "string" }, phone: { type: "string" },
+          specializationAr: { type: "string" }, specialization: { type: "string" },
+          bioAr: { type: "string" }, bio: { type: "string" },
+          avatar: { type: "string" }, rating: { type: "number" }, dealsCount: { type: "number" },
+          active: { type: "boolean" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "delete_broker",
+      description: "Delete a broker.",
+      parameters: { type: "object", properties: { id: { type: "string" } }, required: ["id"] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_brokers",
+      description: "List brokers/agents.",
+      parameters: {
+        type: "object",
+        properties: { query: { type: "string" }, active: { type: "boolean" }, limit: { type: "number" } },
+      },
+    },
+  },
+
+  // ============== MESSAGES (contact form) ==============
+  {
+    type: "function",
+    function: {
+      name: "list_messages",
+      description: "List incoming contact-form messages.",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["unread", "read", "replied", "archived"] },
+          priority: { type: "string", enum: ["low", "normal", "high", "urgent"] },
+          query: { type: "string" }, limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_message",
+      description: "Update a contact-message status / priority / assignee.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          status: { type: "string" }, priority: { type: "string" }, assignedTo: { type: "string" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "delete_message",
+      description: "Delete a contact message.",
+      parameters: { type: "object", properties: { id: { type: "string" } }, required: ["id"] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "reply_to_message",
+      description: "Reply by email to a contact message and mark it 'replied'. Pass message id and the body in HTML/text.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: { type: "string" }, subject: { type: "string" }, bodyHtml: { type: "string" },
+          language: { type: "string", enum: ["ar", "en"] },
+        },
+        required: ["id", "bodyHtml"],
+      },
+    },
+  },
+
+  // ============== EMPLOYEES (Users) ==============
+  {
+    type: "function",
+    function: {
+      name: "create_employee",
+      description: "Create a new employee/staff account. Admin only. Default role 'support' if not given.",
+      parameters: {
+        type: "object",
+        properties: {
+          email: { type: "string" }, password: { type: "string", description: "min 8 chars" },
+          name: { type: "string" }, nameAr: { type: "string" },
+          role: { type: "string", enum: ["super_admin", "admin", "manager", "support", "sales", "marketing"] },
+          department: { type: "string" }, phone: { type: "string" },
+          emailAccount: { type: "string", enum: NAWA_EMAIL_ACCOUNTS as unknown as string[] },
+          active: { type: "boolean" },
+        },
+        required: ["email", "password", "name"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_employee",
+      description: "Update an employee's profile / role / status. Pass id and the fields to change.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          name: { type: "string" }, nameAr: { type: "string" }, role: { type: "string" },
+          department: { type: "string" }, phone: { type: "string" },
+          emailAccount: { type: "string" }, active: { type: "boolean" },
+          password: { type: "string", description: "if set, resets password" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "delete_employee",
+      description: "Delete an employee account. Admin only — destructive.",
+      parameters: { type: "object", properties: { id: { type: "string" } }, required: ["id"] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_employees",
+      description: "List staff/employees. Filter by role, active, or query.",
+      parameters: {
+        type: "object",
+        properties: { query: { type: "string" }, role: { type: "string" }, active: { type: "boolean" }, limit: { type: "number" } },
+      },
+    },
+  },
+
+  // ============== SERVICES ==============
+  {
+    type: "function",
+    function: {
+      name: "create_service",
+      description: "Create a new service offering.",
+      parameters: {
+        type: "object",
+        properties: {
+          titleAr: { type: "string" }, title: { type: "string" },
+          descriptionAr: { type: "string" }, description: { type: "string" },
+          icon: { type: "string" }, imageUrl: { type: "string" }, order: { type: "number" },
+        },
+        required: ["titleAr", "title"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_service",
+      description: "Update a service.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          titleAr: { type: "string" }, title: { type: "string" },
+          descriptionAr: { type: "string" }, description: { type: "string" },
+          icon: { type: "string" }, imageUrl: { type: "string" }, order: { type: "number" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "delete_service",
+      description: "Delete a service.",
+      parameters: { type: "object", properties: { id: { type: "string" } }, required: ["id"] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_services",
+      description: "List all services.",
+      parameters: { type: "object", properties: { limit: { type: "number" } } },
+    },
+  },
+
+  // ============== SITE SETTINGS ==============
+  {
+    type: "function",
+    function: {
+      name: "update_site_settings",
+      description: "Update Nawa site-wide settings (contact info, social links, SEO meta, etc.). Pass only fields to change.",
+      parameters: {
+        type: "object",
+        properties: {
+          siteName: { type: "string" }, siteNameEn: { type: "string" },
+          tagline: { type: "string" }, taglineEn: { type: "string" },
+          phone: { type: "string" }, whatsapp: { type: "string" }, email: { type: "string" },
+          address: { type: "string" }, addressEn: { type: "string" }, googleMapsUrl: { type: "string" },
+          facebook: { type: "string" }, twitter: { type: "string" }, instagram: { type: "string" },
+          linkedin: { type: "string" }, youtube: { type: "string" }, tiktok: { type: "string" }, snapchat: { type: "string" },
+          crNumber: { type: "string" }, vatNumber: { type: "string" },
+          metaTitle: { type: "string" }, metaDescription: { type: "string" }, metaDescriptionEn: { type: "string" },
+        },
+      },
+    },
+  },
+
+  // ============== UNIVERSAL SEARCH ==============
+  {
+    type: "function",
+    function: {
+      name: "universal_search",
+      description: "Search across ALL collections (projects, news, brokers, messages, employees, jobs, services) for the given text. Read-only — perfect for 'where is X?' style questions.",
+      parameters: {
+        type: "object",
+        properties: { query: { type: "string" }, limitPerCollection: { type: "number", description: "default 5" } },
+        required: ["query"],
       },
     },
   },
@@ -312,6 +771,342 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
       case "analyze_market":
         // Pure-content tools — return args back; the model writes the body in the follow-up turn
         return { ok: true, result: { draft: true, args } };
+
+      // ============== PROJECTS ==============
+      case "create_project": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const titleAr = String(args.titleAr || "").trim();
+        const title = String(args.title || titleAr).trim();
+        if (!titleAr || !title) return { ok: false, error: "اسم المشروع بالعربي والإنجليزي إلزامي" };
+        const row = await Project.create({
+          title, titleAr,
+          ...pick(args, ["description","descriptionAr","location","locationAr","status","type","price","area","imageUrl"]),
+          totalUnits: args.totalUnits ?? null,
+          availableUnits: args.availableUnits ?? null,
+          completionPercentage: args.completionPercentage ?? null,
+          status: args.status || "planning",
+          featured: !!args.featured,
+        });
+        return { ok: true, result: { id: row.id, title: row.titleAr, kind: "project", url: `/projects/${row.id}` } };
+      }
+      case "update_project": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const updates = pick(args, ["title","titleAr","description","descriptionAr","location","locationAr","status","type","totalUnits","availableUnits","completionPercentage","price","area","imageUrl","featured"]);
+        if (Object.keys(updates).length === 0) return { ok: false, error: "لا توجد حقول للتحديث" };
+        const row = await Project.findByIdAndUpdate(_id, updates, { new: true });
+        if (!row) return { ok: false, error: "المشروع غير موجود" };
+        return { ok: true, result: { id: row.id, title: row.titleAr, updated: Object.keys(updates) } };
+      }
+      case "delete_project": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const row = await Project.findByIdAndDelete(_id);
+        if (!row) return { ok: false, error: "المشروع غير موجود" };
+        return { ok: true, result: { deleted: true, id: args.id, title: row.titleAr } };
+      }
+      case "list_projects": {
+        const limit = Math.min(Number(args.limit) || 20, 100);
+        const filter: any = {};
+        if (args.status) filter.status = args.status;
+        if (args.type) filter.type = args.type;
+        if (typeof args.featured === "boolean") filter.featured = args.featured;
+        if (args.query) {
+          const q = String(args.query).trim();
+          filter.$or = [
+            { titleAr: { $regex: q, $options: "i" } }, { title: { $regex: q, $options: "i" } },
+            { locationAr: { $regex: q, $options: "i" } }, { location: { $regex: q, $options: "i" } },
+          ];
+        }
+        const rows = await Project.find(filter).sort({ createdAt: -1 }).limit(limit).lean();
+        return { ok: true, result: { count: rows.length, items: rows.map((r: any) => ({ id: String(r._id), titleAr: r.titleAr, title: r.title, status: r.status, locationAr: r.locationAr, featured: r.featured })) } };
+      }
+
+      // ============== NEWS update/delete/list ==============
+      case "update_news": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const updates = pick(args, ["title","titleAr","content","contentAr","category","featured","imageUrl"]);
+        if (Object.keys(updates).length === 0) return { ok: false, error: "لا توجد حقول للتحديث" };
+        const row = await News.findByIdAndUpdate(_id, updates, { new: true });
+        if (!row) return { ok: false, error: "الخبر غير موجود" };
+        return { ok: true, result: { id: row.id, title: row.titleAr, updated: Object.keys(updates) } };
+      }
+      case "delete_news": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const row = await News.findByIdAndDelete(_id);
+        if (!row) return { ok: false, error: "الخبر غير موجود" };
+        return { ok: true, result: { deleted: true, id: args.id, title: row.titleAr } };
+      }
+      case "list_news": {
+        const limit = Math.min(Number(args.limit) || 20, 100);
+        const filter: any = {};
+        if (args.category) filter.category = args.category;
+        if (typeof args.featured === "boolean") filter.featured = args.featured;
+        if (args.query) {
+          const q = String(args.query).trim();
+          filter.$or = [{ titleAr: { $regex: q, $options: "i" } }, { title: { $regex: q, $options: "i" } }];
+        }
+        const rows = await News.find(filter).sort({ createdAt: -1 }).limit(limit).lean();
+        return { ok: true, result: { count: rows.length, items: rows.map((r: any) => ({ id: String(r._id), titleAr: r.titleAr, category: r.category, featured: r.featured, publishedAt: r.publishedAt })) } };
+      }
+
+      // ============== JOBS ==============
+      case "update_job": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const updates = pick(args, ["title","titleAr","department","departmentAr","description","descriptionAr","requirements","requirementsAr","type","location","active"]);
+        if (Object.keys(updates).length === 0) return { ok: false, error: "لا توجد حقول للتحديث" };
+        const row = await Job.findByIdAndUpdate(_id, updates, { new: true });
+        if (!row) return { ok: false, error: "الوظيفة غير موجودة" };
+        return { ok: true, result: { id: row.id, title: row.titleAr, updated: Object.keys(updates) } };
+      }
+      case "delete_job": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const row = await Job.findByIdAndDelete(_id);
+        if (!row) return { ok: false, error: "الوظيفة غير موجودة" };
+        return { ok: true, result: { deleted: true, id: args.id, title: row.titleAr } };
+      }
+      case "list_jobs": {
+        const limit = Math.min(Number(args.limit) || 20, 100);
+        const filter: any = {};
+        if (typeof args.active === "boolean") filter.active = args.active;
+        if (args.query) {
+          const q = String(args.query).trim();
+          filter.$or = [{ titleAr: { $regex: q, $options: "i" } }, { title: { $regex: q, $options: "i" } }, { departmentAr: { $regex: q, $options: "i" } }];
+        }
+        const rows = await Job.find(filter).sort({ createdAt: -1 }).limit(limit).lean();
+        return { ok: true, result: { count: rows.length, items: rows.map((r: any) => ({ id: String(r._id), titleAr: r.titleAr, departmentAr: r.departmentAr, type: r.type, active: r.active })) } };
+      }
+      case "list_applications": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const limit = Math.min(Number(args.limit) || 20, 100);
+        const filter: any = {};
+        if (args.status) filter.status = args.status;
+        if (args.jobId) { const _id = toObjId(args.jobId); if (!_id) return { ok: false, error: "jobId غير صالح" }; filter.jobId = _id; }
+        const rows = await JobApplication.find(filter).sort({ createdAt: -1 }).limit(limit).lean();
+        return { ok: true, result: { count: rows.length, items: rows.map((r: any) => ({ id: String(r._id), applicantName: r.applicantName, email: r.email, jobId: String(r.jobId), status: r.status, createdAt: r.createdAt })) } };
+      }
+      case "update_application_status": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const updates: any = { status: args.status };
+        if (args.adminNotes) updates.adminNotes = args.adminNotes;
+        const row = await JobApplication.findByIdAndUpdate(_id, updates, { new: true });
+        if (!row) return { ok: false, error: "الطلب غير موجود" };
+        return { ok: true, result: { id: row.id, applicant: row.applicantName, status: row.status } };
+      }
+
+      // ============== BROKERS ==============
+      case "create_broker": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        if (!args.nameAr || !args.name) return { ok: false, error: "الاسم بالعربي والإنجليزي إلزامي" };
+        const row = await Broker.create({
+          name: args.name, nameAr: args.nameAr,
+          ...pick(args, ["email","phone","specialization","specializationAr","bio","bioAr","avatar"]),
+          rating: args.rating ?? null, dealsCount: args.dealsCount ?? null,
+          active: args.active !== false,
+        });
+        return { ok: true, result: { id: row.id, name: row.nameAr, kind: "broker" } };
+      }
+      case "update_broker": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const updates = pick(args, ["name","nameAr","email","phone","specialization","specializationAr","bio","bioAr","avatar","rating","dealsCount","active"]);
+        if (Object.keys(updates).length === 0) return { ok: false, error: "لا توجد حقول للتحديث" };
+        const row = await Broker.findByIdAndUpdate(_id, updates, { new: true });
+        if (!row) return { ok: false, error: "الوسيط غير موجود" };
+        return { ok: true, result: { id: row.id, name: row.nameAr, updated: Object.keys(updates) } };
+      }
+      case "delete_broker": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const row = await Broker.findByIdAndDelete(_id);
+        if (!row) return { ok: false, error: "الوسيط غير موجود" };
+        return { ok: true, result: { deleted: true, id: args.id, name: row.nameAr } };
+      }
+      case "list_brokers": {
+        const limit = Math.min(Number(args.limit) || 20, 100);
+        const filter: any = {};
+        if (typeof args.active === "boolean") filter.active = args.active;
+        if (args.query) {
+          const q = String(args.query).trim();
+          filter.$or = [{ nameAr: { $regex: q, $options: "i" } }, { name: { $regex: q, $options: "i" } }, { specializationAr: { $regex: q, $options: "i" } }];
+        }
+        const rows = await Broker.find(filter).sort({ createdAt: -1 }).limit(limit).lean();
+        return { ok: true, result: { count: rows.length, items: rows.map((r: any) => ({ id: String(r._id), nameAr: r.nameAr, specializationAr: r.specializationAr, phone: r.phone, active: r.active })) } };
+      }
+
+      // ============== MESSAGES ==============
+      case "list_messages": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const limit = Math.min(Number(args.limit) || 20, 100);
+        const filter: any = {};
+        if (args.status) filter.status = args.status;
+        if (args.priority) filter.priority = args.priority;
+        if (args.query) {
+          const q = String(args.query).trim();
+          filter.$or = [{ name: { $regex: q, $options: "i" } }, { email: { $regex: q, $options: "i" } }, { subject: { $regex: q, $options: "i" } }, { content: { $regex: q, $options: "i" } }];
+        }
+        const rows = await Message.find(filter).sort({ createdAt: -1 }).limit(limit).lean();
+        return { ok: true, result: { count: rows.length, items: rows.map((r: any) => ({ id: String(r._id), name: r.name, email: r.email, subject: r.subject, status: r.status, priority: r.priority, createdAt: r.createdAt, contentPreview: String(r.content || "").slice(0, 120) })) } };
+      }
+      case "update_message": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const updates = pick(args, ["status","priority","assignedTo"]);
+        if (Object.keys(updates).length === 0) return { ok: false, error: "لا توجد حقول للتحديث" };
+        const row = await Message.findByIdAndUpdate(_id, updates, { new: true });
+        if (!row) return { ok: false, error: "الرسالة غير موجودة" };
+        return { ok: true, result: { id: row.id, status: row.status, priority: row.priority } };
+      }
+      case "delete_message": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const row = await Message.findByIdAndDelete(_id);
+        if (!row) return { ok: false, error: "الرسالة غير موجودة" };
+        return { ok: true, result: { deleted: true, id: args.id } };
+      }
+      case "reply_to_message": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const msg = await Message.findById(_id);
+        if (!msg) return { ok: false, error: "الرسالة غير موجودة" };
+        if (!msg.email) return { ok: false, error: "ما فيه بريد للعميل" };
+
+        let from: any = "info@nawainv.sa";
+        const u = await User.findById(authUser.id, { emailAccount: 1 });
+        if (u?.emailAccount && (NAWA_EMAIL_ACCOUNTS as readonly string[]).includes(u.emailAccount)) from = u.emailAccount;
+
+        const subject = String(args.subject || `رد: ${msg.subject}`).trim();
+        const html = wrapNawaEmailHtml({ title: subject, bodyHtml: String(args.bodyHtml || ""), lang: args.language === "en" ? "en" : "ar" });
+        const r = await sendNawaMail({ from, to: msg.email, subject, html });
+        if (!r.ok) return { ok: false, error: r.error };
+        await Message.findByIdAndUpdate(_id, { status: "replied" });
+        return { ok: true, result: { sent: true, to: msg.email, from, messageId: r.messageId, status: "replied" } };
+      }
+
+      // ============== EMPLOYEES ==============
+      case "create_employee": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        if (!args.email || !args.password || !args.name) return { ok: false, error: "البريد وكلمة المرور والاسم إلزامية" };
+        if (String(args.password).length < 8) return { ok: false, error: "كلمة المرور لازم 8 أحرف على الأقل" };
+        const exists = await User.findOne({ email: String(args.email).toLowerCase().trim() });
+        if (exists) return { ok: false, error: "هذا البريد مسجل مسبقاً" };
+        const bcrypt = await import("bcryptjs");
+        const hash = await bcrypt.hash(String(args.password), 10);
+        const row = await User.create({
+          email: String(args.email).toLowerCase().trim(),
+          password: hash,
+          name: args.name, nameAr: args.nameAr || args.name,
+          role: args.role || "support",
+          ...pick(args, ["department","phone","emailAccount"]),
+          active: args.active !== false,
+        });
+        return { ok: true, result: { id: row.id, email: row.email, name: row.name, role: row.role } };
+      }
+      case "update_employee": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const updates: any = pick(args, ["name","nameAr","role","department","phone","emailAccount","active"]);
+        if (args.password) {
+          if (String(args.password).length < 8) return { ok: false, error: "كلمة المرور لازم 8 أحرف على الأقل" };
+          const bcrypt = await import("bcryptjs");
+          updates.password = await bcrypt.hash(String(args.password), 10);
+        }
+        if (Object.keys(updates).length === 0) return { ok: false, error: "لا توجد حقول للتحديث" };
+        const row = await User.findByIdAndUpdate(_id, updates, { new: true });
+        if (!row) return { ok: false, error: "الموظف غير موجود" };
+        return { ok: true, result: { id: row.id, name: row.name, role: row.role, updated: Object.keys(updates) } };
+      }
+      case "delete_employee": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        if (String(_id) === String(authUser.id)) return { ok: false, error: "ما تقدر تحذف نفسك" };
+        const row = await User.findByIdAndDelete(_id);
+        if (!row) return { ok: false, error: "الموظف غير موجود" };
+        return { ok: true, result: { deleted: true, id: args.id, name: row.name } };
+      }
+      case "list_employees": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const limit = Math.min(Number(args.limit) || 20, 100);
+        const filter: any = {};
+        if (args.role) filter.role = args.role;
+        if (typeof args.active === "boolean") filter.active = args.active;
+        if (args.query) {
+          const q = String(args.query).trim();
+          filter.$or = [{ name: { $regex: q, $options: "i" } }, { nameAr: { $regex: q, $options: "i" } }, { email: { $regex: q, $options: "i" } }, { department: { $regex: q, $options: "i" } }];
+        }
+        const rows = await User.find(filter, { password: 0 }).sort({ createdAt: -1 }).limit(limit).lean();
+        return { ok: true, result: { count: rows.length, items: rows.map((r: any) => ({ id: String(r._id), name: r.name, email: r.email, role: r.role, department: r.department, active: r.active })) } };
+      }
+
+      // ============== SERVICES ==============
+      case "create_service": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        if (!args.titleAr || !args.title) return { ok: false, error: "العنوان بالعربي والإنجليزي إلزامي" };
+        const row = await Service.create({
+          title: args.title, titleAr: args.titleAr,
+          ...pick(args, ["description","descriptionAr","icon","imageUrl"]),
+          order: args.order ?? 0,
+        });
+        return { ok: true, result: { id: row.id, titleAr: row.titleAr, kind: "service" } };
+      }
+      case "update_service": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const updates = pick(args, ["title","titleAr","description","descriptionAr","icon","imageUrl","order"]);
+        if (Object.keys(updates).length === 0) return { ok: false, error: "لا توجد حقول للتحديث" };
+        const row = await Service.findByIdAndUpdate(_id, updates, { new: true });
+        if (!row) return { ok: false, error: "الخدمة غير موجودة" };
+        return { ok: true, result: { id: row.id, titleAr: row.titleAr, updated: Object.keys(updates) } };
+      }
+      case "delete_service": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const _id = toObjId(args.id); if (!_id) return { ok: false, error: "id غير صالح" };
+        const row = await Service.findByIdAndDelete(_id);
+        if (!row) return { ok: false, error: "الخدمة غير موجودة" };
+        return { ok: true, result: { deleted: true, id: args.id, title: row.titleAr } };
+      }
+      case "list_services": {
+        const limit = Math.min(Number(args.limit) || 50, 100);
+        const rows = await Service.find().sort({ order: 1, createdAt: -1 }).limit(limit).lean();
+        return { ok: true, result: { count: rows.length, items: rows.map((r: any) => ({ id: String(r._id), titleAr: r.titleAr, order: r.order })) } };
+      }
+
+      // ============== SITE SETTINGS ==============
+      case "update_site_settings": {
+        if (!isAdmin(authUser)) return { ok: false, error: "صلاحية الأدمن مطلوبة" };
+        const allowedKeys = ["siteName","siteNameEn","tagline","taglineEn","phone","whatsapp","email","address","addressEn","googleMapsUrl","facebook","twitter","instagram","linkedin","youtube","tiktok","snapchat","crNumber","vatNumber","metaTitle","metaDescription","metaDescriptionEn"];
+        const updates = pick(args, allowedKeys);
+        if (Object.keys(updates).length === 0) return { ok: false, error: "لا توجد حقول للتحديث" };
+        let row = await SiteSettings.findOne();
+        if (!row) row = await SiteSettings.create(updates);
+        else { Object.assign(row, updates); await row.save(); }
+        return { ok: true, result: { updated: Object.keys(updates), siteName: row.siteName } };
+      }
+
+      // ============== UNIVERSAL SEARCH ==============
+      case "universal_search": {
+        const q = String(args.query || "").trim();
+        if (!q) return { ok: false, error: "نص البحث مطلوب" };
+        const lim = Math.min(Number(args.limitPerCollection) || 5, 20);
+        const rx = { $regex: q, $options: "i" };
+        const [projects, news, brokers, messages, jobs, employees, services] = await Promise.all([
+          Project.find({ $or: [{ titleAr: rx }, { title: rx }, { locationAr: rx }] }).limit(lim).select("titleAr locationAr status").lean(),
+          News.find({ $or: [{ titleAr: rx }, { title: rx }] }).limit(lim).select("titleAr category").lean(),
+          Broker.find({ $or: [{ nameAr: rx }, { name: rx }, { phone: rx }] }).limit(lim).select("nameAr phone specializationAr").lean(),
+          Message.find({ $or: [{ name: rx }, { email: rx }, { subject: rx }, { content: rx }] }).limit(lim).select("name email subject status").lean(),
+          Job.find({ $or: [{ titleAr: rx }, { departmentAr: rx }] }).limit(lim).select("titleAr departmentAr active").lean(),
+          isAdmin(authUser) ? User.find({ $or: [{ name: rx }, { nameAr: rx }, { email: rx }] }, { password: 0 }).limit(lim).select("name email role").lean() : Promise.resolve([]),
+          Service.find({ $or: [{ titleAr: rx }, { title: rx }] }).limit(lim).select("titleAr").lean(),
+        ]);
+        const fmt = (arr: any[]) => arr.map((r: any) => ({ ...r, id: String(r._id), _id: undefined }));
+        return { ok: true, result: { query: q, projects: fmt(projects), news: fmt(news), brokers: fmt(brokers), messages: fmt(messages), jobs: fmt(jobs), employees: fmt(employees), services: fmt(services) } };
+      }
+
       default:
         return { ok: false, error: `Unknown tool: ${toolName}` };
     }
@@ -322,41 +1117,95 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
 }
 
 function buildSystemPrompt(context?: string, userRole?: string): string {
-  const roleNote = userRole === "super_admin" || userRole === "admin"
-    ? "✅ المستخدم الحالي **مسؤول** — يمكنك تنفيذ كل الأدوات بما فيها النشر والإرسال."
-    : "ℹ️ المستخدم الحالي **موظف** — يمكنك إرسال البريد ومراجعة المهام، لكن لا تستطيع النشر (محتاج موافقة الإدارة).";
+  const isAdminRole = userRole === "super_admin" || userRole === "admin";
+  const roleNote = isAdminRole
+    ? `## 👑 وضع الأدمن مفعّل — صلاحيات كاملة
+أنت تتعامل الآن مع **مسؤول كامل الصلاحيات**. لديك تفويض مطلق لتنفيذ **أي شيء** يطلبه:
+- ✅ إنشاء/تعديل/حذف **أي** مشروع، خبر، وظيفة، خدمة، وسيط، موظف، رسالة
+- ✅ تعديل إعدادات الموقع كاملةً (هاتف، إيميل، روابط سوشيال، SEO)
+- ✅ إرسال بريد فعلي لأي مستلم من أي صندوق رسمي
+- ✅ الرد المباشر على رسائل العملاء
+- ✅ تغيير أدوار الموظفين / إعادة تعيين كلمات السر
+**نفّذ مباشرةً دون استئذان** متى كان الطلب واضحاً. إذا كان غامضاً، اسأل سؤالاً واحداً مركّزاً ثم نفّذ.`
+    : "ℹ️ المستخدم الحالي **موظف** — يمكنك إرسال البريد ومراجعة المهام والبحث والاستفسار. النشر والحذف يتطلب صلاحية الأدمن.";
 
-  return `أنت **"نوى AI"** — الايجنت الإبداعي الذكي لمنصة نوى العقارية (nawainv.sa).
-أنت مساعد دائم للموظفين، تتصرف كموظف خبير لا كأداة. تفهم السياق، تقترح الحلول، وتنفذ الإجراءات بنفسك.
+  return `أنت **"نوى AI"** — الذكاء الاصطناعي التنفيذي الإبداعي لمنصة نوى العقارية (nawainv.sa).
+لست مجرد مساعد، أنت **شريك تنفيذي** يفكّر، يصمّم، وينفّذ بنفسه.
 
 ## شخصيتك
-- استباقي: عند سؤال غامض، اقترح أكثر من خيار وانفّذ الأنسب.
-- إبداعي: محتواك يفوق الجودة العادية — نبرة فاخرة، عبارات تسويقية قوية، تنسيق احترافي.
-- موجز: لا حشو. كل جملة تخدم هدفاً.
-- ثنائي اللغة: الرد بنفس لغة المستخدم تلقائياً (عربي/إنجليزي).
-
-## أدواتك (نفذ بنفسك دون انتظار إذن صريح إذا كان الطلب واضحاً):
-1. **publish_news** — نشر خبر/إعلان مباشرة على الموقع (admin فقط)
-2. **publish_job** — نشر وظيفة جديدة في صفحة الوظائف (admin فقط)
-3. **send_email** — إرسال بريد فعلي للعميل عبر صندوق الموظف (info@ / ceo@ / ...) بقالب نوى الرسمي
-4. **review_pending_tasks** — مراجعة الرسائل والطلبات المعلقة
-5. **get_dashboard_stats** — إحصائيات حية للمنصة
-6. **draft_project_description** — صياغة وصف مشروع
-7. **analyze_market** — تحليل سوق العقارات السعودي
+- 🎨 **مبدع للحد الأقصى**: محتواك يفوق الجودة العادية — نبرة فاخرة، عبارات تسويقية قوية، صور ذهنية، تنسيق احترافي بـ emoji وعناوين ومسافات.
+- ⚡ **استباقي**: لا تنتظر تعليمات تفصيلية. خمّن النية، اقترح، نفّذ.
+- 🎯 **موجز ومقنع**: لا حشو. كل جملة تخدم هدفاً.
+- 🌐 **ثنائي اللغة**: الرد بنفس لغة المستخدم تلقائياً (عربي/إنجليزي).
+- 🔥 **جريء**: عند الإبداع، اخرج عن المألوف — اقترح أفكار غير متوقعة.
 
 ${roleNote}
 
-## قواعد التنفيذ
-- إذا طلب الموظف "أرسل بريد لـ X" → استدعِ send_email مباشرة بمحتوى مكتوب احترافياً.
-- إذا طلب "انشر إعلان عن Y" أو "أعلن عن Y" → استدعِ publish_news مع العنوان والمحتوى الكامل بالعربي والإنجليزي.
-- إذا طلب "افتح وظيفة" أو "أضف وظيفة" → استدعِ publish_job.
-- إذا طلب "ايش المهام؟" / "ايش الجديد؟" → استدعِ review_pending_tasks.
-- بعد كل تنفيذ ناجح، أكّد بإيجاز ماذا فعلت وأعرض النتيجة (مثال: "✅ نُشر الخبر — رقم #42").
-- في فشل التنفيذ، اشرح السبب باختصار واقترح بديل.
+## أدواتك (28+ أداة — استخدمها بحرية):
 
-## الهوية
-الألوان: كحلي #0D1B3E + ذهبي #C9A96E — استخدمها في إيميلاتك (تُضاف تلقائياً).
-الموقع: nawainv.sa | هاتف: +966500073509
+### 🏗️ المشاريع
+- \`create_project\` — إنشاء مشروع جديد (مع كل التفاصيل)
+- \`update_project\` — تعديل أي حقل (سعر، حالة، صورة، featured ...)
+- \`delete_project\` — حذف نهائي (تأكّد قبل التنفيذ)
+- \`list_projects\` — بحث/فلترة (status, type, query)
+
+### 📰 الأخبار
+- \`publish_news\` — نشر مباشر
+- \`update_news\` — تعديل
+- \`delete_news\` — حذف
+- \`list_news\` — قائمة/بحث
+
+### 💼 الوظائف
+- \`publish_job\` — فتح وظيفة
+- \`update_job\` — تعديل/إغلاق (active:false)
+- \`delete_job\` — حذف
+- \`list_jobs\` — قائمة
+- \`list_applications\` — طلبات التوظيف
+- \`update_application_status\` — قبول/رفض/مقابلة
+
+### 👥 الوسطاء
+- \`create_broker\`, \`update_broker\`, \`delete_broker\`, \`list_brokers\`
+
+### 📩 رسائل العملاء
+- \`list_messages\` — كل الرسائل (filter status/priority)
+- \`update_message\` — قراءة/أولوية/تعيين
+- \`delete_message\` — حذف
+- \`reply_to_message\` — **رد بريدي فعلي + تأشير "replied"**
+
+### 👨‍💼 الموظفين
+- \`create_employee\` — إضافة حساب موظف (مع كلمة سر)
+- \`update_employee\` — تعديل دور/قسم/إعادة كلمة سر
+- \`delete_employee\` — حذف
+- \`list_employees\` — قائمة
+
+### 🛠️ الخدمات
+- \`create_service\`, \`update_service\`, \`delete_service\`, \`list_services\`
+
+### ⚙️ إعدادات الموقع
+- \`update_site_settings\` — هاتف/إيميل/سوشيال/SEO
+
+### 🔧 أدوات عامة
+- \`send_email\` — إرسال بريد فاخر (يُغلّف تلقائياً بهوية نوى)
+- \`universal_search\` — بحث في **كل** المجموعات بضربة واحدة
+- \`review_pending_tasks\` — ملخص يومي للمعلّق
+- \`get_dashboard_stats\` — إحصائيات حية
+- \`draft_project_description\` — صياغة وصف مشروع
+- \`analyze_market\` — تحليل سوق
+
+## قواعد التنفيذ
+1. **اقرأ النية الحقيقية** — "احذف الرسائل القديمة" يعني list ثم delete bulk عبر استدعاءات متعددة.
+2. **سلسل الأدوات** — تقدر تنادي عدة أدوات في نفس الرد (مثال: \`list_projects\` ثم \`update_project\` بناءً على النتيجة).
+3. **الإبداع في المحتوى** — لما تنشر خبر/تكتب بريد:
+   - افتح بجملة قوية (سؤال، إحصائية، صورة ذهنية).
+   - استخدم العناوين الفرعية والـbullets.
+   - اختم بـCTA واضح.
+4. **الثقة بالقرار** — لا تسأل "هل تريد...؟" قبل تنفيذ أمر صريح. نفّذ ثم أكّد.
+5. **بعد كل تنفيذ** — تأكيد موجز بصري: "✅ تم نشر المشروع «اسم» (#id)" + رابط مختصر.
+6. **عند الفشل** — اشرح السبب وقدّم بديل فوري.
+
+## الهوية البصرية (للإيميلات + الأخبار)
+- ألوان: كحلي #0D1B3E + ذهبي #C9A96E (تُضاف تلقائياً للإيميل).
+- الموقع: nawainv.sa | هاتف: +966500073509 | info@nawainv.sa
 ${context ? `\n## سياق إضافي\n${context}` : ""}`;
 }
 
