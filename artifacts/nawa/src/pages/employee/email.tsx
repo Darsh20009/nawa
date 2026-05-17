@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import {
   Inbox, Send, Star, Trash2, RefreshCw, Mail, MailOpen,
   Paperclip, Reply, X, Search, PenSquare,
-  AlertCircle, Loader2, ChevronDown
+  AlertCircle, Loader2, ChevronDown, Copy, Check, Settings2, ExternalLink
 } from "lucide-react";
 
 const NAWA_EMAIL_ACCOUNTS = [
@@ -56,6 +56,28 @@ interface AccountInfo {
   assignedAccount: string | null;
   isAdmin: boolean;
   allAccounts: string[];
+}
+
+function OutlookSettingRow({
+  label, value, field, copiedField, onCopy, mono,
+}: {
+  label: string; value: string; field: string;
+  copiedField: string | null; onCopy: (v: string, f: string) => void; mono?: boolean;
+}) {
+  const copied = copiedField === field;
+  return (
+    <div className="flex items-center justify-between gap-3 px-3 py-2 bg-white hover:bg-muted/30 transition-colors">
+      <span className="text-xs text-muted-foreground shrink-0">{label}</span>
+      <span className={`text-xs font-medium flex-1 text-end truncate ${mono ? "font-mono" : ""}`} dir="ltr">{value}</span>
+      <button
+        onClick={() => onCopy(value, field)}
+        className="shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+        title="نسخ"
+      >
+        {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+      </button>
+    </div>
+  );
 }
 
 function parseEmailBody(source: string): string {
@@ -106,6 +128,8 @@ export default function EmployeeEmail() {
   const [attachments, setAttachments] = useState<Array<{ filename: string; objectPath: string; contentType: string; size: number }>>([]);
   const [uploadingFile, setUploadingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showOutlookSetup, setShowOutlookSetup] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -313,6 +337,13 @@ export default function EmployeeEmail() {
 
   const unread = messages.filter(m => !m.seen).length;
 
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 1800);
+    });
+  };
+
   useEffect(() => {
     document.title = ar ? "البريد الإلكتروني | نوى العقارية" : "Email | Nawa Real Estate";
   }, [ar]);
@@ -387,6 +418,18 @@ export default function EmployeeEmail() {
             })}
           </div>
         </ScrollArea>
+
+        {/* Outlook Setup Button */}
+        <div className="p-3 border-t border-border">
+          <button
+            onClick={() => setShowOutlookSetup(true)}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <Settings2 className="w-3.5 h-3.5 shrink-0" />
+            <span>{ar ? "إعداد Outlook" : "Outlook Setup"}</span>
+            <ExternalLink className="w-3 h-3 ms-auto opacity-60" />
+          </button>
+        </div>
       </div>
 
       {/* Messages List */}
@@ -574,6 +617,77 @@ export default function EmployeeEmail() {
           </div>
         )}
       </div>
+
+      {/* Outlook Setup Dialog */}
+      <Dialog open={showOutlookSetup} onOpenChange={setShowOutlookSetup}>
+        <DialogContent className="max-w-lg" dir={ar ? "rtl" : "ltr"}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Settings2 className="w-5 h-5 text-primary" />
+              {ar ? "إعداد البريد في Outlook" : "Add Account to Outlook"}
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* Steps */}
+          <div className="space-y-4 mt-1">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-800 leading-relaxed">
+              {ar
+                ? "افتح Outlook ← ملف ← إضافة حساب ← خيارات متقدمة ← الإعداد اليدوي، ثم أدخل البيانات أدناه."
+                : "Open Outlook → File → Add Account → Advanced Options → Manual Setup, then enter the settings below."}
+            </div>
+
+            {/* Account */}
+            {effectiveAccount && (
+              <OutlookSettingRow
+                label={ar ? "البريد الإلكتروني" : "Email Address"}
+                value={effectiveAccount}
+                field="email"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+            )}
+
+            {/* Divider */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                {ar ? "البريد الوارد — IMAP" : "Incoming Mail — IMAP"}
+              </p>
+              <div className="rounded-xl border border-border overflow-hidden divide-y divide-border">
+                <OutlookSettingRow label={ar ? "الخادم" : "Server"} value="server222.web-hosting.com" field="imap_host" copiedField={copiedField} onCopy={copyToClipboard} mono />
+                <OutlookSettingRow label={ar ? "المنفذ" : "Port"} value="993" field="imap_port" copiedField={copiedField} onCopy={copyToClipboard} mono />
+                <OutlookSettingRow label={ar ? "التشفير" : "Encryption"} value="SSL/TLS" field="imap_enc" copiedField={copiedField} onCopy={copyToClipboard} />
+                <OutlookSettingRow label={ar ? "اسم المستخدم" : "Username"} value={effectiveAccount || "your@nawainv.sa"} field="imap_user" copiedField={copiedField} onCopy={copyToClipboard} mono />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                {ar ? "البريد الصادر — SMTP" : "Outgoing Mail — SMTP"}
+              </p>
+              <div className="rounded-xl border border-border overflow-hidden divide-y divide-border">
+                <OutlookSettingRow label={ar ? "الخادم" : "Server"} value="server222.web-hosting.com" field="smtp_host" copiedField={copiedField} onCopy={copyToClipboard} mono />
+                <OutlookSettingRow label={ar ? "المنفذ" : "Port"} value="465" field="smtp_port" copiedField={copiedField} onCopy={copyToClipboard} mono />
+                <OutlookSettingRow label={ar ? "التشفير" : "Encryption"} value="SSL/TLS" field="smtp_enc" copiedField={copiedField} onCopy={copyToClipboard} />
+                <OutlookSettingRow label={ar ? "اسم المستخدم" : "Username"} value={effectiveAccount || "your@nawainv.sa"} field="smtp_user" copiedField={copiedField} onCopy={copyToClipboard} mono />
+              </div>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">
+              <p className="font-semibold mb-1">{ar ? "كلمة المرور" : "Password"}</p>
+              <p className="text-xs leading-relaxed">
+                {ar
+                  ? "استخدم كلمة المرور الخاصة بحساب البريد من لوحة cPanel الخاصة بـ nawainv.sa — هي نفس كلمة المرور لكل الحسابات."
+                  : "Use the email account password from your nawainv.sa cPanel — same password applies to all accounts."}
+              </p>
+            </div>
+
+            <Button className="w-full gap-2" onClick={() => setShowOutlookSetup(false)}>
+              <Check className="w-4 h-4" />
+              {ar ? "تم" : "Done"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Compose Dialog */}
       <Dialog open={compose} onOpenChange={setCompose}>
