@@ -5,6 +5,7 @@ import { requireAdmin } from "../middlewares/auth";
 import { sendNawaMail, wrapNawaEmailHtml, escapeHtml, escapeHtmlMultiline } from "../lib/mailer";
 import { generateAiText } from "./ai";
 import { logger } from "../lib/logger";
+import { fireNotifyAdmins } from "../lib/notify";
 
 const router: IRouter = Router();
 const isValidId = (id: string) => Types.ObjectId.isValid(id);
@@ -24,6 +25,13 @@ router.post("/messages", async (req, res): Promise<void> => {
   }
   const msg = await Message.create({ name, email, phone, subject, content });
   res.status(201).json(msg.toJSON());
+
+  // Fire admin notifications (non-blocking)
+  fireNotifyAdmins(
+    "📩 رسالة جديدة من الموقع",
+    `${String(name).slice(0, 40)} — ${String(subject).slice(0, 60)}`,
+    { type: "info", link: "/admin/messages", icon: "📩", tag: `msg-${msg.id}` },
+  ).catch(() => {});
 
   (async () => {
     try {

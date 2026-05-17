@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { cn } from "@/lib/utils";
 import { useAuthNotifications } from "@/hooks/use-notifications";
+import { NotificationBell } from "@/components/shared/notification-bell";
 const logoPath = "/logo-transparent.png";
 import {
   LayoutDashboard,
@@ -256,17 +257,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
           <div className="flex items-center gap-2">
-            {/* Notification bell */}
-            {counts.total > 0 && (
-              <div className="relative">
-                <Button variant="ghost" size="icon" className="w-8 h-8 relative">
-                  <Bell className="w-4 h-4" />
-                  <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {counts.total > 9 ? "9+" : counts.total}
-                  </span>
-                </Button>
-              </div>
-            )}
+            <NotificationBell />
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5 h-8 px-2.5 text-xs">
               <Globe className="w-3.5 h-3.5" />
               <span>{language === "ar" ? "EN" : "AR"}</span>

@@ -4,6 +4,7 @@ import { logger } from "../lib/logger";
 import nodemailer from "nodemailer";
 import { ImapFlow } from "imapflow";
 import { User } from "@workspace/db";
+import { fireNotify, fireNotifyAdmins } from "../lib/notify";
 
 const router: IRouter = Router();
 
@@ -265,6 +266,15 @@ router.post("/email/send", requireAuth, async (req, res): Promise<void> => {
 
     await transporter.sendMail(mailOptions);
     res.json({ success: true, message: "Email sent successfully", from: fromEmail });
+
+    // Fire notification to the sender (non-blocking)
+    const senderId = String(authUser.id);
+    fireNotify(senderId, "📤 تم إرسال البريد", `تم إرسال رسالتك بعنوان "${String(subject).slice(0, 60)}" بنجاح`, {
+      type: "success",
+      link: "/employee/email",
+      icon: "📤",
+      tag: `email-sent-${Date.now()}`,
+    }).catch(() => {});
   } catch (err: any) {
     logger.error({ err: err.message }, "SMTP send error");
     res.status(500).json({ error: "Failed to send email", detail: err.message });

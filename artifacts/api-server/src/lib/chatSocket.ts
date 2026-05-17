@@ -3,6 +3,7 @@ import type { Server as HttpServer, IncomingMessage } from "http";
 import { Conversation, Types } from "@workspace/db";
 import { verifyToken } from "./auth";
 import { logger } from "./logger";
+import { registerWsSender } from "./notify";
 
 interface ChatClient {
   ws: WebSocket;
@@ -12,6 +13,20 @@ interface ChatClient {
 }
 
 const clients = new Set<ChatClient>();
+
+/** Push a notification payload to a specific user via WebSocket */
+function pushToUser(userId: string, payload: object): void {
+  const message = JSON.stringify(payload);
+  for (const c of clients) {
+    if (c.ws.readyState !== WebSocket.OPEN) continue;
+    if (c.userId === userId) {
+      try { c.ws.send(message); } catch { /* ignore */ }
+    }
+  }
+}
+
+// Register with notify lib so fireNotify() can use WS
+registerWsSender(pushToUser);
 
 export type WsBroadcastPayload =
   | { type: "message"; conversationId: string; message: any }

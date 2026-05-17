@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { cn } from "@/lib/utils";
 import { useAuthNotifications } from "@/hooks/use-notifications";
+import { NotificationBell } from "@/components/shared/notification-bell";
 const logoPath = "/logo-transparent.png";
 import {
   LayoutDashboard,
@@ -115,7 +116,7 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { language, toggleLanguage } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { counts, soundOn, toggleSound } = useAuthNotifications();
+  const { counts, soundOn, toggleSound, unreadCount } = useAuthNotifications();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -130,6 +131,7 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
     { href: "/employee/email", label: language === "ar" ? "البريد الإلكتروني" : "Email", icon: Mail, badge: counts.emails },
     { href: "/employee/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare, badge: counts.chat },
     { href: "/employee/inbox", label: language === "ar" ? "صندوق الرسائل" : "Messages", icon: Inbox, badge: counts.messages },
+    { href: "/employee/notifications", label: language === "ar" ? "الإشعارات" : "Notifications", icon: Bell, badge: unreadCount > 0 ? unreadCount : undefined },
     { href: "/employee/ai", label: language === "ar" ? "مساعد نوى الذكي" : "AI Assistant", icon: Bot },
   ];
 
@@ -187,16 +189,7 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
           <div className="flex items-center gap-2">
-            {counts.total > 0 && (
-              <div className="relative">
-                <Button variant="ghost" size="icon" className="w-8 h-8 relative">
-                  <Bell className="w-4 h-4" />
-                  <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {counts.total > 9 ? "9+" : counts.total}
-                  </span>
-                </Button>
-              </div>
-            )}
+            <NotificationBell />
             <Button variant="outline" size="sm" onClick={toggleLanguage} className="gap-1.5 h-8 px-2.5 text-xs">
               <Globe className="w-3.5 h-3.5" />
               <span>{language === "ar" ? "EN" : "AR"}</span>

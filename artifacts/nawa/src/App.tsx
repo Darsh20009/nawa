@@ -73,6 +73,7 @@ const EmployeeInbox = lazy(() => import("@/pages/employee/inbox"));
 const EmployeeAiPage = lazy(() => import("@/pages/employee/ai"));
 const EmployeeChatPage = lazy(() => import("@/pages/employee/chat"));
 const EmployeeEmailPage = lazy(() => import("@/pages/employee/email"));
+const EmployeeNotificationsPage = lazy(() => import("@/pages/employee/notifications"));
 
 function PageFallback() {
   return (
@@ -160,6 +161,7 @@ function AnimatedRouter() {
             <Route path="/employee/inbox" component={EmployeeInbox} />
             <Route path="/employee/ai" component={EmployeeAiPage} />
             <Route path="/employee/email" component={EmployeeEmailPage} />
+            <Route path="/employee/notifications" component={EmployeeNotificationsPage} />
             <Route component={NotFound} />
           </Switch>
         </Suspense>
