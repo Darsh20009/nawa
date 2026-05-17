@@ -19,6 +19,7 @@ import emailAccountsRouter from "./email-accounts";
 import settingsRouter from "./settings";
 import storageRouter from "./storage";
 import notificationsRouter from "./notifications";
+import webauthnRouter from "./webauthn";
 
 const router: IRouter = Router();
 
@@ -42,5 +43,6 @@ router.use(emailAccountsRouter);
 router.use(settingsRouter);
 router.use(storageRouter);
 router.use(notificationsRouter);
+router.use(webauthnRouter);
 
 export default router;
