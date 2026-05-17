@@ -32,9 +32,13 @@ function getTransporter(fromEmail: string) {
   return nodemailer.createTransport({
     host: SMTP_HOST,
     port: SMTP_PORT,
-    secure: true,
+    secure: SMTP_PORT === 465,
+    authMethod: "LOGIN",
     auth: { user: fromEmail, pass: EMAIL_PASSWORD },
     tls: { rejectUnauthorized: false },
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 30000,
   });
 }
 
@@ -46,6 +50,8 @@ function getImapClient(email: string) {
     auth: { user: email, pass: EMAIL_PASSWORD },
     tls: { rejectUnauthorized: false },
     logger: false,
+    disableAutoIdle: true,
+    connectionTimeout: 20000,
   });
 }
 

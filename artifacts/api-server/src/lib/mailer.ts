@@ -26,10 +26,12 @@ export function getTransporter(fromEmail: string): Transporter {
     host: SMTP_HOST,
     port: SMTP_PORT,
     secure: true,
+    authMethod: "LOGIN",
     auth: { user: fromEmail, pass: EMAIL_PASSWORD },
     tls: { rejectUnauthorized: false },
-    pool: true,
-    maxConnections: 3,
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 30000,
   });
   transporters.set(fromEmail, t);
   return t;
