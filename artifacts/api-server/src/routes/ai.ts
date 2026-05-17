@@ -670,6 +670,23 @@ const AGENT_TOOLS = [
       },
     },
   },
+
+  // ============== IMAGE GENERATION ==============
+  {
+    type: "function",
+    function: {
+      name: "generate_image",
+      description: "Generate a professional AI image from a text prompt. Use for: real estate marketing visuals, project mockups, architectural renderings, social media content, brand graphics, infographics. Always write the prompt in English for best quality.",
+      parameters: {
+        type: "object",
+        properties: {
+          prompt: { type: "string", description: "Detailed English description of the image. Include: subject, style (photorealistic/illustration/3D render/architectural visualization), colors, lighting, mood, composition. Be specific and vivid." },
+          n: { type: "number", description: "Number of images to generate (1–4). Default: 1." },
+        },
+        required: ["prompt"],
+      },
+    },
+  },
 ];
 
 // =====================================================================
@@ -771,6 +788,33 @@ async function executeTool(toolName: string, args: any, authUser: any): Promise<
       case "analyze_market":
         // Pure-content tools — return args back; the model writes the body in the follow-up turn
         return { ok: true, result: { draft: true, args } };
+
+      case "generate_image": {
+        const prompt = String(args.prompt || "").trim();
+        if (!prompt) return { ok: false, error: "Prompt is required for image generation" };
+        const n = Math.min(Math.max(1, Number(args.n) || 1), 4);
+        try {
+          const r = await fetch(`${KIMI_BASE_URL}/images/generations`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${KIMI_API_KEY}` },
+            body: JSON.stringify({ model: "kimi-generate-images-v2", prompt, n }),
+          });
+          if (!r.ok) {
+            const errText = await r.text();
+            logger.warn({ status: r.status, err: errText.slice(0, 300) }, "Image generation API error");
+            return { ok: false, error: "Image generation failed — try a different prompt" };
+          }
+          const data = await r.json() as any;
+          const images: string[] = (data.data || [])
+            .map((img: any) => img.url || (img.b64_json ? `data:image/png;base64,${img.b64_json}` : null))
+            .filter(Boolean);
+          if (!images.length) return { ok: false, error: "No images produced" };
+          return { ok: true, result: { images, count: images.length, prompt } };
+        } catch (err: any) {
+          logger.error({ err }, "generate_image failed");
+          return { ok: false, error: "Image generation error" };
+        }
+      }
 
       // ============== PROJECTS ==============
       case "create_project": {
@@ -1141,7 +1185,11 @@ function buildSystemPrompt(context?: string, userRole?: string): string {
 
 ${roleNote}
 
-## أدواتك (28+ أداة — استخدمها بحرية):
+## قدراتك المتقدمة
+- 🖼️ **توليد الصور**: استخدم \`generate_image\` لإنشاء صور احترافية — ماركتنج، تصور معماري، صور مشاريع، محتوى سوشيال.
+- 📎 **تحليل الملفات**: عندما يرسل المستخدم ملفاً (صورة/PDF/وثيقة)، حلّله بدقة واستخرج المعلومات المفيدة.
+
+## أدواتك (30+ أداة — استخدمها بحرية):
 
 ### 🏗️ المشاريع
 - \`create_project\` — إنشاء مشروع جديد (مع كل التفاصيل)
@@ -1191,6 +1239,7 @@ ${roleNote}
 - \`get_dashboard_stats\` — إحصائيات حية
 - \`draft_project_description\` — صياغة وصف مشروع
 - \`analyze_market\` — تحليل سوق
+- \`generate_image\` — **توليد صور AI** احترافية (ماركتنج / معماري / سوشيال)
 
 ## قواعد التنفيذ
 1. **اقرأ النية الحقيقية** — "احذف الرسائل القديمة" يعني list ثم delete bulk عبر استدعاءات متعددة.
@@ -1213,7 +1262,7 @@ ${context ? `\n## سياق إضافي\n${context}` : ""}`;
 // Main chat endpoint with tool execution loop
 // =====================================================================
 router.post("/ai/chat", requireAuth, async (req, res): Promise<void> => {
-  const { message, context, history, useTools = true } = req.body;
+  const { message, context, history, useTools = true, attachments } = req.body;
   const authUser = (req as any).user;
 
   if (!message) { res.status(400).json({ error: "Message is required" }); return; }
@@ -1229,7 +1278,26 @@ router.post("/ai/chat", requireAuth, async (req, res): Promise<void> => {
       }
     }
   }
-  messages.push({ role: "user", content: message });
+
+  // Build multimodal user message when attachments present
+  const hasImages = Array.isArray(attachments) && attachments.some((a: any) => a.mimeType?.startsWith("image/"));
+
+  if (Array.isArray(attachments) && attachments.length > 0) {
+    const parts: any[] = [{ type: "text", text: message }];
+    for (const att of attachments as Array<{ name: string; mimeType: string; base64?: string; text?: string }>) {
+      if (att.mimeType?.startsWith("image/") && att.base64) {
+        parts.push({ type: "image_url", image_url: { url: `data:${att.mimeType};base64,${att.base64}` } });
+      } else if (att.text) {
+        parts.push({ type: "text", text: `\n\n📎 [ملف: ${att.name}]\n${att.text.slice(0, 12000)}` });
+      }
+    }
+    messages.push({ role: "user", content: parts });
+  } else {
+    messages.push({ role: "user", content: message });
+  }
+
+  // Use vision model when images attached
+  const VISION_MODEL = "moonshot-v1-32k";
 
   const executedTools: { toolName: string; args: any; ok: boolean; result?: any; error?: string }[] = [];
 
@@ -1237,12 +1305,13 @@ router.post("/ai/chat", requireAuth, async (req, res): Promise<void> => {
     // Up to 3 tool-call iterations
     for (let iter = 0; iter < 3; iter++) {
       const body: any = {
-        model: KIMI_MODEL,
+        model: hasImages ? VISION_MODEL : KIMI_MODEL,
         messages,
         max_tokens: 4096,
         temperature: 1,
       };
-      if (useTools) { body.tools = AGENT_TOOLS; body.tool_choice = "auto"; }
+      // Tools not supported on vision model — disable when images present
+      if (useTools && !hasImages) { body.tools = AGENT_TOOLS; body.tool_choice = "auto"; }
 
       const r = await fetch(`${KIMI_BASE_URL}/chat/completions`, {
         method: "POST",
@@ -1658,6 +1727,92 @@ router.patch("/ai/learnings/:id", requireAuth, requireAdmin, async (req, res): P
 router.delete("/ai/learnings/:id", requireAuth, requireAdmin, async (req, res): Promise<void> => {
   await AiLearning.findByIdAndDelete(req.params.id);
   res.json({ ok: true });
+});
+
+// =====================================================================
+// Standalone image generation endpoint
+// =====================================================================
+router.post("/ai/generate-image", requireAuth, async (req, res): Promise<void> => {
+  if (!KIMI_API_KEY) { res.status(503).json({ error: "AI service unavailable" }); return; }
+  const { prompt, n = 1 } = req.body as { prompt?: string; n?: number };
+  if (!prompt || typeof prompt !== "string") { res.status(400).json({ error: "prompt required" }); return; }
+  const count = Math.min(Math.max(1, Number(n) || 1), 4);
+  try {
+    const r = await fetch(`${KIMI_BASE_URL}/images/generations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${KIMI_API_KEY}` },
+      body: JSON.stringify({ model: "kimi-generate-images-v2", prompt: prompt.slice(0, 2000), n: count }),
+    });
+    if (!r.ok) {
+      const err = await r.text();
+      logger.warn({ status: r.status, err: err.slice(0, 300) }, "Image gen failed");
+      res.status(502).json({ error: "Image generation failed" }); return;
+    }
+    const data = await r.json() as any;
+    const images: string[] = (data.data || [])
+      .map((img: any) => img.url || (img.b64_json ? `data:image/png;base64,${img.b64_json}` : null))
+      .filter(Boolean);
+    res.json({ images, count: images.length });
+  } catch (err) {
+    logger.error({ err }, "generate-image standalone failed");
+    res.status(500).json({ error: "Image generation error" });
+  }
+});
+
+// =====================================================================
+// File processing endpoint — extract text from uploaded files via Moonshot
+// =====================================================================
+router.post("/ai/process-file", requireAuth, async (req, res): Promise<void> => {
+  if (!KIMI_API_KEY) { res.status(503).json({ error: "AI service unavailable" }); return; }
+  const { base64, mimeType, name } = req.body as { base64?: string; mimeType?: string; name?: string };
+  if (!base64 || !mimeType) { res.status(400).json({ error: "base64 and mimeType required" }); return; }
+
+  // Images → return as-is for vision (handled in /ai/chat)
+  if (mimeType.startsWith("image/")) {
+    res.json({ type: "image", name: name || "image" });
+    return;
+  }
+
+  // For text files — no processing needed
+  if (mimeType === "text/plain" || mimeType === "text/csv" || mimeType === "application/json") {
+    res.json({ type: "text", name: name || "file" });
+    return;
+  }
+
+  // PDFs / docs → upload to Moonshot file API for extraction
+  try {
+    const binary = Buffer.from(base64, "base64");
+    const formData = new FormData();
+    const blob = new Blob([binary], { type: mimeType });
+    formData.append("file", blob, name || "document.pdf");
+    formData.append("purpose", "file-extract");
+
+    const uploadRes = await fetch(`${KIMI_BASE_URL}/files`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${KIMI_API_KEY}` },
+      body: formData as any,
+    });
+
+    if (!uploadRes.ok) {
+      res.json({ type: "text", name, error: "Could not extract file content" }); return;
+    }
+    const uploadData = await uploadRes.json() as any;
+    const fileId = uploadData.id;
+
+    // Poll for extraction (usually instant)
+    await new Promise(r => setTimeout(r, 1000));
+    const contentRes = await fetch(`${KIMI_BASE_URL}/files/${fileId}/content`, {
+      headers: { Authorization: `Bearer ${KIMI_API_KEY}` },
+    });
+    if (!contentRes.ok) {
+      res.json({ type: "text", name, fileId }); return;
+    }
+    const extractedText = await contentRes.text();
+    res.json({ type: "text", name, text: extractedText.slice(0, 15000), fileId });
+  } catch (err) {
+    logger.error({ err }, "process-file failed");
+    res.json({ type: "text", name, error: "File processing error" });
+  }
 });
 
 // Helper for other routes to ask Kimi for content (used by message auto-reply etc.)
