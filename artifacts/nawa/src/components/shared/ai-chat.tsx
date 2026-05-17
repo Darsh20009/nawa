@@ -393,8 +393,8 @@ export function AiChat() {
         {/* Typing indicator */}
         {aiChatMutation.isPending && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-              <Bot className="w-4 h-4 text-primary" />
+            <div className="w-8 h-8 rounded-full bg-white border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
+              <img src="/logo-transparent.png" alt="نوى" className="w-6 h-6 object-contain" />
             </div>
             <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-muted/60 border border-border/50 flex gap-1.5 items-center">
               <span className="text-xs text-muted-foreground">{isAr ? "يفكر..." : "Thinking..."}</span>
