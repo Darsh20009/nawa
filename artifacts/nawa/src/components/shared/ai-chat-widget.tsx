@@ -92,7 +92,7 @@ export function AIChatWidget() {
               <MessageCircle className="w-5 h-5" />
               <Sparkles className="w-3 h-3 absolute -top-1 -end-1 text-yellow-300 animate-pulse" />
             </div>
-            <span className="text-sm font-semibold whitespace-nowrap pe-1">{ar ? "نوى الذكي" : "Nawa AI"}</span>
+            <span className="text-sm font-semibold whitespace-nowrap pe-1">{ar ? "نوى مي" : "Nawa Me"}</span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -117,7 +117,7 @@ export function AIChatWidget() {
                   <div className="font-semibold leading-tight">{ar ? "نوى" : "Nawa"}</div>
                   <div className="text-[11px] opacity-90 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-                    {ar ? "متصل • مساعد ذكي" : "Online • AI Assistant"}
+                    {ar ? "متصل • نوى مي" : "Online • Nawa Me"}
                   </div>
                 </div>
               </div>

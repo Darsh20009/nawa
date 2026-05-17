@@ -187,7 +187,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         { href: "/admin/email", label: language === "ar" ? "البريد الإلكتروني" : "Email", icon: Mail, badge: counts.emails },
         { href: "/admin/email-accounts", label: language === "ar" ? "حسابات البريد" : "Email Accounts", icon: ChevronRight },
         { href: "/admin/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare, badge: counts.chat },
-        { href: "/admin/ai", label: language === "ar" ? "مساعد نوى الذكي" : "AI Assistant", icon: Bot },
+        { href: "/admin/ai", label: language === "ar" ? "نوى مي" : "Nawa Me", icon: Bot },
         { href: "/admin/ai-conversations", label: language === "ar" ? "محادثات الذكاء" : "AI Conversations", icon: Sparkles },
       ],
     },

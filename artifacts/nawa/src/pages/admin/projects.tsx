@@ -210,7 +210,7 @@ export default function AdminProjects() {
               <div className="flex flex-wrap gap-2 items-center bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20 rounded-lg p-3">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span className="text-xs font-medium text-foreground/80 me-auto">
-                  {language === "ar" ? "مساعد نوى الذكي — توليد تلقائي للأوصاف من العنوان" : "Nawa AI — auto-generate descriptions from title"}
+                  {language === "ar" ? "نوى مي — توليد تلقائي للأوصاف من العنوان" : "Nawa Me — auto-generate descriptions from title"}
                 </span>
                 <Button
                   type="button"

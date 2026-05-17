@@ -169,7 +169,7 @@ export default function AdminNews() {
               <div className="flex flex-wrap gap-2 items-center bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20 rounded-lg p-3">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span className="text-xs font-medium text-foreground/80 me-auto">
-                  {language === "ar" ? "مساعد نوى الذكي — توليد مقال كامل من العنوان" : "Nawa AI — generate full article from title"}
+                  {language === "ar" ? "نوى مي — توليد مقال كامل من العنوان" : "Nawa Me — generate full article from title"}
                 </span>
                 <Button
                   type="button"

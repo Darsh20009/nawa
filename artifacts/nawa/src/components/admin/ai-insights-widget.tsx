@@ -74,7 +74,7 @@ export function AIInsightsWidget({ stats }: Props) {
               <Lightbulb className="w-5 h-5 text-secondary" />
             </div>
             <div>
-              <h3 className="font-bold font-serif text-base">{ar ? "رؤى نوى الذكية" : "Nawa AI Insights"}</h3>
+              <h3 className="font-bold font-serif text-base">{ar ? "رؤى نوى مي" : "Nawa Me Insights"}</h3>
               <p className="text-white/60 text-xs">{ar ? "تحليل لحظي لأداء أعمالك" : "Live business intelligence"}</p>
             </div>
           </div>

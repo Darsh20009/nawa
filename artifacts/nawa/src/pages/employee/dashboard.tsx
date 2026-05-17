@@ -80,7 +80,7 @@ export default function EmployeeDashboard() {
               <Bot className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-bold mb-1 text-foreground">
-              {language === "ar" ? "مساعد نوى الذكي" : "Nawa AI Assistant"}
+              {language === "ar" ? "نوى مي" : "Nawa Me"}
             </h3>
             <p className="text-sm text-muted-foreground">
               {language === "ar" ? "مساعدة ذكية للمهام" : "Smart assistance for tasks"}

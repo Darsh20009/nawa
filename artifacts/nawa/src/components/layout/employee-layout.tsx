@@ -132,7 +132,7 @@ export function EmployeeLayout({ children }: { children: React.ReactNode }) {
     { href: "/employee/chat", label: language === "ar" ? "المحادثات الداخلية" : "Internal Chat", icon: MessageSquare, badge: counts.chat },
     { href: "/employee/inbox", label: language === "ar" ? "صندوق الرسائل" : "Messages", icon: Inbox, badge: counts.messages },
     { href: "/employee/notifications", label: language === "ar" ? "الإشعارات" : "Notifications", icon: Bell, badge: unreadCount > 0 ? unreadCount : undefined },
-    { href: "/employee/ai", label: language === "ar" ? "مساعد نوى الذكي" : "AI Assistant", icon: Bot },
+    { href: "/employee/ai", label: language === "ar" ? "نوى مي" : "Nawa Me", icon: Bot },
   ];
 
   return (

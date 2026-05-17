@@ -283,7 +283,7 @@ export function Navbar() {
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-secondary/20 to-secondary/10 hover:from-secondary/30 hover:to-secondary/20 border border-secondary/30 text-white transition-all"
             >
               <svg className="w-4 h-4 text-secondary" viewBox="0 0 24 24" fill="currentColor"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
-              <span className="text-sm font-bold">{language === "ar" ? "اسأل نوى الذكي ✨" : "Ask Nawa AI ✨"}</span>
+              <span className="text-sm font-bold">{language === "ar" ? "اسأل نوى مي ✨" : "Ask Nawa Me ✨"}</span>
             </button>
 
             {isAuthenticated ? (

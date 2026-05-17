@@ -48,7 +48,7 @@ const quickActions = (language: string, isRtl: boolean) => [
   { href: "/admin/employees", label: language === "ar" ? "موظف جديد" : "New Employee", icon: Users, color: "bg-purple-500" },
   { href: "/admin/news", label: language === "ar" ? "خبر جديد" : "New Article", icon: MessageSquare, color: "bg-green-500" },
   { href: "/admin/email", label: language === "ar" ? "البريد الإلكتروني" : "Email Inbox", icon: Mail, color: "bg-orange-500" },
-  { href: "/admin/ai", label: language === "ar" ? "مساعد الذكاء" : "AI Assistant", icon: Bot, color: "bg-pink-500" },
+  { href: "/admin/ai", label: language === "ar" ? "نوى مي" : "Nawa Me", icon: Bot, color: "bg-pink-500" },
   { href: "/admin/messages", label: language === "ar" ? "رسائل العملاء" : "Client Messages", icon: Inbox, color: "bg-yellow-500" },
 ];
 

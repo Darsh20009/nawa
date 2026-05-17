@@ -63,7 +63,7 @@ export const translations = {
     employeePortal: "بوابة الموظفين",
     chat: "المحادثات الداخلية",
     inbox: "صندوق الوارد",
-    aiAssistant: "مساعد نوى الذكي",
+    aiAssistant: "نوى مي",
   },
   en: {
     // Navigation
@@ -129,6 +129,6 @@ export const translations = {
     employeePortal: "Employee Portal",
     chat: "Internal Chat",
     inbox: "Inbox",
-    aiAssistant: "Nawa AI Assistant",
+    aiAssistant: "Nawa Me",
   }
 };

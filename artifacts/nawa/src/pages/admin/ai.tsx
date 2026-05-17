@@ -6,7 +6,7 @@ export default function AdminAiPage() {
   const { language } = useLanguage();
   
   useEffect(() => {
-    document.title = language === "ar" ? "مساعد الذكاء الاصطناعي | نوى العقارية" : "AI Assistant | Nawa Real Estate Platform";
+    document.title = language === "ar" ? "نوى مي | نوى العقارية" : "Nawa Me | Nawa Real Estate Platform";
   }, [language]);
 
   return <AiChat />;
